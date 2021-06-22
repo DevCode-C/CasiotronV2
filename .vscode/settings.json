@@ -11,6 +11,8 @@
         "stm32f0xx_hal_exti.h": "c",
         "stm32f0xx_hal.h": "c",
         "stm32f0xx_hal_gpio_ex.h": "c",
-        "stm32f0xx_hal_uart.h": "c"
+        "stm32f0xx_hal_uart.h": "c",
+        "stm32f0xx_hal_rtc.h": "c",
+        "stm32f0xx_hal_pwr.h": "c"
     }
 }
