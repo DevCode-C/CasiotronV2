@@ -6,6 +6,7 @@
 #include "stm32f070xb.h"
 #include "stm32f0xx_hal_conf.h"
 #include "string.h"
+#include "ctype.h"
 #include "stm32f0xx_hal.h"
 
 /**------------------------------------------------------------------------------------------------
@@ -14,15 +15,13 @@ Brief.- Punto de entrada del programa
 
 const char* msgOK    = {"OK\r\n"};
 const char* msgError = {"ERROR\r\n"};
-
 const char *comando_AT[] = {"AT+TIME" , "AT+DATE" , "AT+ALARM"};
 
 UART_HandleTypeDef      UartHandle              = {0};
 RTC_HandleTypeDef       RTC_InitStructure       = {0};
-
-RTC_TimeTypeDef RTC_TImeConfig          = {0};
-RTC_DateTypeDef RTC_DateConfig          = {0};
-RTC_AlarmTypeDef RTC_AlarmConfig        = {0};
+RTC_TimeTypeDef         RTC_TImeConfig          = {0};
+RTC_DateTypeDef         RTC_DateConfig          = {0};
+RTC_AlarmTypeDef        RTC_AlarmConfig         = {0};
 
 __IO ITStatus uartState     = RESET;
 __IO ITStatus status        = RESET;
@@ -40,6 +39,8 @@ void showClock(void);
 void showAlarm(void);
 void rtcTask(void);
 void serialTask(void);
+
+int32_t validate_StrToInt(char * buffer);
 
 HAL_StatusTypeDef setTime(uint8_t hour, uint8_t minutes, uint16_t seconds);
 HAL_StatusTypeDef setDate(uint8_t day, uint8_t month, uint16_t year);
@@ -146,33 +147,56 @@ void serialTask(void)
             {
             case 0:
                 parametro = strtok(NULL, "," );
-                hour_day = atoi(parametro);
+                hour_day = validate_StrToInt(parametro);
 
                 parametro = strtok(NULL, "," );
-                min_month = atoi(parametro);
+                min_month = validate_StrToInt(parametro);
 
                 parametro = strtok(NULL, "," );
-                sec_year  = atoi(parametro);
-                msgOutput = setTime(hour_day, min_month, sec_year);
+                sec_year  = validate_StrToInt(parametro);
+
+                if (strtok(NULL, ", .") != NULL)
+                {
+                    msgOutput = HAL_ERROR;
+                }
+                else
+                {
+                    msgOutput = setTime(hour_day, min_month, sec_year);
+                }
+
                 break;
             case 1:
                 parametro = strtok(NULL, "," );
-                hour_day = atoi(parametro);
+                hour_day = validate_StrToInt(parametro);
 
                 parametro = strtok(NULL, "," );
-                min_month = atoi(parametro);
+                min_month = validate_StrToInt(parametro);
 
                 parametro = strtok(NULL, "," );
-                sec_year  = atoi(parametro);
-                msgOutput = setDate(hour_day, min_month, sec_year);
+                sec_year  = validate_StrToInt(parametro);
+                if (strtok(NULL, ", .") != NULL)
+                {
+                    msgOutput = HAL_ERROR;
+                }
+                else
+                {
+                    msgOutput = setDate(hour_day, min_month, sec_year);
+                }
                 break;
             case 2:
                 parametro = strtok(NULL, "," );
-                hour_day = atoi(parametro);
+                hour_day = validate_StrToInt(parametro);
 
                 parametro = strtok(NULL, "," );
-                min_month = atoi(parametro);
-                msgOutput = setAlarm(hour_day, min_month);
+                min_month = validate_StrToInt(parametro);
+                if (strtok(NULL, ", .") != NULL)
+                {
+                    msgOutput = HAL_ERROR;
+                }
+                else
+                {
+                    msgOutput = setAlarm(hour_day, min_month);
+                }
                 break;
             case -1:
                 msgOutput = HAL_ERROR;
@@ -193,6 +217,25 @@ void serialTask(void)
     }
 }
 
+int32_t validate_StrToInt(char * buffer)
+{
+    int32_t temp = -1;
+    uint8_t sizeStr = 0;
+
+    if (buffer != NULL)
+    {
+        while (isdigit((int8_t)buffer[sizeStr]))
+        {
+            sizeStr++;
+        }
+
+        if (sizeStr == strlen(buffer))
+        {
+            temp = atoi(buffer);
+        }
+    }
+    return temp;
+}
 
 HAL_StatusTypeDef setTime(uint8_t hour, uint8_t minutes, uint16_t seconds)
 {
