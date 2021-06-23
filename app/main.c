@@ -23,7 +23,8 @@ RTC_TimeTypeDef         RTC_TImeConfig          = {0};
 RTC_DateTypeDef         RTC_DateConfig          = {0};
 RTC_AlarmTypeDef        RTC_AlarmConfig         = {0};
 
-__IO ITStatus uartState     = RESET;
+__IO ITStatus uartState     = SET;
+__IO ITStatus uartError     = RESET;
 __IO ITStatus status        = RESET;
 __IO ITStatus AlarmRTC      = RESET;
 
@@ -126,25 +127,25 @@ void serialTask(void)
     uint16_t sec_year   = 0;
 
     if (status == SET)
+    {
+        status = RESET;
+        memcpy((char*)BufferTemp,(const char*)RxBuffer,strlen((const char*)RxBuffer));
+
+        InpuyComand = strtok((char*)RxBuffer, "=" );
+
+        for (uint8_t i = 0; i < 3; i++)
         {
-            status = RESET;
-            memcpy((char*)BufferTemp,(const char*)RxBuffer,strlen((const char*)RxBuffer));
-
-            InpuyComand = strtok((char*)RxBuffer, "=" );
-
-            for (uint8_t i = 0; i < 3; i++)
+            if (strcmp(InpuyComand, comando_AT[i]) == 0)
             {
-                if (strcmp(InpuyComand, comando_AT[i]) == 0)
-                {
-                    // HAL_UART_Transmit_IT(&UartHandle,(uint8_t*)comando_AT[i],strlen(comando_AT[i]));
-                    msgOutput = HAL_OK;
-                    sel = i;
-                    break;   
-                }
+                // HAL_UART_Transmit_IT(&UartHandle,(uint8_t*)comando_AT[i],strlen(comando_AT[i]));
+                msgOutput = HAL_OK;
+                sel = i;
+                break;   
             }
-            
-            switch (sel)
-            {
+        }
+        
+        switch (sel)
+        {
             case 0:
                 parametro = strtok(NULL, "," );
                 hour_day = validate_StrToInt(parametro);
@@ -201,19 +202,23 @@ void serialTask(void)
             case -1:
                 msgOutput = HAL_ERROR;
                 break;
-            }
+        }
 
-            if (msgOutput == HAL_ERROR)
-            {
-                HAL_UART_Transmit_IT(&UartHandle,(uint8_t*)msgError,strlen(msgError));
-            }
-            else
-            {
-                HAL_UART_Transmit_IT(&UartHandle,(uint8_t*)msgOK,strlen(msgOK));
-            }
-            
-            
-                   
+        if (msgOutput == HAL_ERROR)
+        {
+            HAL_UART_Transmit_IT(&UartHandle,(uint8_t*)msgError,strlen(msgError));
+        }
+        else
+        {
+            HAL_UART_Transmit_IT(&UartHandle,(uint8_t*)msgOK,strlen(msgOK));
+        }
+    }
+    if(uartError == SET)
+    {
+        uartError = RESET;
+        
+        printf("Error UART\n");
+        HAL_UART_Transmit_IT(&UartHandle,(uint8_t*)"Error UART\n",strlen("Error UART\n"));
     }
 }
 
@@ -383,4 +388,11 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 void HAL_RTC_AlarmAEventCallback(RTC_HandleTypeDef *hrtc)
 {
     AlarmRTC = SET;
+}
+
+void HAL_UART_ErrorCallback(UART_HandleTypeDef *huart)
+{
+    memset(RxBuffer,0,sizeof(RxBuffer));
+    uartError = SET;
+    status = RESET;
 }
