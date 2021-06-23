@@ -31,7 +31,6 @@ void HAL_MspInit( void )
 
     GPIO_InitTypeDef GPIO_InitStructure;
     __HAL_RCC_GPIOA_CLK_ENABLE();
-    __HAL_RCC_SYSCFG_CLK_ENABLE();
 
     GPIO_InitStructure.Pin = GPIO_PIN_5;
     GPIO_InitStructure.Mode = GPIO_MODE_OUTPUT_PP;
@@ -65,10 +64,18 @@ void HAL_UART_MspInit(UART_HandleTypeDef *huart)
 
 void HAL_RTC_MspInit(RTC_HandleTypeDef *hrtc)
 {
+    __HAL_RCC_SYSCFG_CLK_ENABLE();
     HAL_PWR_EnableBkUpAccess();
-    __HAL_RCC_LSE_CONFIG(RCC_LSE_ON);
-    __HAL_RCC_RTC_CONFIG(RCC_RTCCLKSOURCE_LSE);
 
+    RCC_OscInitTypeDef RCC_LSEConfig;
+    RCC_LSEConfig.OscillatorType = RCC_OSCILLATORTYPE_LSE;
+    RCC_LSEConfig.LSEState = RCC_LSE_ON;
+    RCC_LSEConfig.PLL.PLLSource = RCC_PLL_NONE;
+    HAL_RCC_OscConfig(&RCC_LSEConfig);
+
+    __HAL_RCC_RTC_CONFIG(RCC_RTCCLKSOURCE_LSE);
+    __HAL_RCC_RTC_ENABLE();
+    
     __HAL_RTC_ALARMA_ENABLE(hrtc);
     HAL_NVIC_SetPriority(RTC_IRQn,2,0);
     HAL_NVIC_EnableIRQ(RTC_IRQn);

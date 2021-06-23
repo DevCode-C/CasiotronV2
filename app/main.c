@@ -19,11 +19,8 @@ const uint8_t* comando[3] = {(const uint8_t*)"AT+TIME",
                              (const uint8_t*)"AT+DATE",
                              (const uint8_t*)"AT+ALARM"};
 
-UART_HandleTypeDef  UartHandle              = {0};
-RTC_HandleTypeDef   RTC_InitStructure       = {0};
-RTC_TimeTypeDef 	RTC_TImeConfig          = {0};
-RTC_DateTypeDef 	RTC_DateConfig          = {0};
-RTC_AlarmTypeDef 	RTC_AlarmConfig         = {0};
+UART_HandleTypeDef      UartHandle              = {0};
+RTC_HandleTypeDef       RTC_InitStructure       = {0};
 
 __IO ITStatus uartState     = RESET;
 __IO ITStatus status        = RESET;
@@ -89,19 +86,22 @@ void UART_Init()
 
 void RTC_Init(void)
 {
+    RTC_TimeTypeDef RTC_TImeConfig          = {0};
+    RTC_DateTypeDef RTC_DateConfig          = {0};
+    RTC_AlarmTypeDef RTC_AlarmConfig        = {0};
     __HAL_RCC_RTC_ENABLE();
     RTC_InitStructure.Instance              = RTC;
     RTC_InitStructure.Init.HourFormat       = RTC_HOURFORMAT_24;
     RTC_InitStructure.Init.AsynchPrediv     = 127;
     RTC_InitStructure.Init.SynchPrediv      = 255;
     RTC_InitStructure.Init.OutPut           = RTC_OUTPUT_DISABLE;
-    RTC_InitStructure.Init.OutPutPolarity   = RTC_OUTPUT_POLARITY_HIGH;
-    RTC_InitStructure.Init.OutPutType       = RTC_OUTPUT_TYPE_OPENDRAIN;
     HAL_RTC_Init(&RTC_InitStructure);
 
     RTC_TImeConfig.Hours = 05;
     RTC_TImeConfig.Minutes = 15;
     RTC_TImeConfig.Seconds = 30;
+    RTC_TImeConfig.DayLightSaving = RTC_DAYLIGHTSAVING_NONE;
+    RTC_TImeConfig.StoreOperation = RTC_STOREOPERATION_RESET;
     HAL_RTC_SetTime(&RTC_InitStructure,&RTC_TImeConfig,RTC_FORMAT_BIN);
 
     RTC_DateConfig.Date = 22;
@@ -120,21 +120,24 @@ void RTC_Init(void)
 
 void showClock(void)
 {
+    RTC_TimeTypeDef     gTime  = {0};
+    RTC_DateTypeDef     gDate  = {0};
+    RTC_AlarmTypeDef    gAlarm = {0};
+
     if (HAL_GetTick() - tick > 1000)
         {
             tick = HAL_GetTick();
             HAL_GPIO_TogglePin(GPIOA,GPIO_PIN_5);
-            HAL_RTC_GetTime(&RTC_InitStructure,&RTC_TImeConfig,RTC_FORMAT_BIN);
-            HAL_RTC_GetDate(&RTC_InitStructure,&RTC_DateConfig,RTC_FORMAT_BIN);
-            printf("%02d:%02d:%02d - ",RTC_TImeConfig.Hours,RTC_TImeConfig.Minutes,RTC_TImeConfig.Seconds);
-            printf("%02d/%02d/%04d\n",RTC_DateConfig.Date,RTC_DateConfig.Month,RTC_DateConfig.Year+2000);
+            HAL_RTC_GetTime(&RTC_InitStructure,&gTime,RTC_FORMAT_BIN);
+            HAL_RTC_GetDate(&RTC_InitStructure,&gDate,RTC_FORMAT_BIN);
+            printf("%02d:%02d:%02d - ",gTime.Hours, gTime.Minutes, gTime.Seconds);
+            printf("%02d/%02d/%04d\n",gDate.Date, gDate.Month, gDate.Year+2000);
         }
 
         if (!HAL_GPIO_ReadPin(GPIOC,GPIO_PIN_13))
         {
-            HAL_RTC_GetAlarm(&RTC_InitStructure,&RTC_AlarmConfig,RTC_ALARM_A,RTC_FORMAT_BIN);
-            printf("Alarm - %02d:%02d:%02d\n",RTC_AlarmConfig.AlarmTime.Hours,RTC_AlarmConfig.AlarmTime.Minutes,\
-                    RTC_AlarmConfig.AlarmTime.Seconds);
+            HAL_RTC_GetAlarm(&RTC_InitStructure,&gAlarm,RTC_ALARM_A,RTC_FORMAT_BIN);
+            printf("Alarm - %02d:%02d:%02d\n",gAlarm.AlarmTime.Hours, gAlarm.AlarmTime.Minutes, gAlarm.AlarmTime.Seconds);
             while (!HAL_GPIO_ReadPin(GPIOC,GPIO_PIN_13));
             
         }
