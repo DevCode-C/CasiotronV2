@@ -12,12 +12,10 @@
 Brief.- Punto de entrada del programa
 -------------------------------------------------------------------------------------------------*/
 
-const uint8_t* msgOK    = {(const uint8_t*)"OK\r\n"};
-const uint8_t* msgError = {(const uint8_t*)"ERROR\r\n"};
+const char* msgOK    = {"OK\r\n"};
+const char* msgError = {"ERROR\r\n"};
 
-const uint8_t* comando[3] = {(const uint8_t*)"AT+TIME",
-                             (const uint8_t*)"AT+DATE",
-                             (const uint8_t*)"AT+ALARM"};
+const char *comando_AT[] = {"AT+TIME" , "AT+DATE" , "AT+ALARM"};
 
 UART_HandleTypeDef      UartHandle              = {0};
 RTC_HandleTypeDef       RTC_InitStructure       = {0};
@@ -30,11 +28,19 @@ uint8_t RxByte;
 uint8_t RxBuffer[30];
 uint8_t BufferTemp[30];
 uint32_t tick= 0;
+uint16_t yearConversion = 2000;
 
 void UART_Init(void);
 void RTC_Init(void);
 void showClock(void);
 void showAlarm(void);
+void rtcTask(void);
+void serialTask(void);
+
+HAL_StatusTypeDef setTime(uint8_t hour, uint8_t minutes, uint8_t seconds);
+HAL_StatusTypeDef setDate(uint8_t day, uint8_t month, uint8_t year);
+HAL_StatusTypeDef setAlarm(uint8_t hour, uint8_t minutes);
+
 extern void initialise_monitor_handles(void);
 
 int main( void )
@@ -46,24 +52,12 @@ int main( void )
     UART_Init();
     RTC_Init();
     tick = HAL_GetTick();
-
-    strcpy((char*)BufferTemp,(const char*)RxBuffer);
+    
     for (; ;)
     {
-        if (status == SET)
-        {
-            status = RESET;
-            HAL_UART_Transmit_IT(&UartHandle,(uint8_t*)RxBuffer,strlen((const char*)RxBuffer));
-        }
-
-        if (AlarmRTC == SET )
-        {
-            showAlarm();
-        }
-        else
-        {
-            showClock();
-        }  
+        serialTask();
+        rtcTask();
+ 
     } 
     return 0u;
 }
@@ -118,6 +112,155 @@ void RTC_Init(void)
     HAL_RTC_SetAlarm_IT(&RTC_InitStructure,&RTC_AlarmConfig,RTC_FORMAT_BIN);
 }
 
+void serialTask(void)
+{
+    char *InpuyComand, *parametro;
+
+    HAL_StatusTypeDef msgOutput = HAL_ERROR;
+    
+    int8_t sel          = -1;
+    uint8_t hour_day    = 0;
+    uint8_t min_month   = 0;
+    uint16_t sec_year   = 0;
+
+    if (status == SET)
+        {
+            status = RESET;
+            memcpy((char*)BufferTemp,(const char*)RxBuffer,strlen((const char*)RxBuffer));
+
+            InpuyComand = strtok((char*)RxBuffer, "=" );
+
+            for (uint8_t i = 0; i < 3; i++)
+            {
+                if (strcmp(InpuyComand, comando_AT[i]) == 0)
+                {
+                    HAL_UART_Transmit_IT(&UartHandle,(uint8_t*)comando_AT[i],strlen(comando_AT[i]));
+                    msgOutput = HAL_OK;
+                    sel = i;
+                    break;   
+                }
+            }
+            
+            switch (sel)
+            {
+            case 0:
+                parametro = strtok(NULL, "," );
+                hour_day = atoi(parametro);
+
+                parametro = strtok(NULL, "," );
+                min_month = atoi(parametro);
+
+                parametro = strtok(NULL, "," );
+                sec_year  = atoi(parametro);
+                msgOutput = setTime(hour_day, min_month, sec_year);
+                break;
+            case 1:
+                parametro = strtok(NULL, "," );
+                hour_day = atoi(parametro);
+
+                parametro = strtok(NULL, "," );
+                min_month = atoi(parametro);
+
+                parametro = strtok(NULL, "," );
+                sec_year  = atoi(parametro);
+                msgOutput = setDate(hour_day, min_month, sec_year);
+                break;
+            case 2:
+                parametro = strtok(NULL, "," );
+                hour_day = atoi(parametro);
+
+                parametro = strtok(NULL, "," );
+                min_month = atoi(parametro);
+                msgOutput = setAlarm(hour_day, min_month);
+                break;
+            case -1:
+                msgOutput = HAL_ERROR;
+                break;
+            }
+
+            if (msgOutput == HAL_ERROR)
+            {
+                HAL_UART_Transmit_IT(&UartHandle,(uint8_t*)msgError,strlen(msgError));
+            }
+            else
+            {
+                HAL_UART_Transmit_IT(&UartHandle,(uint8_t*)msgOK,strlen(msgOK));
+            }
+            
+            
+                   
+    }
+}
+
+
+HAL_StatusTypeDef setTime(uint8_t hour, uint8_t minutes, uint8_t seconds)
+{
+    HAL_StatusTypeDef   flag    = HAL_ERROR;
+    RTC_TimeTypeDef     sTime   = {0};
+
+    if ((hour < 24) && (minutes < 60) && (seconds < 60))
+    {
+        flag = HAL_OK;    
+    }
+
+    if (flag == HAL_OK)
+    {
+        sTime.Hours             = hour;
+        sTime.Minutes           = minutes;
+        sTime.Seconds           = seconds;
+        sTime.DayLightSaving    = RTC_DAYLIGHTSAVING_NONE;
+        sTime.StoreOperation    = RTC_STOREOPERATION_RESET;
+        HAL_RTC_SetTime(&RTC_InitStructure,&sTime,RTC_FORMAT_BIN);
+    }
+    
+    return flag;
+}
+
+HAL_StatusTypeDef setDate(uint8_t day, uint8_t month, uint8_t year)
+{
+    HAL_StatusTypeDef   flag    = HAL_ERROR;
+    RTC_DateTypeDef     sDate   = {0};
+
+    if ((day <= 30) && (month <= 12) && (year <= 9999))
+    {
+        flag = HAL_OK;
+    }
+    
+    if (flag == HAL_OK)
+    {
+        sDate.Date  = day;
+        sDate.Month = month;
+        sDate.Year  = year;
+        HAL_RTC_SetDate(&RTC_InitStructure,&sDate,RTC_FORMAT_BIN);
+    }
+    
+    return flag;
+}
+
+HAL_StatusTypeDef setAlarm(uint8_t hour, uint8_t minutes)
+{
+    HAL_StatusTypeDef   flag    = HAL_ERROR;
+    RTC_AlarmTypeDef    sAlarm  = {0};
+
+    if (hour < 24 && minutes < 59)
+    {
+        flag = HAL_OK;
+    }
+    
+    if (flag == HAL_OK)
+    {
+        sAlarm.Alarm = RTC_ALARM_A;
+        sAlarm.AlarmTime.Hours = hour;
+        sAlarm.AlarmTime.Minutes = minutes;
+        sAlarm.AlarmTime.Seconds = 0;
+        sAlarm.AlarmTime.TimeFormat = RTC_HOURFORMAT_24;
+        HAL_RTC_SetAlarm_IT(&RTC_InitStructure,&sAlarm,RTC_FORMAT_BIN);
+    }
+    
+
+    return flag;
+}
+
 void showClock(void)
 {
     RTC_TimeTypeDef     gTime  = {0};
@@ -131,7 +274,7 @@ void showClock(void)
             HAL_RTC_GetTime(&RTC_InitStructure,&gTime,RTC_FORMAT_BIN);
             HAL_RTC_GetDate(&RTC_InitStructure,&gDate,RTC_FORMAT_BIN);
             printf("%02d:%02d:%02d - ",gTime.Hours, gTime.Minutes, gTime.Seconds);
-            printf("%02d/%02d/%04d\n",gDate.Date, gDate.Month, gDate.Year+2000);
+            printf("%02d/%02d/%04d\n",gDate.Date, gDate.Month, gDate.Year+yearConversion);
         }
 
         if (!HAL_GPIO_ReadPin(GPIOC,GPIO_PIN_13))
@@ -163,6 +306,18 @@ void showAlarm(void)
     }
 }
 
+void rtcTask(void)
+{
+    if (AlarmRTC == SET )
+    {
+        showAlarm();
+    }
+    else
+    {
+        showClock();
+    } 
+}
+
 void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart)
 {
     uartState = SET;
@@ -176,6 +331,7 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
     i++;
     if(RxBuffer[i-1] == '\r')
     {
+        RxBuffer[i-1] = '\0';
         status = SET;
         i=0;
     }
