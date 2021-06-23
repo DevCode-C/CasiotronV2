@@ -20,6 +20,10 @@ const char *comando_AT[] = {"AT+TIME" , "AT+DATE" , "AT+ALARM"};
 UART_HandleTypeDef      UartHandle              = {0};
 RTC_HandleTypeDef       RTC_InitStructure       = {0};
 
+RTC_TimeTypeDef RTC_TImeConfig          = {0};
+RTC_DateTypeDef RTC_DateConfig          = {0};
+RTC_AlarmTypeDef RTC_AlarmConfig        = {0};
+
 __IO ITStatus uartState     = RESET;
 __IO ITStatus status        = RESET;
 __IO ITStatus AlarmRTC      = RESET;
@@ -37,8 +41,8 @@ void showAlarm(void);
 void rtcTask(void);
 void serialTask(void);
 
-HAL_StatusTypeDef setTime(uint8_t hour, uint8_t minutes, uint8_t seconds);
-HAL_StatusTypeDef setDate(uint8_t day, uint8_t month, uint8_t year);
+HAL_StatusTypeDef setTime(uint8_t hour, uint8_t minutes, uint16_t seconds);
+HAL_StatusTypeDef setDate(uint8_t day, uint8_t month, uint16_t year);
 HAL_StatusTypeDef setAlarm(uint8_t hour, uint8_t minutes);
 
 extern void initialise_monitor_handles(void);
@@ -80,9 +84,6 @@ void UART_Init()
 
 void RTC_Init(void)
 {
-    RTC_TimeTypeDef RTC_TImeConfig          = {0};
-    RTC_DateTypeDef RTC_DateConfig          = {0};
-    RTC_AlarmTypeDef RTC_AlarmConfig        = {0};
     __HAL_RCC_RTC_ENABLE();
     RTC_InitStructure.Instance              = RTC;
     RTC_InitStructure.Init.HourFormat       = RTC_HOURFORMAT_24;
@@ -134,7 +135,7 @@ void serialTask(void)
             {
                 if (strcmp(InpuyComand, comando_AT[i]) == 0)
                 {
-                    HAL_UART_Transmit_IT(&UartHandle,(uint8_t*)comando_AT[i],strlen(comando_AT[i]));
+                    // HAL_UART_Transmit_IT(&UartHandle,(uint8_t*)comando_AT[i],strlen(comando_AT[i]));
                     msgOutput = HAL_OK;
                     sel = i;
                     break;   
@@ -193,10 +194,9 @@ void serialTask(void)
 }
 
 
-HAL_StatusTypeDef setTime(uint8_t hour, uint8_t minutes, uint8_t seconds)
+HAL_StatusTypeDef setTime(uint8_t hour, uint8_t minutes, uint16_t seconds)
 {
     HAL_StatusTypeDef   flag    = HAL_ERROR;
-    RTC_TimeTypeDef     sTime   = {0};
 
     if ((hour < 24) && (minutes < 60) && (seconds < 60))
     {
@@ -205,21 +205,18 @@ HAL_StatusTypeDef setTime(uint8_t hour, uint8_t minutes, uint8_t seconds)
 
     if (flag == HAL_OK)
     {
-        sTime.Hours             = hour;
-        sTime.Minutes           = minutes;
-        sTime.Seconds           = seconds;
-        sTime.DayLightSaving    = RTC_DAYLIGHTSAVING_NONE;
-        sTime.StoreOperation    = RTC_STOREOPERATION_RESET;
-        HAL_RTC_SetTime(&RTC_InitStructure,&sTime,RTC_FORMAT_BIN);
+        RTC_TImeConfig.Hours             = hour;
+        RTC_TImeConfig.Minutes           = minutes;
+        RTC_TImeConfig.Seconds           = seconds;
+        HAL_RTC_SetTime(&RTC_InitStructure,&RTC_TImeConfig,RTC_FORMAT_BIN);
     }
     
     return flag;
 }
 
-HAL_StatusTypeDef setDate(uint8_t day, uint8_t month, uint8_t year)
+HAL_StatusTypeDef setDate(uint8_t day, uint8_t month, uint16_t year)
 {
     HAL_StatusTypeDef   flag    = HAL_ERROR;
-    RTC_DateTypeDef     sDate   = {0};
 
     if ((day <= 30) && (month <= 12) && (year <= 9999))
     {
@@ -228,10 +225,12 @@ HAL_StatusTypeDef setDate(uint8_t day, uint8_t month, uint8_t year)
     
     if (flag == HAL_OK)
     {
-        sDate.Date  = day;
-        sDate.Month = month;
-        sDate.Year  = year;
-        HAL_RTC_SetDate(&RTC_InitStructure,&sDate,RTC_FORMAT_BIN);
+        yearConversion = (year - (year%100)); 
+
+        RTC_DateConfig.Date  = day;
+        RTC_DateConfig.Month = month;
+        RTC_DateConfig.Year  = (year%100);
+        HAL_RTC_SetDate(&RTC_InitStructure,&RTC_DateConfig,RTC_FORMAT_BIN);
     }
     
     return flag;
@@ -240,7 +239,6 @@ HAL_StatusTypeDef setDate(uint8_t day, uint8_t month, uint8_t year)
 HAL_StatusTypeDef setAlarm(uint8_t hour, uint8_t minutes)
 {
     HAL_StatusTypeDef   flag    = HAL_ERROR;
-    RTC_AlarmTypeDef    sAlarm  = {0};
 
     if (hour < 24 && minutes < 59)
     {
@@ -249,12 +247,13 @@ HAL_StatusTypeDef setAlarm(uint8_t hour, uint8_t minutes)
     
     if (flag == HAL_OK)
     {
-        sAlarm.Alarm = RTC_ALARM_A;
-        sAlarm.AlarmTime.Hours = hour;
-        sAlarm.AlarmTime.Minutes = minutes;
-        sAlarm.AlarmTime.Seconds = 0;
-        sAlarm.AlarmTime.TimeFormat = RTC_HOURFORMAT_24;
-        HAL_RTC_SetAlarm_IT(&RTC_InitStructure,&sAlarm,RTC_FORMAT_BIN);
+        RTC_AlarmConfig.Alarm = RTC_ALARM_A;
+        RTC_AlarmConfig.AlarmDateWeekDay = RTC_DateConfig.Date;
+        RTC_AlarmConfig.AlarmTime.Hours = hour;
+        RTC_AlarmConfig.AlarmTime.Minutes = minutes;
+        RTC_AlarmConfig.AlarmTime.Seconds = 0;
+        RTC_AlarmConfig.AlarmTime.TimeFormat = RTC_HOURFORMAT_24;
+        HAL_RTC_SetAlarm_IT(&RTC_InitStructure,&RTC_AlarmConfig,RTC_FORMAT_BIN);
     }
     
 
