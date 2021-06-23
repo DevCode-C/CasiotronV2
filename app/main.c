@@ -13,9 +13,9 @@
 Brief.- Punto de entrada del programa
 -------------------------------------------------------------------------------------------------*/
 
-const char* msgOK    = {"OK\r\n"};
-const char* msgError = {"ERROR\r\n"};
-const char *comando_AT[] = {"AT+TIME" , "AT+DATE" , "AT+ALARM"};
+const char* msgOK           = {"OK\r\n"};
+const char* msgError        = {"ERROR\r\n"};
+const char *comando_AT[]    = {"AT+TIME" , "AT+DATE" , "AT+ALARM"};
 
 UART_HandleTypeDef      UartHandle              = {0};
 RTC_HandleTypeDef       RTC_InitStructure       = {0};
