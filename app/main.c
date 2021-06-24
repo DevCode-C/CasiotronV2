@@ -16,7 +16,7 @@ int main( void )
     HAL_Init( );
     serial_init();
     clock_init();
-
+    
     for (; ;)
     {
         serial_Task();

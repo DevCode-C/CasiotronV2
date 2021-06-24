@@ -7,11 +7,11 @@ static RTC_AlarmTypeDef        RTC_AlarmConfig         = {0};
 
 extern Serial_MsgTypeDef SerialTranferData;
 
-__IO ITStatus AlarmRTC      = RESET;
+__IO ITStatus AlarmRTC               = RESET;
+__IO static uint8_t clockState       = CLOCK_IDLE;
 
 static uint16_t yearConversion  = 2000;
 static uint32_t tick            = 0;
-static uint8_t clockState       = CLOCK_IDLE;
 
 void clock_init(void)
 {
