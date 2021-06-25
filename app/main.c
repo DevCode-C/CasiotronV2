@@ -8,7 +8,10 @@ Brief.- Punto de entrada del programa
 
 static uint32_t hearBeatTick    = 0; 
 static uint32_t WWDGTick        = 0; 
+
 static WWDG_HandleTypeDef WWDG_HandleInit = {0};
+
+SPI_HandleTypeDef spi_Handle = {0};
 
 extern void initialise_monitor_handles(void);
 
@@ -17,6 +20,8 @@ static void heart_beat(void);
 
 static void dog_init(void);
 static void peth_the_dog(void);
+
+static void spi_init(void);
 
 int main( void )
 {
@@ -28,7 +33,7 @@ int main( void )
     heart_init();
     // dog_init();
     clock_init();
-    
+
     for (; ;)
     {
         serial_Task();
@@ -43,7 +48,6 @@ void heart_init(void)
 {
     hearBeatTick = HAL_GetTick();
 }
-
 void heart_beat(void)
 {
     if (HAL_GetTick() - hearBeatTick >= 300)
@@ -73,4 +77,22 @@ void peth_the_dog(void)
         HAL_WWDG_Refresh(&WWDG_HandleInit);
     }
     
+}
+
+void spi_init(void)
+{
+    spi_Handle.Instance                  = SPI1;
+    spi_Handle.Init.Mode                 = SPI_MODE_MASTER;
+    spi_Handle.Init.BaudRatePrescaler    = SPI_BAUDRATEPRESCALER_4;
+    spi_Handle.Init.Direction            = SPI_DIRECTION_2LINES;
+    spi_Handle.Init.CLKPhase             = SPI_PHASE_2EDGE;
+    spi_Handle.Init.CLKPolarity          = SPI_POLARITY_HIGH;
+    spi_Handle.Init.CRCCalculation       = SPI_CRCCALCULATION_DISABLE;
+    spi_Handle.Init.CRCPolynomial        = 7;
+    spi_Handle.Init.DataSize             = SPI_DATASIZE_8BIT;
+    spi_Handle.Init.FirstBit             = SPI_FIRSTBIT_MSB;
+    spi_Handle.Init.NSS                  = SPI_NSS_SOFT;
+    spi_Handle.Init.TIMode               = SPI_TIMODE_DISABLE;
+    HAL_SPI_Init(&spi_Handle);
+    HAL_GPIO_WritePin(GPIOB,CS,SET);
 }

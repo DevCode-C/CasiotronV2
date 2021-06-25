@@ -15,6 +15,9 @@
 #define DATE    2U
 #define ALARM   3U
 
+
+#define CS      GPIO_PIN_10
+
 typedef struct _serial_MsgTypedef
 {
     uint8_t msg;        //Tipo de mensaje
@@ -24,9 +27,9 @@ typedef struct _serial_MsgTypedef
 
 } Serial_MsgTypeDef;
 
-
 void USART2_IRQHandler(void);
-
+void RTC_IRQHandler(void);
+void SPI1_IRQHandler(void);
 
 #endif
 

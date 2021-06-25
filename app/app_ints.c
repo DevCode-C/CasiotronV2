@@ -59,3 +59,9 @@ void RTC_IRQHandler(void)
 {
     HAL_RTC_AlarmIRQHandler(&RTC_InitStructure);
 }
+
+extern SPI_HandleTypeDef spi_Handle;
+void SPI1_IRQHandler(void)
+{
+    HAL_SPI_IRQHandler(&spi_Handle);
+}
