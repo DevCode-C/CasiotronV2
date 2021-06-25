@@ -185,7 +185,6 @@ void showClock(void)
     RTC_TimeTypeDef     gTime  = {0};
     RTC_DateTypeDef     gDate  = {0};
     
-    HAL_GPIO_TogglePin(GPIOA,GPIO_PIN_5);
     HAL_RTC_GetTime(&RTC_InitStructure,&gTime,RTC_FORMAT_BIN);
     HAL_RTC_GetDate(&RTC_InitStructure,&gDate,RTC_FORMAT_BIN);
     printf("%02d:%02d:%02d - ",gTime.Hours, gTime.Minutes, gTime.Seconds);
