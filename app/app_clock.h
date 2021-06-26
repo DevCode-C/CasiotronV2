@@ -1,6 +1,7 @@
 #ifndef __APP_CLOCK__H
 #define __APP_CLOCK__H
 #include "app_bsp.h"
+#include "lcd.h"
 
 #define CLOCK_IDLE          0U
 #define CLOCK_SHOW          1U
@@ -21,5 +22,7 @@ void clock_task(void);
 HAL_StatusTypeDef setTime(uint8_t hour, uint8_t minutes, uint16_t seconds);
 HAL_StatusTypeDef setDate(uint8_t day, uint8_t month, uint16_t year);
 HAL_StatusTypeDef setAlarm(uint8_t hour, uint8_t minutes);
+
+void lcd_init(void);
 
 #endif

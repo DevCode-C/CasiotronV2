@@ -4,10 +4,13 @@ RTC_HandleTypeDef              RTC_InitStructure       = {0};
 static RTC_TimeTypeDef         RTC_TImeConfig          = {0};
 static RTC_DateTypeDef         RTC_DateConfig          = {0};
 static RTC_AlarmTypeDef        RTC_AlarmConfig         = {0};
+LCD_HandleTypeDef              lcd_display             = {0};
 
 extern Serial_MsgTypeDef SerialTranferData;
+extern SPI_HandleTypeDef spi_Handle;
 
 __IO ITStatus AlarmRTC               = RESET;
+__IO ITStatus Alarm_Active           = RESET;
 __IO static uint8_t clockState       = CLOCK_IDLE;
 
 static uint16_t yearConversion  = 2000;
@@ -36,18 +39,21 @@ void clock_init(void)
     HAL_RTC_SetDate(&RTC_InitStructure,&RTC_DateConfig,RTC_FORMAT_BIN);
 
     RTC_AlarmConfig.Alarm = RTC_ALARM_A;
-    RTC_AlarmConfig.AlarmDateWeekDay = 22;
-    RTC_AlarmConfig.AlarmTime.Hours = 05;
-    RTC_AlarmConfig.AlarmTime.Minutes = 15;
-    RTC_AlarmConfig.AlarmTime.Seconds = 40;
+    RTC_AlarmConfig.AlarmDateWeekDay = 00;
+    RTC_AlarmConfig.AlarmTime.Hours = 00;
+    RTC_AlarmConfig.AlarmTime.Minutes = 00;
+    RTC_AlarmConfig.AlarmTime.Seconds = 00;
     RTC_AlarmConfig.AlarmTime.TimeFormat = RTC_HOURFORMAT_24;
     HAL_RTC_SetAlarm_IT(&RTC_InitStructure,&RTC_AlarmConfig,RTC_FORMAT_BIN);
+    HAL_RTC_DeactivateAlarm(&RTC_InitStructure,RTC_ALARM_A);
 
+    lcd_init();
     tick = HAL_GetTick();
 }
 
 void clock_task(void)
 {
+    uint8_t           buffer[16] = {0};
     RTC_AlarmTypeDef    gAlarm = {0};
 
     switch (clockState)
@@ -78,9 +84,13 @@ void clock_task(void)
             break;
 
         case CLOCK_SHOW_ALARM:
+            LCD_CLEAR(&lcd_display);
             HAL_RTC_GetAlarm(&RTC_InitStructure,&gAlarm,RTC_ALARM_A,RTC_FORMAT_BIN);
             printf("Alarm - %02d:%02d:%02d\n",gAlarm.AlarmTime.Hours, gAlarm.AlarmTime.Minutes, gAlarm.AlarmTime.Seconds);
+            sprintf((char*)buffer,"%02d:%02d:%02d",gAlarm.AlarmTime.Hours, gAlarm.AlarmTime.Minutes, gAlarm.AlarmTime.Seconds);
+            MOD_LCD_String(&lcd_display,(char*)buffer);
             while (!HAL_GPIO_ReadPin(GPIOC,GPIO_PIN_13));
+            LCD_CLEAR(&lcd_display);
             clockState = CLOCK_IDLE;
             break;
 
@@ -167,6 +177,7 @@ HAL_StatusTypeDef setAlarm(uint8_t hour, uint8_t minutes)
     
     if (flag == HAL_OK)
     {
+        Alarm_Active = SET;
         RTC_AlarmConfig.Alarm = RTC_ALARM_A;
         RTC_AlarmConfig.AlarmDateWeekDay = RTC_DateConfig.Date;
         RTC_AlarmConfig.AlarmTime.Hours = hour;
@@ -182,6 +193,7 @@ HAL_StatusTypeDef setAlarm(uint8_t hour, uint8_t minutes)
 
 void showClock(void)
 {
+    uint8_t           buffer[16] = {0};
     RTC_TimeTypeDef     gTime  = {0};
     RTC_DateTypeDef     gDate  = {0};
     
@@ -189,7 +201,9 @@ void showClock(void)
     HAL_RTC_GetDate(&RTC_InitStructure,&gDate,RTC_FORMAT_BIN);
     printf("%02d:%02d:%02d - ",gTime.Hours, gTime.Minutes, gTime.Seconds);
     printf("%02d/%02d/%04d\n",gDate.Date, gDate.Month, gDate.Year+yearConversion);
-
+    sprintf((char*)buffer,"%02d:%02d:%02d",gTime.Hours, gTime.Minutes, gTime.Seconds);
+    MOD_LCD_SetCursor(&lcd_display,2,5);
+    MOD_LCD_String(&lcd_display,(char*)buffer);
 }
 
 void showAlarm(void)
@@ -212,6 +226,19 @@ void showAlarm(void)
         }
            
     }
+}
+
+void lcd_init(void)
+{
+    lcd_display.SpiHandler = &spi_Handle;
+    lcd_display.CsPort     = LCD_PORT;
+    lcd_display.RsPort     = LCD_PORT;
+    lcd_display.RstPort    = LCD_PORT;
+    lcd_display.CsPin      = LCD_CS;
+    lcd_display.RsPin      = LCD_RS;
+    lcd_display.RstPin     = LCD_RST;
+
+    MOD_LCD_Init(&lcd_display);
 }
 
 void HAL_RTC_AlarmAEventCallback(RTC_HandleTypeDef *hrtc)

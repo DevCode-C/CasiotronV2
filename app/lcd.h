@@ -20,7 +20,7 @@
 #define BLINK_ON        0x01U    //Blink on
 #define BLINK_OFF       0x00U    //Blink off
  
-#define LCD_CLEAR(x)     MOD_LCD_Command(x,CLEAR_DISPLAY)
+#define LCD_CLEAR(x)     MOD_LCD_Command(x,CLEAR_DISPLAY) // x -> pointer to struct LCD_HandleTypeDef
 
 typedef struct
 {

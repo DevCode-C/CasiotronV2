@@ -1,7 +1,6 @@
 #include "app_bsp.h"
 #include "app_serial.h"
 #include "app_clock.h"
-#include "lcd.h"
 
 /**------------------------------------------------------------------------------------------------
 Brief.- Punto de entrada del programa
@@ -13,7 +12,7 @@ static uint32_t WWDGTick        = 0;
 static WWDG_HandleTypeDef WWDG_HandleInit = {0};
 
 SPI_HandleTypeDef spi_Handle = {0};
-LCD_HandleTypeDef lcd_initI = {0};
+
 extern void initialise_monitor_handles(void);
 
 static void heart_init(void);
@@ -23,7 +22,6 @@ static void dog_init(void);
 static void peth_the_dog(void);
 
 static void spi_init(void);
-void lcd_init(void);
 
 int main( void )
 {
@@ -40,8 +38,8 @@ int main( void )
 
     for (; ;)
     {
-        // serial_Task();
-        // clock_task();
+        serial_Task();
+        clock_task();
         
         heart_beat();
         // peth_the_dog();
@@ -101,17 +99,4 @@ void spi_init(void)
     HAL_SPI_Init(&spi_Handle);
     HAL_GPIO_WritePin(EEPROM_PORT,CS_EEPROM,SET);
     HAL_GPIO_WritePin(LCD_PORT,LCD_CS,SET);
-}
-
-void lcd_init(void)
-{
-    lcd_initI.SpiHandler = &spi_Handle;
-    lcd_initI.CsPort     = LCD_PORT;
-    lcd_initI.RsPort     = LCD_PORT;
-    lcd_initI.RstPort    = LCD_PORT;
-    lcd_initI.CsPin      = LCD_CS;
-    lcd_initI.RsPin      = LCD_RS;
-    lcd_initI.RstPin     = LCD_RST;
-
-    MOD_LCD_Init(&lcd_initI);
 }
