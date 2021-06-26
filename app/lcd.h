@@ -2,7 +2,27 @@
 #define __LCD__H
 #include "app_bsp.h"
 
-typedef struct _lcd_handleTypedef
+#define CLEAR_DISPLAY       0x01U    //Limpia la pantalla
+#define WAKE_UP             0x30U    //
+#define RETURN_HOME         0x02U
+#define ENTRY_MODE          0x06U
+#define CONTRAST            0x70U
+#define FOLLOWER_CONTROL    0x6DU
+#define POWER_CONTROL       0x56U
+#define FUNCTION_SET        0x39U
+#define INT_OSC_FREC        0x14U
+
+//Display Options
+#define DISPLAY_ON      0x0CU    //Enciende la pantalla  
+#define DISPLAY_OFF     0x08U    //Apaga la pantalla
+#define CURSOR_ON       0x02U    //Cursor on
+#define CURSOR_OFF      0x00U    //Cursor off
+#define BLINK_ON        0x01U    //Blink on
+#define BLINK_OFF       0x00U    //Blink off
+ 
+#define LCD_CLEAR(x)     MOD_LCD_Command(x,CLEAR_DISPLAY)
+
+typedef struct
 {
     SPI_HandleTypeDef       *SpiHandler;
     GPIO_TypeDef            *RstPort;

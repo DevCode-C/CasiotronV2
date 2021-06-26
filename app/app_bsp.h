@@ -15,8 +15,14 @@
 #define DATE    2U
 #define ALARM   3U
 
+#define EEPROM_PORT     GPIOB       //PORT para la EERPOM
+#define CS_EEPROM       GPIO_PIN_10 //PIN activado en bajo para la EERPOM
 
-#define CS      GPIO_PIN_10
+#define LCD_PORT        GPIOC   //LCD PORT
+#define LCD_PINES       GPIO_PIN_0 | GPIO_PIN_1 | GPIO_PIN_2  //LCD Pines
+#define LCD_CS          GPIO_PIN_0  //PIN activado en bajo para la LCD
+#define LCD_RS          GPIO_PIN_1  // Selector data/command
+#define LCD_RST         GPIO_PIN_2  //Reset del LCD, activado en bajo
 
 typedef struct _serial_MsgTypedef
 {

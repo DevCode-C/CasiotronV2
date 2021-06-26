@@ -102,6 +102,12 @@ void HAL_SPI_MspInit(SPI_HandleTypeDef *hspi)
     GPIO_InitStructure.Pull         = GPIO_NOPULL;
     GPIO_InitStructure.Speed        = GPIO_SPEED_FREQ_HIGH;
     HAL_GPIO_Init(GPIOB, &GPIO_InitStructure);
+    __HAL_RCC_GPIOC_CLK_ENABLE();
+    GPIO_InitStructure.Pin          = LCD_PINES;
+    GPIO_InitStructure.Mode         = GPIO_MODE_OUTPUT_PP;
+    GPIO_InitStructure.Pull         = GPIO_NOPULL;
+    GPIO_InitStructure.Speed        = GPIO_SPEED_FREQ_HIGH;
+    HAL_GPIO_Init(LCD_PORT,&GPIO_InitStructure);
 
     HAL_NVIC_SetPriority(SPI1_IRQn,1,0);
     HAL_NVIC_EnableIRQ(SPI1_IRQn);
