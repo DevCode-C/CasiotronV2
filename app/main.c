@@ -7,11 +7,10 @@ Brief.- Punto de entrada del programa
 -------------------------------------------------------------------------------------------------*/
 
 static uint32_t hearBeatTick    = 0; 
-static uint32_t WWDGTick        = 0; 
+uint32_t WWDGTick        = 0; 
 
-static WWDG_HandleTypeDef WWDG_HandleInit = {0};
-
-SPI_HandleTypeDef spi_Handle = {0};
+WWDG_HandleTypeDef WWDG_HandleInit  = {0};
+SPI_HandleTypeDef spi_Handle        = {0};
 
 extern void initialise_monitor_handles(void);
 
@@ -32,9 +31,9 @@ int main( void )
     spi_init();
     serial_init();
     heart_init();
-    // dog_init();
     clock_init();
     lcd_init();
+    // dog_init();
 
     for (; ;)
     {
@@ -74,7 +73,7 @@ void dog_init(void)
 }
 void peth_the_dog(void)
 {
-    if ((HAL_GetTick() - WWDGTick) >= 35)
+    if ((HAL_GetTick() - WWDGTick) >= 40)
     {
         WWDGTick = HAL_GetTick();
         HAL_WWDG_Refresh(&WWDG_HandleInit);

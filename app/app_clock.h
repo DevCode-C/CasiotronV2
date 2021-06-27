@@ -17,6 +17,7 @@
 void clock_init(void);
 void showClock(void);
 void showAlarm(void);
+void clockShowAlarm(void);
 void clock_task(void);
 
 HAL_StatusTypeDef setTime(uint8_t hour, uint8_t minutes, uint16_t seconds);
@@ -24,5 +25,6 @@ HAL_StatusTypeDef setDate(uint8_t day, uint8_t month, uint16_t year);
 HAL_StatusTypeDef setAlarm(uint8_t hour, uint8_t minutes);
 
 void lcd_init(void);
+uint8_t dayOfWeek(uint8_t d, uint8_t m, uint16_t y);
 
 #endif
