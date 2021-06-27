@@ -242,6 +242,12 @@ void showAlarm(void)
             MOD_LCD_String(&lcd_display,(char*)buffer);
             // printf("ALARM!!\n");
         }
+        else if ((HAL_GetTick() - WWDGTick) >= 40)
+        {
+            WWDGTick = HAL_GetTick();
+            HAL_WWDG_Refresh(&WWDG_HandleInit);
+        }
+
         if (!HAL_GPIO_ReadPin(GPIOC,GPIO_PIN_13) || time > 59)
         {
             break;
@@ -268,7 +274,14 @@ void clockShowAlarm(void)
         MOD_LCD_SetCursor(&lcd_display,2,1);
         MOD_LCD_String(&lcd_display,(char*)nAlarm);
     }
-    while (!HAL_GPIO_ReadPin(GPIOC,GPIO_PIN_13));
+    while (!HAL_GPIO_ReadPin(GPIOC,GPIO_PIN_13))
+    {
+        if ((HAL_GetTick() - WWDGTick) >= 40)
+        {
+            WWDGTick = HAL_GetTick();
+            HAL_WWDG_Refresh(&WWDG_HandleInit);
+        }
+    }
 }
 
 void lcd_init(void)
