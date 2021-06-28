@@ -109,7 +109,7 @@ HAL_StatusTypeDef setAlarm(uint8_t hour, uint8_t minutes)
 {
     HAL_StatusTypeDef   flag    = HAL_ERROR;
 
-    if (hour < 24 && minutes < 59)
+    if (hour < 24 && minutes < 60)
     {
         flag = HAL_OK;
     }
