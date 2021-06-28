@@ -7,7 +7,7 @@ Brief.- Punto de entrada del programa
 -------------------------------------------------------------------------------------------------*/
 
 static uint32_t hearBeatTick    = 0; 
-uint32_t WWDGTick        = 0; 
+uint32_t WWDGTick               = 0; 
 
 WWDG_HandleTypeDef WWDG_HandleInit  = {0};
 SPI_HandleTypeDef spi_Handle        = {0};
@@ -32,7 +32,6 @@ int main( void )
     serial_init();
     heart_init();
     clock_init();
-    lcd_init();
     dog_init();
 
     for (; ;)
