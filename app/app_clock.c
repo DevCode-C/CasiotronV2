@@ -61,58 +61,23 @@ void clock_task(void)
     switch (clockState)
     {
         case CLOCK_IDLE:
-            if (HAL_GetTick() - tick >= TIME_TRANSITION)
-            {
-                tick = HAL_GetTick();
-                clockState = CLOCK_SHOW;
-            }
-            if (!HAL_GPIO_ReadPin(GPIOC,GPIO_PIN_13))
-            {
-                clockState = CLOCK_SHOW_ALARM;
-            }
-            else if(AlarmRTC == SET)
-            {
-                clockState = CLOCK_ALARM_UP;
-            }
-            else if(SerialTranferData.msg != NONE)
-            {
-                clockState = CLOCK_SET_DATA;
-            }
+            clockIdle();
             break;
 
         case CLOCK_SHOW:
             showClock();
-            clockState = CLOCK_IDLE;
             break;
 
         case CLOCK_SHOW_ALARM:
             clockShowAlarm();
-            clockState = CLOCK_IDLE;
             break;
 
         case CLOCK_SET_DATA:
-            if (SerialTranferData.msg == TIME)
-            {
-                SerialTranferData.msg = NONE;
-                setTime(SerialTranferData.param1,SerialTranferData.param2,SerialTranferData.param3);
-            }
-            else if (SerialTranferData.msg == DATE)
-            {
-                SerialTranferData.msg = NONE;
-                setDate(SerialTranferData.param1,SerialTranferData.param2,SerialTranferData.param3);
-            }
-            else if (SerialTranferData.msg == ALARM)
-            {
-                SerialTranferData.msg = NONE;
-                setAlarm(SerialTranferData.param1,SerialTranferData.param2);
-            }
-            
-            clockState = CLOCK_IDLE;
+            clockSetData();
             break;
 
         case CLOCK_ALARM_UP:
-            showAlarm();
-            clockState = CLOCK_IDLE;
+            showAlarmUp();
             break;
 
         default:
@@ -187,6 +152,27 @@ HAL_StatusTypeDef setAlarm(uint8_t hour, uint8_t minutes)
     return flag;
 }
 
+void clockIdle(void)
+{
+    if (HAL_GetTick() - tick >= TIME_TRANSITION)
+    {
+        tick = HAL_GetTick();
+        clockState = CLOCK_SHOW;
+    }
+    if (!HAL_GPIO_ReadPin(GPIOC,GPIO_PIN_13))
+    {
+        clockState = CLOCK_SHOW_ALARM;
+    }
+    else if(AlarmRTC == SET)
+    {
+        clockState = CLOCK_ALARM_UP;
+    }
+    else if(SerialTranferData.msg != NONE)
+    {
+        clockState = CLOCK_SET_DATA;
+    }
+}
+
 void showClock(void)
 {
     uint8_t           buffer[17]    = {0};
@@ -210,10 +196,10 @@ void showClock(void)
         MOD_LCD_SetCursor(&lcd_display,2,15);
         MOD_LCD_Data(&lcd_display,'A');
     }
-    
+    clockState = CLOCK_IDLE;
 }
 
-void showAlarm(void)
+void showAlarmUp(void)
 {
     AlarmRTC = RESET;
     HAL_RTC_DeactivateAlarm(&RTC_InitStructure,RTC_ALARM_A);
@@ -240,7 +226,6 @@ void showAlarm(void)
             }
             MOD_LCD_SetCursor(&lcd_display,2,1);
             MOD_LCD_String(&lcd_display,(char*)buffer);
-            // printf("ALARM!!\n");
         }
         else if ((HAL_GetTick() - WWDGTick) >= 40)
         {
@@ -254,6 +239,7 @@ void showAlarm(void)
         }
            
     }
+    clockState = CLOCK_IDLE;
 }
 
 void clockShowAlarm(void)
@@ -282,6 +268,28 @@ void clockShowAlarm(void)
             HAL_WWDG_Refresh(&WWDG_HandleInit);
         }
     }
+    clockState = CLOCK_IDLE;
+}
+
+void clockSetData(void)
+{
+    if (SerialTranferData.msg == TIME)
+    {
+        SerialTranferData.msg = NONE;
+        setTime(SerialTranferData.param1,SerialTranferData.param2,SerialTranferData.param3);
+    }
+    else if (SerialTranferData.msg == DATE)
+    {
+        SerialTranferData.msg = NONE;
+        setDate(SerialTranferData.param1,SerialTranferData.param2,SerialTranferData.param3);
+    }
+    else if (SerialTranferData.msg == ALARM)
+    {
+        SerialTranferData.msg = NONE;
+        setAlarm(SerialTranferData.param1,SerialTranferData.param2);
+    }
+    
+    clockState = CLOCK_IDLE;
 }
 
 void lcd_init(void)
