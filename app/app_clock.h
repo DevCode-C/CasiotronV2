@@ -8,19 +8,42 @@
 #define CLOCK_SHOW_ALARM    2U
 #define CLOCK_SET_DATA      3U 
 #define CLOCK_ALARM_UP      4U 
-// #define CLOCK_SET_TIME      3U
-// #define CLOCK_SET_DATE      4U
-// #define CLOCK_SET_ALARM     5U
 
 #define TIME_TRANSITION     1000U
 
+/*
+Inicializacion del Clock
+*/
 void clock_init(void);
+
+/*
+Funcion principal del reloj
+*/
 void clock_task(void);
 
+/*
+Estado inicial en espera de la activacion de alguna de las bandera o tiempo de transicion 
+*/
 void clockIdle(void);
+
+/*
+
+*/
 void showClock(void);
+
+/*
+
+*/
 void showAlarmUp(void);
+
+/*
+
+*/
 void clockSetData(void);
+
+/*
+
+*/
 void clockShowAlarm(void);
 
 HAL_StatusTypeDef setTime(uint8_t hour, uint8_t minutes, uint16_t seconds);
