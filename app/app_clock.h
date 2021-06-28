@@ -34,4 +34,6 @@ Algoritmo de congruencia de Zeller
 */
 uint8_t dayOfWeek(uint8_t d, uint8_t m, uint16_t y);
 
+typedef void (*clockSelection)(void);
+
 #endif

@@ -9,6 +9,8 @@ static RTC_DateTypeDef         RTC_DateConfig          = {0};
 static RTC_AlarmTypeDef        RTC_AlarmConfig         = {0};
 LCD_HandleTypeDef              lcd_display             = {0};
 
+static clockSelection clockSelectionFun[] = {clockIdle,showClock,clockShowAlarm,clockSetData,showAlarmUp};
+
 extern Serial_MsgTypeDef    SerialTranferData;
 extern SPI_HandleTypeDef    spi_Handle;
 extern WWDG_HandleTypeDef   WWDG_HandleInit;
@@ -58,31 +60,7 @@ void clock_init(void)
 
 void clock_task(void)
 {
-    switch (clockState)
-    {
-        case CLOCK_IDLE:
-            clockIdle();
-            break;
-
-        case CLOCK_SHOW:
-            showClock();
-            break;
-
-        case CLOCK_SHOW_ALARM:
-            clockShowAlarm();
-            break;
-
-        case CLOCK_SET_DATA:
-            clockSetData();
-            break;
-
-        case CLOCK_ALARM_UP:
-            showAlarmUp();
-            break;
-
-        default:
-            break;
-    }
+    clockSelectionFun[clockState]();
 }
 
 HAL_StatusTypeDef setTime(uint8_t hour, uint8_t minutes, uint16_t seconds)
