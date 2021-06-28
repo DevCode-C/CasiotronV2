@@ -65,6 +65,7 @@ void dog_init(void)
     
     WWDGTick = HAL_GetTick();
 }
+
 void peth_the_dog(void)
 {
     if ((HAL_GetTick() - WWDGTick) >= 35)

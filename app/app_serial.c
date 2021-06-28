@@ -7,17 +7,20 @@ const char *comando_AT[]    = {"AT+TIME" , "AT+DATE" , "AT+ALARM"};
 UART_HandleTypeDef UartHandle           = {0};
 Serial_MsgTypeDef SerialTranferData     = {0};
 
-uint8_t RxByte;
-uint8_t RxBuffer[30];
+static uint8_t RxByte;
+static uint8_t RxBuffer[30]     = {0};
+static uint8_t BufferTemp[30]   = {0};
 
-__IO ITStatus uartState             = SET;
-__IO ITStatus uartError             = RESET;
-__IO ITStatus statusRx              = RESET;
-__IO static uint8_t serialState     = SERIAL_IDLE; 
+__IO static ITStatus uartState             = SET;
+__IO static ITStatus uartError             = RESET;
+__IO static ITStatus statusRx              = RESET;
+__IO static uint8_t serialState            = SERIAL_IDLE; 
+
+static serialSelection SerialStateFun[] = {serialdle,serialAT_Sel,serialTime,serialDate,serialAlarm,serialERROR,serialOK};
 void serial_init()
 {
     UartHandle.Instance             = USART2;
-    UartHandle.Init.BaudRate        = 115200;
+    UartHandle.Init.BaudRate        = 9600;
     UartHandle.Init.WordLength      = UART_WORDLENGTH_8B;
     UartHandle.Init.StopBits        = UART_STOPBITS_1;
     UartHandle.Init.Parity          = UART_PARITY_NONE;
@@ -34,125 +37,172 @@ void serial_init()
 
 void serial_Task(void)
 {
-    uint8_t BufferTemp[30]  = {0};
+    // switch (serialState)
+    // {
+    //     case SERIAL_IDLE:
+    //         serialdle();
+    //         break;
+    //     case SERIAL_AT:
+    //         serialAT_Sel();
+    //         break;
+        
+    //     case SERIAL_TIME:
+    //         serialTime();
+    //         break;
+        
+    //     case SERIAL_DATE:
+    //         serialDate();
+    //         break;
+
+    //     case SERIAL_ALARM:
+    //         serialAlarm();
+    //         break;
+        
+    //     case SERIAL_ERROR:
+    //         serialERROR();
+    //         break;
+
+    //     case SERIAL_OK:
+    //         serialOK();
+    //         break;
+
+    //     default:
+    //         break;
+    // }
+    SerialStateFun[serialState]();
+}
+
+void serialdle(void)
+{
+    if (statusRx)
+    {
+        statusRx = RESET;
+        memcpy((char*)BufferTemp,(const char*)RxBuffer,strlen((const char*)RxBuffer));
+        serialState = SERIAL_AT;
+    }
+    if(uartError)
+    {
+        uartError = RESET;   
+        serialState = SERIAL_ERROR;
+    }
+}
+
+void serialAT_Sel(void)
+{
+    char *InpuyComand;
+    InpuyComand = strtok((char*)BufferTemp, "=" );
+    if (strcmp(InpuyComand,comando_AT[0]) == 0)
+    {
+        serialState = SERIAL_TIME;
+    }
+    else if (strcmp(InpuyComand,comando_AT[1]) == 0)
+    {
+        serialState = SERIAL_DATE;
+    }
+    else if (strcmp(InpuyComand,comando_AT[2]) == 0)
+    {
+        serialState = SERIAL_ALARM;
+    }
+    else
+    {
+        serialState = SERIAL_ERROR;
+    }
+}
+
+void serialTime(void)
+{
     uint8_t hour_day        = 0;
     uint8_t min_month       = 0;
     uint16_t sec_year       = 0;
-    char *InpuyComand, *parametro;
+    char* parametro;
 
-    switch (serialState)
+    serialState = SERIAL_ERROR;
+    parametro = strtok(NULL, "," );
+    hour_day = validate_StrToInt(parametro);
+
+    parametro = strtok(NULL, "," );
+    min_month = validate_StrToInt(parametro);
+
+    parametro = strtok(NULL, "," );
+    sec_year  = validate_StrToInt(parametro);
+    // printf("serialTime\n");
+    if (checkDataTime(hour_day,min_month,sec_year) == HAL_OK)
     {
-        case SERIAL_IDLE:
-            if (statusRx)
-            {
-                statusRx = RESET;
-                memcpy((char*)BufferTemp,(const char*)RxBuffer,strlen((const char*)RxBuffer));
-                serialState = SERIAL_AT;
-            }
-            if(uartError)
-            {
-                uartError = RESET;   
-                serialState = SERIAL_ERROR;
-            }
-            break;
-        case SERIAL_AT:
-            InpuyComand = strtok((char*)RxBuffer, "=" );
-            if (strcmp(InpuyComand,comando_AT[0]) == 0)
-            {
-                serialState = SERIAL_TIME;
-            }
-            else if (strcmp(InpuyComand,comando_AT[1]) == 0)
-            {
-                serialState = SERIAL_DATE;
-            }
-            else if (strcmp(InpuyComand,comando_AT[2]) == 0)
-            {
-                serialState = SERIAL_ALARM;
-            }
-            else
-            {
-                serialState = SERIAL_ERROR;
-            }
-            break;
-        
-        case SERIAL_TIME:
-            serialState = SERIAL_ERROR;
-            parametro = strtok(NULL, "," );
-            hour_day = validate_StrToInt(parametro);
-
-            parametro = strtok(NULL, "," );
-            min_month = validate_StrToInt(parametro);
-
-            parametro = strtok(NULL, "," );
-            sec_year  = validate_StrToInt(parametro);
-            if (checkDataTime(hour_day,min_month,sec_year) == HAL_OK)
-            {
-                SerialTranferData.msg       = TIME;
-                SerialTranferData.param1    = hour_day;
-                SerialTranferData.param2    = min_month;
-                SerialTranferData.param3    = sec_year;
-                serialState = SERIAL_OK;
-            }
-            break;
-        
-        case SERIAL_DATE:
-            serialState = SERIAL_ERROR;
-            parametro = strtok(NULL, "," );
-            hour_day = validate_StrToInt(parametro);
-
-            parametro = strtok(NULL, "," );
-            min_month = validate_StrToInt(parametro);
-
-            parametro = strtok(NULL, "," );
-            sec_year  = validate_StrToInt(parametro);
-            if (checkDataDate(hour_day,min_month,sec_year) == HAL_OK)
-            {
-                SerialTranferData.msg       = DATE;
-                SerialTranferData.param1    = hour_day;
-                SerialTranferData.param2    = min_month;
-                SerialTranferData.param3    = sec_year;
-                serialState = SERIAL_OK;
-            }
-            break;
-
-        case SERIAL_ALARM:
-            serialState = SERIAL_ERROR;
-            parametro = strtok(NULL, "," );
-            hour_day = validate_StrToInt(parametro);
-
-            parametro = strtok(NULL, "," );
-            min_month = validate_StrToInt(parametro);
-            if (checkDataAlarm(hour_day,min_month) == HAL_OK)
-            {
-                SerialTranferData.msg       = ALARM;
-                SerialTranferData.param1    = hour_day;
-                SerialTranferData.param2    = min_month;
-                SerialTranferData.param3    = 0;
-                serialState = SERIAL_OK;
-            }
-            
-            break;
-        
-        case SERIAL_ERROR:
-            if (uartState == SET)
-            {
-                HAL_UART_Transmit_IT(&UartHandle,(uint8_t*)msgError,strlen(msgError));
-            }
-            serialState = SERIAL_IDLE;
-            break;
-
-        case SERIAL_OK:
-            if (uartState == SET)
-            {
-                HAL_UART_Transmit_IT(&UartHandle,(uint8_t*)msgOK,strlen(msgOK));   
-            }
-            serialState = SERIAL_IDLE;
-            break;
-
-        default:
-            break;
+        SerialTranferData.msg       = TIME;
+        SerialTranferData.param1    = hour_day;
+        SerialTranferData.param2    = min_month;
+        SerialTranferData.param3    = sec_year;
+        serialState = SERIAL_OK;
     }
 }
+
+void serialDate(void)
+{
+    uint8_t hour_day        = 0;
+    uint8_t min_month       = 0;
+    uint16_t sec_year       = 0;
+    char* parametro;
+    serialState = SERIAL_ERROR;
+    parametro = strtok(NULL, "," );
+    hour_day = validate_StrToInt(parametro);
+
+    parametro = strtok(NULL, "," );
+    min_month = validate_StrToInt(parametro);
+
+    parametro = strtok(NULL, "," );
+    sec_year  = validate_StrToInt(parametro);
+    // printf("serialDate\n");
+    if (checkDataDate(hour_day,min_month,sec_year) == HAL_OK)
+    {
+        SerialTranferData.msg       = DATE;
+        SerialTranferData.param1    = hour_day;
+        SerialTranferData.param2    = min_month;
+        SerialTranferData.param3    = sec_year;
+        serialState = SERIAL_OK;
+    }
+}
+void serialAlarm(void)
+{
+    uint8_t hour_day        = 0;
+    uint8_t min_month       = 0;
+    char* parametro;
+    serialState = SERIAL_ERROR;
+    parametro = strtok(NULL, "," );
+    hour_day = validate_StrToInt(parametro);
+
+    parametro = strtok(NULL, "," );
+    min_month = validate_StrToInt(parametro);
+    // printf("serialAlarm\n");
+    if (checkDataAlarm(hour_day,min_month) == HAL_OK)
+    {
+        SerialTranferData.msg       = ALARM;
+        SerialTranferData.param1    = hour_day;
+        SerialTranferData.param2    = min_month;
+        SerialTranferData.param3    = 0;
+        serialState = SERIAL_OK;
+    }
+}
+
+void serialOK(void)
+{
+    memset(BufferTemp,0,sizeof(BufferTemp));
+    if (uartState == SET)
+    {
+        HAL_UART_Transmit_IT(&UartHandle,(uint8_t*)msgOK,strlen(msgOK));   
+    }
+    serialState = SERIAL_IDLE;
+}
+
+void serialERROR(void)
+{
+    memset(BufferTemp,0,sizeof(BufferTemp));
+    if (uartState == SET)
+    {
+        HAL_UART_Transmit_IT(&UartHandle,(uint8_t*)msgError,strlen(msgError));
+    }
+    serialState = SERIAL_IDLE;
+}
+
 
 int32_t validate_StrToInt(char * buffer)
 {

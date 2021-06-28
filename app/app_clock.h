@@ -14,12 +14,18 @@
 #define TIME_TRANSITION     1000U
 
 void clock_init(void);
-void showClock(void);
-void showAlarm(void);
 void clock_task(void);
+
+void clockIdle(void);
+void showClock(void);
+void clockShowAlarm(void);
+void clockSetData(void);
+void showAlarmUp(void);
 
 HAL_StatusTypeDef setTime(uint8_t hour, uint8_t minutes, uint16_t seconds);
 HAL_StatusTypeDef setDate(uint8_t day, uint8_t month, uint16_t year);
 HAL_StatusTypeDef setAlarm(uint8_t hour, uint8_t minutes);
+
+typedef void (*clockSelection)(void);
 
 #endif

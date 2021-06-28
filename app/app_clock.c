@@ -13,6 +13,8 @@ __IO static uint8_t clockState       = CLOCK_IDLE;
 static uint16_t yearConversion  = 2000;
 static uint32_t tick            = 0;
 
+clockSelection clockSelectionFun[] = {clockIdle,showClock,clockShowAlarm,clockSetData,showAlarmUp};
+
 void clock_init(void)
 {
     __HAL_RCC_RTC_ENABLE();
@@ -42,76 +44,89 @@ void clock_init(void)
     RTC_AlarmConfig.AlarmTime.Seconds = 40;
     RTC_AlarmConfig.AlarmTime.TimeFormat = RTC_HOURFORMAT_24;
     HAL_RTC_SetAlarm_IT(&RTC_InitStructure,&RTC_AlarmConfig,RTC_FORMAT_BIN);
+    HAL_RTC_DeactivateAlarm(&RTC_InitStructure,RTC_ALARM_A);
 
     tick = HAL_GetTick();
 }
 
 void clock_task(void)
 {
-    RTC_AlarmTypeDef    gAlarm = {0};
+    // switch (clockState)
+    // {
+    //     case CLOCK_IDLE:
+    //         clockIdle();
+    //         break;
 
-    switch (clockState)
+    //     case CLOCK_SHOW:
+    //         showClock();
+    //         break;
+
+    //     case CLOCK_SHOW_ALARM:
+    //         clockShowAlarm();
+    //         break;
+
+    //     case CLOCK_SET_DATA:
+    //         clockSetData();
+    //         break;
+
+    //     case CLOCK_ALARM_UP:
+    //         showAlarmUp();
+    //         break;
+
+    //     default:
+    //         break;
+    // }
+    clockSelectionFun[clockState]();
+}
+
+void clockIdle(void)
+{
+    if (HAL_GetTick() - tick >= TIME_TRANSITION)
     {
-        case CLOCK_IDLE:
-            if (HAL_GetTick() - tick >= TIME_TRANSITION)
-            {
-                tick = HAL_GetTick();
-                clockState = CLOCK_SHOW;
-            }
-            if (!HAL_GPIO_ReadPin(GPIOC,GPIO_PIN_13))
-            {
-                clockState = CLOCK_SHOW_ALARM;
-            }
-            else if(AlarmRTC == SET)
-            {
-                clockState = CLOCK_ALARM_UP;
-            }
-            else if(SerialTranferData.msg != NONE)
-            {
-                clockState = CLOCK_SET_DATA;
-            }
-            break;
-
-        case CLOCK_SHOW:
-            showClock();
-            clockState = CLOCK_IDLE;
-            break;
-
-        case CLOCK_SHOW_ALARM:
-            HAL_RTC_GetAlarm(&RTC_InitStructure,&gAlarm,RTC_ALARM_A,RTC_FORMAT_BIN);
-            printf("Alarm - %02d:%02d:%02d\n",gAlarm.AlarmTime.Hours, gAlarm.AlarmTime.Minutes, gAlarm.AlarmTime.Seconds);
-            while (!HAL_GPIO_ReadPin(GPIOC,GPIO_PIN_13));
-            clockState = CLOCK_IDLE;
-            break;
-
-        case CLOCK_SET_DATA:
-            if (SerialTranferData.msg == TIME)
-            {
-                SerialTranferData.msg = NONE;
-                setTime(SerialTranferData.param1,SerialTranferData.param2,SerialTranferData.param3);
-            }
-            else if (SerialTranferData.msg == DATE)
-            {
-                SerialTranferData.msg = NONE;
-                setDate(SerialTranferData.param1,SerialTranferData.param2,SerialTranferData.param3);
-            }
-            else if (SerialTranferData.msg == ALARM)
-            {
-                SerialTranferData.msg = NONE;
-                setAlarm(SerialTranferData.param1,SerialTranferData.param2);
-            }
-            
-            clockState = CLOCK_IDLE;
-            break;
-
-        case CLOCK_ALARM_UP:
-            showAlarm();
-            clockState = CLOCK_IDLE;
-            break;
-
-        default:
-            break;
+        tick = HAL_GetTick();
+        clockState = CLOCK_SHOW;
     }
+    if (!HAL_GPIO_ReadPin(GPIOC,GPIO_PIN_13))
+    {
+        clockState = CLOCK_SHOW_ALARM;
+    }
+    else if(AlarmRTC == SET)
+    {
+        clockState = CLOCK_ALARM_UP;
+    }
+    else if(SerialTranferData.msg != NONE)
+    {
+        clockState = CLOCK_SET_DATA;
+    }
+}
+
+void clockShowAlarm(void)
+{
+    RTC_AlarmTypeDef    gAlarm = {0};
+    HAL_RTC_GetAlarm(&RTC_InitStructure,&gAlarm,RTC_ALARM_A,RTC_FORMAT_BIN);
+    printf("Alarm - %02d:%02d:%02d\n",gAlarm.AlarmTime.Hours, gAlarm.AlarmTime.Minutes, gAlarm.AlarmTime.Seconds);
+    while (!HAL_GPIO_ReadPin(GPIOC,GPIO_PIN_13));
+    clockState = CLOCK_IDLE;
+}
+void clockSetData(void)
+{
+    if (SerialTranferData.msg == TIME)
+    {
+        SerialTranferData.msg = NONE;
+        setTime(SerialTranferData.param1,SerialTranferData.param2,SerialTranferData.param3);
+    }
+    else if (SerialTranferData.msg == DATE)
+    {
+        SerialTranferData.msg = NONE;
+        setDate(SerialTranferData.param1,SerialTranferData.param2,SerialTranferData.param3);
+    }
+    else if (SerialTranferData.msg == ALARM)
+    {
+        SerialTranferData.msg = NONE;
+        setAlarm(SerialTranferData.param1,SerialTranferData.param2);
+    }
+    
+    clockState = CLOCK_IDLE;
 }
 
 HAL_StatusTypeDef setTime(uint8_t hour, uint8_t minutes, uint16_t seconds)
@@ -189,12 +204,13 @@ void showClock(void)
     HAL_RTC_GetDate(&RTC_InitStructure,&gDate,RTC_FORMAT_BIN);
     printf("%02d:%02d:%02d - ",gTime.Hours, gTime.Minutes, gTime.Seconds);
     printf("%02d/%02d/%04d\n",gDate.Date, gDate.Month, gDate.Year+yearConversion);
-
+    clockState = CLOCK_IDLE;
 }
 
-void showAlarm(void)
+void showAlarmUp(void)
 {
     AlarmRTC = RESET;
+    HAL_RTC_DeactivateAlarm(&RTC_InitStructure,RTC_ALARM_A);
     uint8_t time = 1;
     uint32_t timeTick = HAL_GetTick();
     for ( ; ;)
@@ -210,8 +226,8 @@ void showAlarm(void)
             HAL_Delay(1);
             break;
         }
-           
     }
+    clockState = CLOCK_IDLE;
 }
 
 void HAL_RTC_AlarmAEventCallback(RTC_HandleTypeDef *hrtc)
