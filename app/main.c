@@ -26,8 +26,8 @@ int main( void )
     HAL_Init( );
     serial_init();
     heart_init();
-    // dog_init();
     clock_init();
+    // dog_init();
     
     for (; ;)
     {

@@ -13,7 +13,7 @@ __IO static uint8_t clockState       = CLOCK_IDLE;
 static uint16_t yearConversion  = 2000;
 static uint32_t tick            = 0;
 
-clockSelection clockSelectionFun[] = {clockIdle,showClock,clockShowAlarm,clockSetData,showAlarmUp};
+static clockSelection clockSelectionFun[] = {clockIdle,showClock,clockShowAlarm,clockSetData,showAlarmUp};
 
 void clock_init(void)
 {
