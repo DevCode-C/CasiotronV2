@@ -102,11 +102,24 @@ void clockIdle(void)
 
 void clockShowAlarm(void)
 {
+    static uint8_t flagButon = 0;
     RTC_AlarmTypeDef    gAlarm = {0};
-    HAL_RTC_GetAlarm(&RTC_InitStructure,&gAlarm,RTC_ALARM_A,RTC_FORMAT_BIN);
-    printf("Alarm - %02d:%02d:%02d\n",gAlarm.AlarmTime.Hours, gAlarm.AlarmTime.Minutes, gAlarm.AlarmTime.Seconds);
-    while (!HAL_GPIO_ReadPin(GPIOC,GPIO_PIN_13));
-    clockState = CLOCK_IDLE;
+    if (flagButon == 0 && !HAL_GPIO_ReadPin(GPIOC,GPIO_PIN_13))
+    {
+        HAL_RTC_GetAlarm(&RTC_InitStructure,&gAlarm,RTC_ALARM_A,RTC_FORMAT_BIN);
+        printf("Alarm - %02d:%02d:%02d\n",gAlarm.AlarmTime.Hours, gAlarm.AlarmTime.Minutes, gAlarm.AlarmTime.Seconds);
+        flagButon =1;
+    }
+    else if (!HAL_GPIO_ReadPin(GPIOC,GPIO_PIN_13))
+    {
+        clockState = CLOCK_SHOW_ALARM;
+    }
+    else
+    {
+        flagButon = 0;
+        clockState = CLOCK_IDLE;
+    }
+    
 }
 void clockSetData(void)
 {
@@ -209,25 +222,24 @@ void showClock(void)
 
 void showAlarmUp(void)
 {
-    AlarmRTC = RESET;
-    HAL_RTC_DeactivateAlarm(&RTC_InitStructure,RTC_ALARM_A);
-    uint8_t time = 1;
-    uint32_t timeTick = HAL_GetTick();
-    for ( ; ;)
+    if (AlarmRTC == SET)
     {
-        if (HAL_GetTick() - timeTick > 1000)
-        {
-            timeTick = HAL_GetTick();
-            time++;
-            printf("ALARM!!\n");
-        }
-        if (!HAL_GPIO_ReadPin(GPIOC,GPIO_PIN_13) || time > 59)
-        {
-            HAL_Delay(1);
-            break;
-        }
+        AlarmRTC = RESET;
+        HAL_RTC_DeactivateAlarm(&RTC_InitStructure,RTC_ALARM_A);
     }
-    clockState = CLOCK_IDLE;
+    
+    static uint8_t time = 1;
+    if (HAL_GetTick() - tick >= TIME_TRANSITION)
+    {
+        tick = HAL_GetTick();
+        time++;
+        printf("ALARM!!\n");
+    }
+    if (!HAL_GPIO_ReadPin(GPIOC,GPIO_PIN_13) || time > 59)
+    {
+        clockState = CLOCK_IDLE;
+    }
+    
 }
 
 void HAL_RTC_AlarmAEventCallback(RTC_HandleTypeDef *hrtc)
