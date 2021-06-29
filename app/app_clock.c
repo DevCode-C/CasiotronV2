@@ -240,11 +240,11 @@ void clockShowAlarm(void)
     }
     while (!HAL_GPIO_ReadPin(GPIOC,GPIO_PIN_13))
     {
-        if ((HAL_GetTick() - WWDGTick) >= 40)
-        {
-            WWDGTick = HAL_GetTick();
-            HAL_WWDG_Refresh(&WWDG_HandleInit);
-        }
+        // if ((HAL_GetTick() - WWDGTick) >= 40)
+        // {
+        //     WWDGTick = HAL_GetTick();
+        //     HAL_WWDG_Refresh(&WWDG_HandleInit);
+        // }
     }
     clockState = CLOCK_IDLE;
 }

@@ -11,6 +11,9 @@ static uint8_t RxByte;
 static uint8_t RxBuffer[30];
 static uint8_t BufferTemp[30];
 
+uint8_t bufferCircular[200];
+BUFFER_HandleTypeDef CircBuffer;
+
 static serialSelection SerialStateFun[] = {serialdle,serialAT_Sel,serialTime,serialDate,serialAlarm,serialERROR,serialOK};
 
 __IO static ITStatus uartState             = SET;
@@ -33,6 +36,10 @@ void serial_init()
 
     SerialTranferData.msg = NONE;
     uartState = SET;
+
+    CircBuffer.Buffer = bufferCircular;
+    CircBuffer.Elements = 200U;
+    HIL_BUFFER_Init(&CircBuffer);
 }
 
 void serial_Task(void)
@@ -45,8 +52,17 @@ void serialdle(void)
     if (statusRx)
     {
         statusRx = RESET;
-        memcpy((char*)BufferTemp,(const char*)RxBuffer,strlen((const char*)RxBuffer));
-        serialState = SERIAL_AT;
+
+        while (HIL_BUFFER_IsEmpty(&CircBuffer) == 0)
+        {
+            HAL_NVIC_DisableIRQ(USART2_IRQn);
+            printf("%c\n",HIL_BUFFER_Read(&CircBuffer));
+            HAL_NVIC_EnableIRQ(USART2_IRQn);
+        }
+        
+        
+        // memcpy((char*)BufferTemp,(const char*)RxBuffer,strlen((const char*)RxBuffer));
+        // serialState = SERIAL_AT;
     }
     if(uartError)
     {
@@ -226,15 +242,16 @@ void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart)
 
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 {
-    static uint32_t i = 0;
-    RxBuffer[i] = RxByte;
-    i++;
-    if(RxBuffer[i-1] == '\r')
-    {
-        RxBuffer[i-1] = '\0';
-        statusRx = SET;
-        i=0;
-    }
+    // static uint32_t i = 0;
+    // RxBuffer[i] = RxByte;
+    // i++;
+    // if(RxBuffer[i-1] == '\r')
+    // {
+    //     RxBuffer[i-1] = '\0';
+    //     i=0;
+    // }
+    HIL_BUFFER_Write(&CircBuffer,RxByte);
+    statusRx = SET;
     HAL_UART_Receive_IT(&UartHandle,&RxByte,1);
 }
 
