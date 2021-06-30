@@ -8,7 +8,6 @@ UART_HandleTypeDef UartHandle           = {0};
 Serial_MsgTypeDef SerialTranferData     = {0};
 
 static uint8_t RxByte;
-static uint8_t RxBuffer[30];
 static uint8_t BufferTemp[30];
 
 uint8_t bufferCircular[200];
@@ -53,12 +52,6 @@ void serialdle(void)
 {
     uint8_t data = 0;
     uint8_t index = 0;
-    // if (statusRx)
-    // {
-    //     statusRx = RESET;
-    //     memcpy((char*)BufferTemp,(const char*)RxBuffer,strlen((const char*)RxBuffer));
-    //     serialState = SERIAL_AT;
-    // }
     if ((HAL_GetTick() - serialTimeTick) >= 5000)
     {
         serialTimeTick = HAL_GetTick();
@@ -70,7 +63,6 @@ void serialdle(void)
 
             if (data == '\r')
             {
-                
                 serialState = SERIAL_AT;
                 break;
             }
@@ -254,7 +246,6 @@ HAL_StatusTypeDef checkDataAlarm(uint8_t hour, uint8_t minutes)
 void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart)
 {
     uartState = SET;
-    memset(RxBuffer,0,sizeof(RxBuffer));
 }
 
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
@@ -275,7 +266,6 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 
 void HAL_UART_ErrorCallback(UART_HandleTypeDef *huart)
 {
-    memset(RxBuffer,0,sizeof(RxBuffer));
     uartError = SET;
     statusRx = RESET;
 }
