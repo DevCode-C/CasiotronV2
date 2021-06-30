@@ -24,12 +24,7 @@ void HIL_BUFFER_Write( BUFFER_HandleTypeDef *hbuffer, uint8_t data )
 
 uint8_t HIL_BUFFER_IsEmpty( BUFFER_HandleTypeDef *hbuffer )
 {
-    uint8_t flag = 1;
-    if ((hbuffer->Tail - hbuffer->Head) != 0)
-    {
-        flag = 0;
-    }
-    return flag;
+    return hbuffer->Empty;
 }
 
 uint8_t HIL_BUFFER_Read( BUFFER_HandleTypeDef *hbuffer )
