@@ -9,6 +9,7 @@
 #include "string.h"
 #include "ctype.h"
 #include "stm32f0xx_hal.h"
+#include "buffer.h"
 
 #define NONE    0U
 #define TIME    1U
