@@ -13,8 +13,6 @@ static clockSelection clockSelectionFun[] = {clockIdle,showClock,clockShowAlarm,
 
 extern Serial_MsgTypeDef    SerialTranferData;
 extern SPI_HandleTypeDef    spi_Handle;
-extern WWDG_HandleTypeDef   WWDG_HandleInit;
-extern uint32_t             WWDGTick; 
 
 __IO ITStatus AlarmRTC               = RESET;
 __IO ITStatus Alarm_Active           = RESET;
@@ -179,74 +177,77 @@ void showClock(void)
 
 void showAlarmUp(void)
 {
-    AlarmRTC = RESET;
-    HAL_RTC_DeactivateAlarm(&RTC_InitStructure,RTC_ALARM_A);
-    uint8_t time = 1;
+    static uint8_t time = 0;
     RTC_TimeTypeDef     gTime       = {0};
     RTC_DateTypeDef     gDate       = {0};
     uint8_t           buffer[17]    = {0};
-    uint32_t timeTick = HAL_GetTick();
-    for ( ; ;)
+
+    if (AlarmRTC == SET)
     {
-        if (HAL_GetTick() - timeTick > 1000)
+        AlarmRTC = RESET;
+        HAL_RTC_DeactivateAlarm(&RTC_InitStructure,RTC_ALARM_A);
+    }
+
+
+    if (HAL_GetTick() - tick >= TIME_TRANSITION)
+    {
+        tick = HAL_GetTick();
+        HAL_RTC_GetTime(&RTC_InitStructure,&gTime,RTC_FORMAT_BIN);
+        HAL_RTC_GetDate(&RTC_InitStructure,&gDate,RTC_FORMAT_BIN);
+        if (time%2)
         {
-            timeTick = HAL_GetTick();
-            time++;
-            HAL_RTC_GetTime(&RTC_InitStructure,&gTime,RTC_FORMAT_BIN);
-            HAL_RTC_GetDate(&RTC_InitStructure,&gDate,RTC_FORMAT_BIN);
-            if (time%2)
-            {
-                sprintf((char*)buffer,"*** %02d:%02d:%02d ***",gTime.Hours, gTime.Minutes, gTime.Seconds);
-            }
-            else
-            {
-                sprintf((char*)buffer,"    %02d:%02d:%02d    ",gTime.Hours, gTime.Minutes, gTime.Seconds);
-            }
-            MOD_LCD_SetCursor(&lcd_display,2,1);
-            MOD_LCD_String(&lcd_display,(char*)buffer);
+            sprintf((char*)buffer,"*** %02d:%02d:%02d ***",gTime.Hours, gTime.Minutes, gTime.Seconds);
         }
-        else if ((HAL_GetTick() - WWDGTick) >= 40)
+        else
         {
-            WWDGTick = HAL_GetTick();
-            HAL_WWDG_Refresh(&WWDG_HandleInit);
+            sprintf((char*)buffer,"    %02d:%02d:%02d    ",gTime.Hours, gTime.Minutes, gTime.Seconds);
         }
 
-        if (!HAL_GPIO_ReadPin(GPIOC,GPIO_PIN_13) || time > 59)
-        {
-            break;
-        }
-           
+        time++;
+        MOD_LCD_SetCursor(&lcd_display,2,1);
+        MOD_LCD_String(&lcd_display,(char*)buffer);
     }
-    clockState = CLOCK_IDLE;
+    
+    if (!HAL_GPIO_ReadPin(GPIOC,GPIO_PIN_13) || time > 59)
+    {
+        clockState = CLOCK_IDLE;
+    }
+           
 }
 
 void clockShowAlarm(void)
 {
-    uint8_t           buffer[17] = {0};
-    RTC_AlarmTypeDef    gAlarm = {0};
     const char* nAlarm = "NO ALARM CONFIG ";
+    uint8_t           buffer[17]    = {0};
+    RTC_AlarmTypeDef    gAlarm      = {0};
+    static uint8_t      flagButon   = 0;
+
     HAL_RTC_GetAlarm(&RTC_InitStructure,&gAlarm,RTC_ALARM_A,RTC_FORMAT_BIN);
     
-    if (__HAL_RTC_ALARM_GET_IT_SOURCE(&RTC_InitStructure,RTC_ALARM_A))
+    if (flagButon == 0 && !HAL_GPIO_ReadPin(GPIOC,GPIO_PIN_13))
     {
-        sprintf((char*)buffer,"ALARM %02d:%02d:%02d ",gAlarm.AlarmTime.Hours, gAlarm.AlarmTime.Minutes, gAlarm.AlarmTime.Seconds);
-        MOD_LCD_SetCursor(&lcd_display,2,1);
-        MOD_LCD_String(&lcd_display,(char*)buffer);
+        if (__HAL_RTC_ALARM_GET_IT_SOURCE(&RTC_InitStructure,RTC_ALARM_A))
+        {
+            sprintf((char*)buffer,"ALARM %02d:%02d:%02d ",gAlarm.AlarmTime.Hours, gAlarm.AlarmTime.Minutes, gAlarm.AlarmTime.Seconds);
+            MOD_LCD_SetCursor(&lcd_display,2,1);
+            MOD_LCD_String(&lcd_display,(char*)buffer);
+        }
+        else
+        {
+            MOD_LCD_SetCursor(&lcd_display,2,1);
+            MOD_LCD_String(&lcd_display,(char*)nAlarm);
+        }
+        flagButon =1;
+    }
+    else if (!HAL_GPIO_ReadPin(GPIOC,GPIO_PIN_13))
+    {
+        clockState = CLOCK_SHOW_ALARM;
     }
     else
     {
-        MOD_LCD_SetCursor(&lcd_display,2,1);
-        MOD_LCD_String(&lcd_display,(char*)nAlarm);
+        flagButon = 0;
+        clockState = CLOCK_IDLE;
     }
-    while (!HAL_GPIO_ReadPin(GPIOC,GPIO_PIN_13))
-    {
-        // if ((HAL_GetTick() - WWDGTick) >= 40)
-        // {
-        //     WWDGTick = HAL_GetTick();
-        //     HAL_WWDG_Refresh(&WWDG_HandleInit);
-        // }
-    }
-    clockState = CLOCK_IDLE;
 }
 
 void clockSetData(void)
