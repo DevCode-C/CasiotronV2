@@ -5,7 +5,6 @@ const char* msgError        = {"ERROR\r\n"};
 const char *comando_AT[]    = {"AT+TIME" , "AT+DATE" , "AT+ALARM"};
 
 UART_HandleTypeDef UartHandle           = {0};
-Serial_MsgTypeDef SerialTranferData     = {0};
 
 static uint8_t RxByte;
 static uint8_t BufferTemp[30];
@@ -38,7 +37,6 @@ void serial_init()
     HAL_UART_Init(&UartHandle);
     HAL_UART_Receive_IT(&UartHandle,&RxByte,1);
 
-    SerialTranferData.msg = NONE;
     uartState = SET;
 
     QueueSerialRx.Buffer = (void*) SerialRx_BufferQ;
@@ -114,9 +112,10 @@ void serialAT_Sel(void)
 
 void serialTime(void)
 {
-    uint8_t hour_day        = 0;
-    uint8_t min_month       = 0;
-    uint16_t sec_year       = 0;
+    uint8_t             hour_day              = 0;
+    uint8_t             min_month             = 0;
+    uint16_t            sec_year              = 0;
+    Serial_MsgTypeDef   SerialTranferData     = {NONE,0,0,0};
     char *parametro         = NULL;
 
     serialState = SERIAL_ERROR;
@@ -141,10 +140,12 @@ void serialTime(void)
 
 void serialDate(void)
 {
-    uint8_t hour_day        = 0;
-    uint8_t min_month       = 0;
-    uint16_t sec_year       = 0;
+    uint8_t             hour_day              = 0;
+    uint8_t             min_month             = 0;
+    uint16_t            sec_year              = 0;
+    Serial_MsgTypeDef   SerialTranferData     = {NONE,0,0,0};
     char *parametro         = NULL;
+
     serialState = SERIAL_ERROR;
     parametro = strtok(NULL, "," );
     hour_day = validate_StrToInt(parametro);
@@ -166,9 +167,11 @@ void serialDate(void)
 }
 void serialAlarm(void)
 {
-    uint8_t hour_day        = 0;
-    uint8_t min_month       = 0;
+    uint8_t             hour_day              = 0;
+    uint8_t             min_month             = 0;
+    Serial_MsgTypeDef   SerialTranferData     = {NONE,0,0,0};
     char *parametro         = NULL;
+
     serialState = SERIAL_ERROR;
     parametro = strtok(NULL, "," );
     hour_day = validate_StrToInt(parametro);

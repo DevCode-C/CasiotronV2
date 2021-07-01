@@ -11,8 +11,9 @@ LCD_HandleTypeDef              lcd_display             = {0};
 
 static clockSelection clockSelectionFun[] = {clockIdle,showClock,clockShowAlarm,clockSetData,showAlarmUp};
 
-extern Serial_MsgTypeDef    SerialTranferData;
+static Serial_MsgTypeDef    SerialSet_Data;
 extern SPI_HandleTypeDef    spi_Handle;
+extern QUEUE_HandleTypeDef  QueueSerialTx;
 
 __IO ITStatus AlarmRTC               = RESET;
 __IO ITStatus Alarm_Active           = RESET;
@@ -143,7 +144,7 @@ void clockIdle(void)
     {
         clockState = CLOCK_ALARM_UP;
     }
-    else if(SerialTranferData.msg != NONE)
+    else if(HIL_QUEUE_Read(&QueueSerialTx,&SerialSet_Data) == 1)
     {
         clockState = CLOCK_SET_DATA;
     }
@@ -252,20 +253,17 @@ void clockShowAlarm(void)
 
 void clockSetData(void)
 {
-    if (SerialTranferData.msg == TIME)
+    if (SerialSet_Data.msg == TIME)
     {
-        SerialTranferData.msg = NONE;
-        setTime(SerialTranferData.param1,SerialTranferData.param2,SerialTranferData.param3);
+        setTime(SerialSet_Data.param1,SerialSet_Data.param2,SerialSet_Data.param3);
     }
-    else if (SerialTranferData.msg == DATE)
+    else if (SerialSet_Data.msg == DATE)
     {
-        SerialTranferData.msg = NONE;
-        setDate(SerialTranferData.param1,SerialTranferData.param2,SerialTranferData.param3);
+        setDate(SerialSet_Data.param1,SerialSet_Data.param2,SerialSet_Data.param3);
     }
-    else if (SerialTranferData.msg == ALARM)
+    else if (SerialSet_Data.msg == ALARM)
     {
-        SerialTranferData.msg = NONE;
-        setAlarm(SerialTranferData.param1,SerialTranferData.param2);
+        setAlarm(SerialSet_Data.param1,SerialSet_Data.param2);
     }
     
     clockState = CLOCK_IDLE;
