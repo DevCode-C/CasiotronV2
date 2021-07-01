@@ -2,6 +2,7 @@
 #define __APP_SERIAL__H
 #include "app_bsp.h"
 #include "buffer.h"
+#include "queue.h"
 
 #define SERIAL_IDLE     0U
 #define SERIAL_AT       1U

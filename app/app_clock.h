@@ -2,6 +2,7 @@
 #define __APP_CLOCK__H
 #include "app_bsp.h"
 #include "lcd.h"
+#include "queue.h"
 
 #define CLOCK_IDLE          0U
 #define CLOCK_SHOW          1U

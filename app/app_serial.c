@@ -10,8 +10,12 @@ Serial_MsgTypeDef SerialTranferData     = {0};
 static uint8_t RxByte;
 static uint8_t BufferTemp[30];
 
-uint8_t bufferCircular[200];
-BUFFER_HandleTypeDef CircBuffer;
+static uint8_t SerialRx_BufferQ[100];
+QUEUE_HandleTypeDef QueueSerialRx;
+
+uint8_t Serial_MSG_BufferQ[100];
+QUEUE_HandleTypeDef QueueSerialTx;
+
 static uint32_t serialTimeTick;
 
 static serialSelection SerialStateFun[] = {serialdle,serialAT_Sel,serialTime,serialDate,serialAlarm,serialERROR,serialOK};
@@ -37,9 +41,16 @@ void serial_init()
     SerialTranferData.msg = NONE;
     uartState = SET;
 
-    CircBuffer.Buffer = bufferCircular;
-    CircBuffer.Elements = 200U;
-    HIL_BUFFER_Init(&CircBuffer);
+    QueueSerialRx.Buffer = (void*) SerialRx_BufferQ;
+    QueueSerialRx.Elements = 100U;
+    QueueSerialRx.Size = sizeof(uint8_t);
+    HIL_QUEUE_Init(&QueueSerialRx);
+
+    QueueSerialTx.Buffer = (void*) Serial_MSG_BufferQ;
+    QueueSerialTx.Elements = 100U;
+    QueueSerialTx.Size = sizeof(Serial_MsgTypeDef);
+    HIL_QUEUE_Init(&QueueSerialTx);
+
     serialTimeTick = HAL_GetTick();
 }
 
@@ -55,10 +66,10 @@ void serialdle(void)
     if ((HAL_GetTick() - serialTimeTick) >= 5000)
     {
         serialTimeTick = HAL_GetTick();
-        while (HIL_BUFFER_IsEmpty(&CircBuffer) == 0)
+        while (HIL_QUEUE_IsEmpty(&QueueSerialRx) == 0)
         {
             HAL_NVIC_DisableIRQ(USART2_IRQn);
-            data = HIL_BUFFER_Read(&CircBuffer);
+            HIL_QUEUE_Read(&QueueSerialRx,&data);
             HAL_NVIC_EnableIRQ(USART2_IRQn);
 
             if (data == '\r')
@@ -82,7 +93,6 @@ void serialdle(void)
 
 void serialAT_Sel(void)
 {
-
     char* InpuyComand = strtok((char*)BufferTemp, "=" );
     if (strcmp(InpuyComand,comando_AT[0]) == 0)
     {
@@ -124,6 +134,7 @@ void serialTime(void)
         SerialTranferData.param1    = hour_day;
         SerialTranferData.param2    = min_month;
         SerialTranferData.param3    = sec_year;
+        HIL_QUEUE_Write(&QueueSerialTx,&SerialTranferData);
         serialState = SERIAL_OK;
     }
 }
@@ -149,6 +160,7 @@ void serialDate(void)
         SerialTranferData.param1    = hour_day;
         SerialTranferData.param2    = min_month;
         SerialTranferData.param3    = sec_year;
+        HIL_QUEUE_Write(&QueueSerialTx,&SerialTranferData);
         serialState = SERIAL_OK;
     }
 }
@@ -169,6 +181,7 @@ void serialAlarm(void)
         SerialTranferData.param1    = hour_day;
         SerialTranferData.param2    = min_month;
         SerialTranferData.param3    = 0;
+        HIL_QUEUE_Write(&QueueSerialTx,&SerialTranferData);
         serialState = SERIAL_OK;
     }
 }
@@ -260,7 +273,8 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
     //     i=0;
     // }
     // statusRx = SET;
-    HIL_BUFFER_Write(&CircBuffer,RxByte);
+    // HIL_BUFFER_Write(&CircBuffer,RxByte);
+    HIL_QUEUE_Write(&QueueSerialRx,(void*)&RxByte);
     HAL_UART_Receive_IT(&UartHandle,&RxByte,1);
 }
 
