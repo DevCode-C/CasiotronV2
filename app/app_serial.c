@@ -1,5 +1,28 @@
 #include "app_serial.h"
 
+#define SERIAL_IDLE     0U
+#define SERIAL_AT       1U
+#define SERIAL_TIME     2U
+#define SERIAL_DATE     3U
+#define SERIAL_ALARM    4U
+#define SERIAL_ERROR    5U
+#define SERIAL_OK       6U
+
+void serialdle(void);
+void serialAT_Sel(void);
+void serialTime(void);
+void serialDate(void);
+void serialAlarm(void);
+void serialOK(void);
+void serialERROR(void);
+
+int32_t validate_StrToInt(char * buffer);
+HAL_StatusTypeDef checkDataTime(uint8_t hour, uint8_t minutes, uint16_t seconds);
+HAL_StatusTypeDef checkDataDate(uint8_t day, uint8_t month, uint16_t year);
+HAL_StatusTypeDef checkDataAlarm(uint8_t hour, uint8_t minutes);
+
+typedef void (*serialSelection)(void);
+
 const char* msgOK           = {"OK\r\n"};
 const char* msgError        = {"ERROR\r\n"};
 const char *comando_AT[]    = {"AT+TIME" , "AT+DATE" , "AT+ALARM"};
@@ -20,7 +43,7 @@ static serialSelection SerialStateFun[] = {serialdle,serialAT_Sel,serialTime,ser
 void serial_init()
 {
     UartHandle.Instance             = USART2;
-    UartHandle.Init.BaudRate        = 9600;
+    UartHandle.Init.BaudRate        = 115200;
     UartHandle.Init.WordLength      = UART_WORDLENGTH_8B;
     UartHandle.Init.StopBits        = UART_STOPBITS_1;
     UartHandle.Init.Parity          = UART_PARITY_NONE;
@@ -37,38 +60,6 @@ void serial_init()
 
 void serial_Task(void)
 {
-    // switch (serialState)
-    // {
-    //     case SERIAL_IDLE:
-    //         serialdle();
-    //         break;
-    //     case SERIAL_AT:
-    //         serialAT_Sel();
-    //         break;
-        
-    //     case SERIAL_TIME:
-    //         serialTime();
-    //         break;
-        
-    //     case SERIAL_DATE:
-    //         serialDate();
-    //         break;
-
-    //     case SERIAL_ALARM:
-    //         serialAlarm();
-    //         break;
-        
-    //     case SERIAL_ERROR:
-    //         serialERROR();
-    //         break;
-
-    //     case SERIAL_OK:
-    //         serialOK();
-    //         break;
-
-    //     default:
-    //         break;
-    // }
     SerialStateFun[serialState]();
 }
 
@@ -125,7 +116,6 @@ void serialTime(void)
 
     parametro = strtok(NULL, "," );
     sec_year  = validate_StrToInt(parametro);
-    // printf("serialTime\n");
     if (checkDataTime(hour_day,min_month,sec_year) == HAL_OK)
     {
         SerialTranferData.msg       = TIME;
@@ -151,7 +141,6 @@ void serialDate(void)
 
     parametro = strtok(NULL, "," );
     sec_year  = validate_StrToInt(parametro);
-    // printf("serialDate\n");
     if (checkDataDate(hour_day,min_month,sec_year) == HAL_OK)
     {
         SerialTranferData.msg       = DATE;
@@ -172,7 +161,6 @@ void serialAlarm(void)
 
     parametro = strtok(NULL, "," );
     min_month = validate_StrToInt(parametro);
-    // printf("serialAlarm\n");
     if (checkDataAlarm(hour_day,min_month) == HAL_OK)
     {
         SerialTranferData.msg       = ALARM;
