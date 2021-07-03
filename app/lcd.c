@@ -55,7 +55,6 @@ void MOD_LCD_String( LCD_HandleTypeDef *hlcd, char *str )
     {
         MOD_LCD_Data(hlcd,str[i]);
     }
-    
 }
 
 void MOD_LCD_SetCursor( LCD_HandleTypeDef *hlcd, uint8_t row, uint8_t col )

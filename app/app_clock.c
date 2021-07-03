@@ -1,19 +1,52 @@
 #include "app_clock.h"
+#include "lcd.h"
+#include "queue.h"
+
+#define CLOCK_IDLE          0U
+#define CLOCK_SHOW          1U
+#define CLOCK_SHOW_ALARM    2U
+#define CLOCK_SET_DATA      3U 
+#define CLOCK_ALARM_UP      4U 
+
+#define TIME_TRANSITION     1000U
+
+void clockIdle(void);
+void showClock(void);
+void showAlarmUp(void);
+void clockSetData(void);
+void clockShowAlarm(void);
+
+HAL_StatusTypeDef setTime(uint8_t hour, uint8_t minutes, uint16_t seconds);
+HAL_StatusTypeDef setDate(uint8_t day, uint8_t month, uint16_t year);
+HAL_StatusTypeDef setAlarm(uint8_t hour, uint8_t minutes);
+
+void lcd_init(void);
+void spi_init(void);
+
+/*
+Algoritmo de congruencia de Zeller
+*/
+uint8_t dayOfWeek(uint8_t d, uint8_t m, uint16_t y);
+
+typedef void (*clockSelection)(void);
 
 const char * months[] = {" ","ENE","FEB","MAR","ABR","MAY","JUN","JUL","AGO","SEP","OCT","NOV","DIC"};
 const char * days[] = {"Do","Lu","Ma","Mi","Ju","Vi","Sa"};
+const char* nAlarm = "NO ALARM CONFIG ";
 
 RTC_HandleTypeDef              RTC_InitStructure       = {0};
 static RTC_TimeTypeDef         RTC_TImeConfig          = {0};
 static RTC_DateTypeDef         RTC_DateConfig          = {0};
 static RTC_AlarmTypeDef        RTC_AlarmConfig         = {0};
 LCD_HandleTypeDef              lcd_display             = {0};
+SPI_HandleTypeDef              spi_Handle              = {0};
 
 static clockSelection clockSelectionFun[] = {clockIdle,showClock,clockShowAlarm,clockSetData,showAlarmUp};
 
 static Serial_MsgTypeDef    SerialSet_Data;
 extern SPI_HandleTypeDef    spi_Handle;
 extern QUEUE_HandleTypeDef  QueueSerialTx;
+extern void initialise_monitor_handles(void);
 
 __IO ITStatus AlarmRTC               = RESET;
 __IO ITStatus Alarm_Active           = RESET;
@@ -24,6 +57,19 @@ static uint32_t tick            = 0;
 
 void clock_init(void)
 {
+    GPIO_InitTypeDef GPIO_InitStructure;
+    
+    initialise_monitor_handles();
+    printf("\n");
+    spi_init();
+    
+    __HAL_RCC_GPIOC_CLK_ENABLE();
+    GPIO_InitStructure.Pin = GPIO_PIN_13;
+    GPIO_InitStructure.Mode = GPIO_MODE_INPUT;
+    GPIO_InitStructure.Pull = GPIO_PULLUP;
+    HAL_GPIO_Init(GPIOC,&GPIO_InitStructure);
+
+
     __HAL_RCC_RTC_ENABLE();
     RTC_InitStructure.Instance              = RTC;
     RTC_InitStructure.Init.HourFormat       = RTC_HOURFORMAT_24;
@@ -45,7 +91,7 @@ void clock_init(void)
     HAL_RTC_SetDate(&RTC_InitStructure,&RTC_DateConfig,RTC_FORMAT_BIN);
 
     RTC_AlarmConfig.Alarm = RTC_ALARM_A;
-    RTC_AlarmConfig.AlarmDateWeekDay = 00;
+    RTC_AlarmConfig.AlarmDateWeekDaySel = RTC_ALARMDATEWEEKDAYSEL_WEEKDAY;
     RTC_AlarmConfig.AlarmTime.Hours = 00;
     RTC_AlarmConfig.AlarmTime.Minutes = 00;
     RTC_AlarmConfig.AlarmTime.Seconds = 00;
@@ -64,13 +110,7 @@ void clock_task(void)
 
 HAL_StatusTypeDef setTime(uint8_t hour, uint8_t minutes, uint16_t seconds)
 {
-    HAL_StatusTypeDef   flag    = HAL_ERROR;
-
-    if ((hour < 24) && (minutes < 60) && (seconds < 60))
-    {
-        flag = HAL_OK;    
-    }
-
+    HAL_StatusTypeDef   flag    = HAL_OK;
     if (flag == HAL_OK)
     {
         RTC_TImeConfig.Hours             = hour;
@@ -84,13 +124,7 @@ HAL_StatusTypeDef setTime(uint8_t hour, uint8_t minutes, uint16_t seconds)
 
 HAL_StatusTypeDef setDate(uint8_t day, uint8_t month, uint16_t year)
 {
-    HAL_StatusTypeDef   flag    = HAL_ERROR;
-
-    if ((day <= 30) && (month <= 12) && (year <= 9999))
-    {
-        flag = HAL_OK;
-    }
-    
+    HAL_StatusTypeDef   flag    = HAL_OK;
     if (flag == HAL_OK)
     {
         yearConversion = (year - (year%100)); 
@@ -106,18 +140,11 @@ HAL_StatusTypeDef setDate(uint8_t day, uint8_t month, uint16_t year)
 
 HAL_StatusTypeDef setAlarm(uint8_t hour, uint8_t minutes)
 {
-    HAL_StatusTypeDef   flag    = HAL_ERROR;
-
-    if (hour < 24 && minutes < 60)
-    {
-        flag = HAL_OK;
-    }
-    
+    HAL_StatusTypeDef   flag    = HAL_OK;
     if (flag == HAL_OK)
     {
         Alarm_Active = SET;
         RTC_AlarmConfig.Alarm = RTC_ALARM_A;
-        RTC_AlarmConfig.AlarmDateWeekDay = RTC_DateConfig.Date;
         RTC_AlarmConfig.AlarmTime.Hours = hour;
         RTC_AlarmConfig.AlarmTime.Minutes = minutes;
         RTC_AlarmConfig.AlarmTime.Seconds = 0;
@@ -136,11 +163,11 @@ void clockIdle(void)
         tick = HAL_GetTick();
         clockState = CLOCK_SHOW;
     }
-    if (!HAL_GPIO_ReadPin(GPIOC,GPIO_PIN_13))
+    if (HAL_GPIO_ReadPin(GPIOC,GPIO_PIN_13) == 0)
     {
         clockState = CLOCK_SHOW_ALARM;
     }
-    else if(AlarmRTC == SET)
+    if(AlarmRTC == SET)
     {
         clockState = CLOCK_ALARM_UP;
     }
@@ -218,7 +245,7 @@ void showAlarmUp(void)
 
 void clockShowAlarm(void)
 {
-    const char* nAlarm = "NO ALARM CONFIG ";
+    
     uint8_t           buffer[17]    = {0};
     RTC_AlarmTypeDef    gAlarm      = {0};
     static uint8_t      flagButon   = 0;
@@ -268,6 +295,25 @@ void clockSetData(void)
     
     clockState = CLOCK_IDLE;
 }
+
+void spi_init(void)
+{
+    spi_Handle.Instance                  = SPI1;
+    spi_Handle.Init.Mode                 = SPI_MODE_MASTER;
+    spi_Handle.Init.BaudRatePrescaler    = SPI_BAUDRATEPRESCALER_16;
+    spi_Handle.Init.Direction            = SPI_DIRECTION_2LINES;
+    spi_Handle.Init.CLKPhase             = SPI_PHASE_2EDGE;
+    spi_Handle.Init.CLKPolarity          = SPI_POLARITY_LOW;
+    spi_Handle.Init.CRCCalculation       = SPI_CRCCALCULATION_DISABLE;
+    spi_Handle.Init.CRCPolynomial        = 7;
+    spi_Handle.Init.DataSize             = SPI_DATASIZE_8BIT;
+    spi_Handle.Init.FirstBit             = SPI_FIRSTBIT_MSB;
+    spi_Handle.Init.NSS                  = SPI_NSS_SOFT;
+    spi_Handle.Init.TIMode               = SPI_TIMODE_DISABLE;
+    HAL_SPI_Init(&spi_Handle);
+    HAL_GPIO_WritePin(LCD_PORT,LCD_CS,SET);
+}
+
 
 void lcd_init(void)
 {
