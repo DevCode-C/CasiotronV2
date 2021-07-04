@@ -9,12 +9,14 @@
 #include "string.h"
 #include "ctype.h"
 #include "stm32f0xx_hal.h"
+#include "stm32f0xx_hal_i2c.h"
 
 
 #define NONE    0U
 #define TIME    1U
 #define DATE    2U
 #define ALARM   3U
+#define TEMP    4U
 
 #define LCD_PORT        GPIOC   //LCD PORT
 #define LCD_PINES       GPIO_PIN_0 | GPIO_PIN_1 | GPIO_PIN_2  //LCD Pines

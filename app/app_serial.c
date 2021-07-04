@@ -9,12 +9,14 @@
 #define SERIAL_ALARM    4U
 #define SERIAL_ERROR    5U
 #define SERIAL_OK       6U
+#define SERIAL_TEMP     7U
 
 void serialdle(void);
 void serialAT_Sel(void);
 void serialTime(void);
 void serialDate(void);
 void serialAlarm(void);
+void serialTemp(void);
 void serialOK(void);
 void serialERROR(void);
 
@@ -22,12 +24,13 @@ int32_t validate_StrToInt(char * buffer);
 HAL_StatusTypeDef checkDataTime(uint8_t hour, uint8_t minutes, uint16_t seconds);
 HAL_StatusTypeDef checkDataDate(uint8_t day, uint8_t month, uint16_t year);
 HAL_StatusTypeDef checkDataAlarm(uint8_t hour, uint8_t minutes);
+HAL_StatusTypeDef checkDataTemp(int8_t lower, uint8_t uper);
 
 typedef void (*serialSelection)(void);
 
 const char* msgOK           = {"OK\r\n"};
 const char* msgError        = {"ERROR\r\n"};
-const char *comando_AT[]    = {"AT+TIME" , "AT+DATE" , "AT+ALARM"};
+const char *comando_AT[]    = {"AT+TIME" , "AT+DATE" , "AT+ALARM", "AT+TEMP"};
 
 UART_HandleTypeDef UartHandle           = {0};
 
@@ -42,7 +45,7 @@ QUEUE_HandleTypeDef QueueSerialTx;
 
 static uint32_t serialTimeTick;
 
-static serialSelection SerialStateFun[] = {serialdle,serialAT_Sel,serialTime,serialDate,serialAlarm,serialERROR,serialOK};
+static serialSelection SerialStateFun[] = {serialdle,serialAT_Sel,serialTime,serialDate,serialAlarm,serialERROR,serialOK,serialTemp};
 
 __IO static ITStatus uartState             = SET;
 __IO static ITStatus uartError             = RESET;
@@ -129,6 +132,10 @@ void serialAT_Sel(void)
     {
         serialState = SERIAL_ALARM;
     }
+    else if (strcmp(InpuyComand,comando_AT[3]) == 0)
+    {
+        serialState = SERIAL_TEMP;
+    }
     else
     {
         serialState = SERIAL_ERROR;
@@ -214,6 +221,32 @@ void serialAlarm(void)
     }
 }
 
+void serialTemp(void)
+{
+    int8_t              lowerTemp               = 0;
+    uint8_t             uperTemp                = 0;
+    Serial_MsgTypeDef   SerialTranferData       = {NONE,0,0,0};
+    char *parametro         = NULL;
+    serialState = SERIAL_ERROR;
+
+    parametro = strtok(NULL, "," );
+    lowerTemp = validate_StrToInt(parametro);
+    
+    parametro = strtok(NULL, "," );
+    uperTemp = validate_StrToInt(parametro);
+
+    if (checkDataTemp(lowerTemp,uperTemp) == HAL_OK)
+    {
+        SerialTranferData.msg = TEMP;
+        SerialTranferData.param1 = lowerTemp;
+        SerialTranferData.param2 = uperTemp;
+        SerialTranferData.param3 = 0;
+        HIL_QUEUE_Write(&QueueSerialTx,&SerialTranferData);
+        serialState = SERIAL_OK;
+    }
+    
+}
+
 void serialOK(void)
 {
     memset(BufferTemp,0,sizeof(BufferTemp));
@@ -241,6 +274,11 @@ int32_t validate_StrToInt(char * buffer)
 
     if (buffer != NULL)
     {
+        if (buffer[sizeStr] == '-')
+        {
+            sizeStr++;
+        }
+        
         while (isdigit((int8_t)buffer[sizeStr]))
         {
             sizeStr++;
@@ -283,6 +321,15 @@ HAL_StatusTypeDef checkDataAlarm(uint8_t hour, uint8_t minutes)
     }
     return flag;
 }
+HAL_StatusTypeDef checkDataTemp(int8_t lower, uint8_t uper)
+{
+    HAL_StatusTypeDef flag = HAL_ERROR;
+    if (lower < uper)
+    {
+        flag = HAL_OK;
+    }
+    return flag;
+}
 
 void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart)
 {
@@ -291,17 +338,6 @@ void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart)
 
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 {
-    // static uint32_t i = 0;
-    // RxBuffer[i] = RxByte;
-    // i++;
-    // if(RxBuffer[i-1] == '\r')
-    // {
-    //     RxBuffer[i-1] = '\0';
-    //     statusRx = SET;
-    //     i=0;
-    // }
-    // statusRx = SET;
-    // HIL_BUFFER_Write(&CircBuffer,RxByte);
     HIL_QUEUE_Write(&QueueSerialRx,(void*)&RxByte);
     HAL_UART_Receive_IT(&UartHandle,&RxByte,1);
 }

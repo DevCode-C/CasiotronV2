@@ -10,6 +10,9 @@
 
 #define TIME_TRANSITION     1000U
 
+/*
+    Prototype Functions
+*/
 void clockIdle(void);
 void showClock(void);
 void showAlarmUp(void);
@@ -19,17 +22,23 @@ void clockShowAlarm(void);
 HAL_StatusTypeDef setTime(uint8_t hour, uint8_t minutes, uint16_t seconds);
 HAL_StatusTypeDef setDate(uint8_t day, uint8_t month, uint16_t year);
 HAL_StatusTypeDef setAlarm(uint8_t hour, uint8_t minutes);
+HAL_StatusTypeDef setTemp(int8_t lower, uint8_t uper);
 
 void lcd_init(void);
 void spi_init(void);
+void i2c_init(void);
 
-/*
-Algoritmo de congruencia de Zeller
-*/
+//Algoritmo de congruencia de Zeller
 uint8_t dayOfWeek(uint8_t d, uint8_t m, uint16_t y);
 
+/*
+    Typedef Functions
+*/
 typedef void (*clockSelection)(void);
 
+/*
+    Private variables
+*/
 const char * months[] = {" ","ENE","FEB","MAR","ABR","MAY","JUN","JUL","AGO","SEP","OCT","NOV","DIC"};
 const char * days[] = {"Do","Lu","Ma","Mi","Ju","Vi","Sa"};
 const char* nAlarm = "NO ALARM CONFIG ";
@@ -40,20 +49,25 @@ static RTC_DateTypeDef         RTC_DateConfig          = {0};
 static RTC_AlarmTypeDef        RTC_AlarmConfig         = {0};
 LCD_HandleTypeDef              lcd_display             = {0};
 SPI_HandleTypeDef              spi_Handle              = {0};
+I2C_HandleTypeDef              i2c_Handle              = {0};
 
 static clockSelection clockSelectionFun[] = {clockIdle,showClock,clockShowAlarm,clockSetData,showAlarmUp};
 
+static uint16_t yearConversion  = 2000;
+static uint32_t tick            = 0;
 static Serial_MsgTypeDef    SerialSet_Data;
-extern SPI_HandleTypeDef    spi_Handle;
-extern QUEUE_HandleTypeDef  QueueSerialTx;
-extern void initialise_monitor_handles(void);
 
 __IO ITStatus AlarmRTC               = RESET;
 __IO ITStatus Alarm_Active           = RESET;
 __IO static uint8_t clockState       = CLOCK_IDLE;
 
-static uint16_t yearConversion  = 2000;
-static uint32_t tick            = 0;
+/*
+    extern variables
+*/
+extern SPI_HandleTypeDef    spi_Handle;
+extern QUEUE_HandleTypeDef  QueueSerialTx;
+extern void initialise_monitor_handles(void);
+
 
 void clock_init(void)
 {
@@ -156,6 +170,13 @@ HAL_StatusTypeDef setAlarm(uint8_t hour, uint8_t minutes)
     return flag;
 }
 
+HAL_StatusTypeDef setTemp(int8_t lower, uint8_t uper)
+{
+    HAL_StatusTypeDef   flag    = HAL_OK;
+
+    return flag;
+}
+
 void clockIdle(void)
 {
     if (HAL_GetTick() - tick >= TIME_TRANSITION)
@@ -171,7 +192,7 @@ void clockIdle(void)
     {
         clockState = CLOCK_ALARM_UP;
     }
-    else if(HIL_QUEUE_Read(&QueueSerialTx,&SerialSet_Data) == 1)
+    if(HIL_QUEUE_Read(&QueueSerialTx,&SerialSet_Data) == 1)
     {
         clockState = CLOCK_SET_DATA;
     }
@@ -292,6 +313,11 @@ void clockSetData(void)
     {
         setAlarm(SerialSet_Data.param1,SerialSet_Data.param2);
     }
+    else if (SerialSet_Data.msg == TEMP)
+    {
+        setTemp(SerialSet_Data.param1,SerialSet_Data.param2);
+    }
+    
     
     clockState = CLOCK_IDLE;
 }
@@ -326,6 +352,20 @@ void lcd_init(void)
     lcd_display.RstPin     = LCD_RST;
 
     MOD_LCD_Init(&lcd_display);
+}
+
+void i2c_init(void)
+{
+    i2c_Handle.Instance = I2C1;
+    i2c_Handle.Init.Timing = 0x10805781;
+    i2c_Handle.Init.AddressingMode = I2C_ADDRESSINGMODE_7BIT;
+    i2c_Handle.Init.DualAddressMode = I2C_DUALADDRESS_DISABLE;
+    i2c_Handle.Init.OwnAddress2 = 0;
+    i2c_Handle.Init.OwnAddress2Masks = I2C_OA2_NOMASK;
+    i2c_Handle.Init.GeneralCallMode = I2C_GENERALCALL_DISABLE;
+    i2c_Handle.Init.NoStretchMode = I2C_NOSTRETCH_DISABLE;
+    HAL_I2C_Init(&i2c_Handle);
+    
 }
 
 uint8_t dayOfWeek(uint8_t d, uint8_t m, uint16_t y)

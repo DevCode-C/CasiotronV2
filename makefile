@@ -5,7 +5,7 @@ SRCS  = main.c app_ints.c app_msps.c startup_stm32f070xb.c system_stm32f0xx.c
 SRCS += stm32f0xx_hal.c stm32f0xx_hal_cortex.c stm32f0xx_hal_rcc.c stm32f0xx_hal_flash.c
 SRCS += stm32f0xx_hal_gpio.c stm32f0xx_hal_uart.c stm32f0xx_hal_dma.c stm32f0xx_hal_rtc.c
 SRCS += stm32f0xx_hal_pwr.c app_serial.c app_clock.c stm32f0xx_hal_wwdg.c lcd.c stm32f0xx_hal_spi.c
-SRCS += buffer.c queue.c
+SRCS += buffer.c queue.c temp.c stm32f0xx_hal_i2c.c
 #archivo linker a usar
 LINKER = linker.ld
 #Simbolos gloobales del programa (#defines globales)

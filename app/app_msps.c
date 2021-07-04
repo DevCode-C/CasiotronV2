@@ -54,7 +54,6 @@ void HAL_RTC_MspInit(RTC_HandleTypeDef *hrtc)
     RCC_OscInitTypeDef RCC_LSEConfig;
     RCC_LSEConfig.OscillatorType = RCC_OSCILLATORTYPE_LSE;
     RCC_LSEConfig.LSEState = RCC_LSE_ON;
-    RCC_LSEConfig.PLL.PLLSource = RCC_PLL_NONE;
     HAL_RCC_OscConfig(&RCC_LSEConfig);
 
     __HAL_RCC_RTC_CONFIG(RCC_RTCCLKSOURCE_LSE);
@@ -63,6 +62,8 @@ void HAL_RTC_MspInit(RTC_HandleTypeDef *hrtc)
     __HAL_RTC_ALARMA_ENABLE(hrtc);
     HAL_NVIC_SetPriority(RTC_IRQn,2,0);
     HAL_NVIC_EnableIRQ(RTC_IRQn);
+    
+    
 }
 
 void HAL_WWDG_MspInit(WWDG_HandleTypeDef *hwwdg)
@@ -94,4 +95,22 @@ void HAL_SPI_MspInit(SPI_HandleTypeDef *hspi)
     HAL_NVIC_SetPriority(SPI1_IRQn,1,0);
     HAL_NVIC_EnableIRQ(SPI1_IRQn);
 
+}
+
+void HAL_I2C_MspInit(I2C_HandleTypeDef *hi2c)
+{
+
+    __HAL_RCC_I2C1_CONFIG(RCC_I2C1CLKSOURCE_SYSCLK);
+    GPIO_InitTypeDef GPIO_InitStruct = {0};
+    __HAL_RCC_GPIOB_CLK_ENABLE();
+    /**I2C1 GPIO Configuration
+    PB6     ------> I2C1_SCL
+    PB7     ------> I2C1_SDA
+    */
+    GPIO_InitStruct.Pin = GPIO_PIN_6|GPIO_PIN_7;
+    GPIO_InitStruct.Mode = GPIO_MODE_AF_OD;
+    GPIO_InitStruct.Pull = GPIO_PULLUP;
+    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;
+    GPIO_InitStruct.Alternate = GPIO_AF1_I2C1;
+    HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 }
