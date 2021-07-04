@@ -3,6 +3,14 @@
 #include "app_bsp.h"
 #include "lcd.h"
 
+#define SENSOR_ADDRES                       0x9EU
+
+#define TEMPERATURE_REGISTER                0x00U
+#define CONFIGURATION_REGISTER              0x01U
+#define TEMPERATURE_HISTERESIS_REGISTER     0x02U
+#define TEMPERATURE_LIMIT_SET_REGISTER      0x03U
+
+
 typedef struct
 {
     I2C_HandleTypeDef  	*I2cHandler;

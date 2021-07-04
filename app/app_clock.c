@@ -68,7 +68,7 @@ extern SPI_HandleTypeDef    spi_Handle;
 extern QUEUE_HandleTypeDef  QueueSerialTx;
 extern void initialise_monitor_handles(void);
 
-
+uint8_t test[3] = {0};
 void clock_init(void)
 {
     GPIO_InitTypeDef GPIO_InitStructure;
@@ -76,7 +76,8 @@ void clock_init(void)
     initialise_monitor_handles();
     printf("\n");
     spi_init();
-    
+    i2c_init();
+
     __HAL_RCC_GPIOC_CLK_ENABLE();
     GPIO_InitStructure.Pin = GPIO_PIN_13;
     GPIO_InitStructure.Mode = GPIO_MODE_INPUT;
@@ -221,7 +222,12 @@ void showClock(void)
         MOD_LCD_SetCursor(&lcd_display,2,15);
         MOD_LCD_Data(&lcd_display,'A');
     }
-    clockState = CLOCK_IDLE;
+    
+    // HAL_I2C_Master_Transmit_IT(&i2c_Handle,0x9E,0x00,1);
+    HAL_I2C_Mem_Read(&i2c_Handle,0x9EU,0x00U,2U,test,2U,HAL_MAX_DELAY);
+
+    clockState = CLOCK_IDLE; 
+    printf("%s\n",test);
 }
 
 void showAlarmUp(void)
@@ -357,7 +363,7 @@ void lcd_init(void)
 void i2c_init(void)
 {
     i2c_Handle.Instance = I2C1;
-    i2c_Handle.Init.Timing = 0x10805781;
+    i2c_Handle.Init.Timing = 0x10815E89;
     i2c_Handle.Init.AddressingMode = I2C_ADDRESSINGMODE_7BIT;
     i2c_Handle.Init.DualAddressMode = I2C_DUALADDRESS_DISABLE;
     i2c_Handle.Init.OwnAddress2 = 0;

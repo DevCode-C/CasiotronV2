@@ -101,6 +101,8 @@ void HAL_I2C_MspInit(I2C_HandleTypeDef *hi2c)
 {
 
     __HAL_RCC_I2C1_CONFIG(RCC_I2C1CLKSOURCE_SYSCLK);
+    __HAL_RCC_I2C1_CLK_ENABLE();
+    
     GPIO_InitTypeDef GPIO_InitStruct = {0};
     __HAL_RCC_GPIOB_CLK_ENABLE();
     /**I2C1 GPIO Configuration
@@ -113,4 +115,8 @@ void HAL_I2C_MspInit(I2C_HandleTypeDef *hi2c)
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;
     GPIO_InitStruct.Alternate = GPIO_AF1_I2C1;
     HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
+
+    HAL_NVIC_SetPriority(I2C1_IRQn,2,0);
+    HAL_NVIC_EnableIRQ(I2C1_IRQn);
 }
+
