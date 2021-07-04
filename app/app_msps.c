@@ -67,7 +67,6 @@ void HAL_RTC_MspInit(RTC_HandleTypeDef *hrtc)
     RCC_OscInitTypeDef RCC_LSEConfig;
     RCC_LSEConfig.OscillatorType = RCC_OSCILLATORTYPE_LSE;
     RCC_LSEConfig.LSEState = RCC_LSE_ON;
-    RCC_LSEConfig.PLL.PLLSource = RCC_PLL_NONE;
     HAL_RCC_OscConfig(&RCC_LSEConfig);
 
     __HAL_RCC_RTC_CONFIG(RCC_RTCCLKSOURCE_LSE);
