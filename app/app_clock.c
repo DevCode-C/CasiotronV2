@@ -222,12 +222,8 @@ void showClock(void)
         MOD_LCD_SetCursor(&lcd_display,2,15);
         MOD_LCD_Data(&lcd_display,'A');
     }
-    
-    // HAL_I2C_Master_Transmit_IT(&i2c_Handle,0x9E,0x00,1);
-    HAL_I2C_Mem_Read(&i2c_Handle,0x9EU,0x00U,2U,test,2U,HAL_MAX_DELAY);
-
     clockState = CLOCK_IDLE; 
-    printf("%s\n",test);
+    
 }
 
 void showAlarmUp(void)

@@ -1,10 +1,10 @@
 #include "temp.h"
 
+static uint8_t buffer[3];
+
 void MOD_TEMP_Init( TEMP_HandleTypeDef *htemp )
 {
-    uint8_t config = 0;
-    HAL_I2C_Mem_Write_IT(htemp->I2cHandler,SENSOR_ADDRES,CONFIGURATION_REGISTER,sizeof(uint8_t),&config,sizeof(uint8_t));
-    MOD_TEMP_MspInit(htemp);
+    
 }
 
 __weak void MOD_TEMP_MspInit( TEMP_HandleTypeDef *htemp )
