@@ -21,6 +21,14 @@
 #define DEVICE_ID_REV_REGISTER              0x07U   //16 bits R   REGISTER, DEFAULT VALUE (DEVICE-ID = 15-8 bits)-> 0x04
 #define RESOLUTION_REGISTER                 0x08U   // 8 bits R-W REGISTER, (b[1:0])
 
+//RESOLUTION BITS
+
+#define  _0_5C          0x00U   //Time conversion = 30 ms typical
+#define  _0_25C         0x01U   //Time conversion = 65 ms typical
+#define  _0_125C        0x02U   //Time conversion = 130 ms typical
+#define  _0_0625C       0x03U   //Time conversion = 250 ms typical (Power-up default)
+
+
 /**
  * @defgroup   POWER-ON RESET DEFAULTS
  * @note    The MCP9808 has an internal Power-on Reset (POR)
@@ -42,6 +50,12 @@
  *              Critical Limit Unlocked
  *              Continuous Conversion
  *              0°C Hysteresis
+ *          }
+ * 
+ * @ref     RESOLUTION REGISTER
+ *          Default Register Data -> 0x03;
+ *          {
+ *              Resolution bits 
  *          }
 */
 
@@ -76,14 +90,24 @@ void MOD_TEMP_MspInit( TEMP_HandleTypeDef *htemp );
 */
 uint16_t MOD_TEMP_Read( TEMP_HandleTypeDef *htemp );
 
-/*
-Establece el valor de temperatura para la alarma inferior y la alarma superior, cuando el 
-sensor supere o baje de esos valores el pin de alarma deberá activarse 
+/**
+ * @brief Establece el valor de temperatura para la alarma inferior y la alarma superior, cuando el 
+ *        sensor supere o baje de esos valores el pin de alarma deberá activarse 
+ * 
+ * @param TEMP_HandleTypeDef, *htemp Pointer struct 
+ * @param uint16_t lower,    Temperature limit
+ * @param uint16_t upper,    Temperature limit 
+ * 
+ * @return None (void)
 */
 void MOD_TEMP_SetAlarms( TEMP_HandleTypeDef *htemp, uint16_t lower, uint16_t upper  );
 
-/*
-Deshabilita la ventana de alarma establecida.
+/**
+ * @brief Deshabilita la ventana de alarma establecida.
+ * 
+ * @param TEMP_HandleTypeDef, *htemp Pointer struct 
+ * 
+ * @return None (void)
 */
 void MOD_TEMP_DisableAlarm ( LCD_HandleTypeDef *hlcd );
 

@@ -1,6 +1,7 @@
 #include "app_clock.h"
 #include "lcd.h"
 #include "queue.h"
+#include "temp.h"
 
 #define CLOCK_IDLE          0U
 #define CLOCK_SHOW          1U
@@ -41,7 +42,7 @@ typedef void (*clockSelection)(void);
 */
 const char * months[] = {" ","ENE","FEB","MAR","ABR","MAY","JUN","JUL","AGO","SEP","OCT","NOV","DIC"};
 const char * days[] = {"Do","Lu","Ma","Mi","Ju","Vi","Sa"};
-const char* nAlarm = "NO ALARM CONFIG ";
+const char* nAlarm = "NO ALARMS CONFIG ";
 
 RTC_HandleTypeDef              RTC_InitStructure       = {0};
 static RTC_TimeTypeDef         RTC_TImeConfig          = {0};
@@ -50,6 +51,7 @@ static RTC_AlarmTypeDef        RTC_AlarmConfig         = {0};
 LCD_HandleTypeDef              lcd_display             = {0};
 SPI_HandleTypeDef              spi_Handle              = {0};
 I2C_HandleTypeDef              i2c_Handle              = {0};
+TEMP_HandleTypeDef             temp_Handle             = {0};
 
 static clockSelection clockSelectionFun[] = {clockIdle,showClock,clockShowAlarm,clockSetData,showAlarmUp};
 
@@ -77,6 +79,9 @@ void clock_init(void)
     printf("\n");
     spi_init();
     i2c_init();
+    lcd_init();
+    temp_Handle.I2cHandler = &i2c_Handle;
+    MOD_TEMP_Init(&temp_Handle);
 
     __HAL_RCC_GPIOC_CLK_ENABLE();
     GPIO_InitStructure.Pin = GPIO_PIN_13;
@@ -114,7 +119,6 @@ void clock_init(void)
     HAL_RTC_SetAlarm_IT(&RTC_InitStructure,&RTC_AlarmConfig,RTC_FORMAT_BIN);
     HAL_RTC_DeactivateAlarm(&RTC_InitStructure,RTC_ALARM_A);
     
-    lcd_init();
     tick = HAL_GetTick();
 }
 
@@ -205,16 +209,19 @@ void showClock(void)
     RTC_TimeTypeDef     gTime       = {0};
     RTC_DateTypeDef     gDate       = {0};
     uint8_t             dayweekSel  = 0;
+    uint16_t            temperature = 0;
     
     HAL_RTC_GetTime(&RTC_InitStructure,&gTime,RTC_FORMAT_BIN);
     HAL_RTC_GetDate(&RTC_InitStructure,&gDate,RTC_FORMAT_BIN);
 
+    temperature = MOD_TEMP_Read(&temp_Handle);
     dayweekSel = dayOfWeek(gDate.Date, gDate.Month,gDate.Year+yearConversion);
+
     sprintf((char*)buffer," %s,%02d %04d %s",months[gDate.Month],gDate.Date,gDate.Year+yearConversion,days[dayweekSel]);
     MOD_LCD_SetCursor(&lcd_display,1,1);
     MOD_LCD_String(&lcd_display,(char*)buffer);
 
-    sprintf((char*)buffer,"    %02d:%02d:%02d    ",gTime.Hours, gTime.Minutes, gTime.Seconds);
+    sprintf((char*)buffer,"%02d:%02d:%02d %02dC    ",gTime.Hours, gTime.Minutes, gTime.Seconds,temperature);
     MOD_LCD_SetCursor(&lcd_display,2,1);
     MOD_LCD_String(&lcd_display,(char*)buffer);
     if (__HAL_RTC_ALARM_GET_IT_SOURCE(&RTC_InitStructure,RTC_ALARM_A))
@@ -222,8 +229,8 @@ void showClock(void)
         MOD_LCD_SetCursor(&lcd_display,2,15);
         MOD_LCD_Data(&lcd_display,'A');
     }
-    clockState = CLOCK_IDLE; 
     
+    clockState = CLOCK_IDLE; 
 }
 
 void showAlarmUp(void)
@@ -232,6 +239,7 @@ void showAlarmUp(void)
     RTC_TimeTypeDef     gTime       = {0};
     RTC_DateTypeDef     gDate       = {0};
     uint8_t           buffer[17]    = {0};
+    uint16_t            temperature = 0;
 
     if (AlarmRTC == SET)
     {
@@ -243,15 +251,16 @@ void showAlarmUp(void)
     if (HAL_GetTick() - tick >= TIME_TRANSITION)
     {
         tick = HAL_GetTick();
+        temperature = MOD_TEMP_Read(&temp_Handle);
         HAL_RTC_GetTime(&RTC_InitStructure,&gTime,RTC_FORMAT_BIN);
         HAL_RTC_GetDate(&RTC_InitStructure,&gDate,RTC_FORMAT_BIN);
         if (time%2)
         {
-            sprintf((char*)buffer,"*** %02d:%02d:%02d ***",gTime.Hours, gTime.Minutes, gTime.Seconds);
+            sprintf((char*)buffer,"*** %02d:%02d %02dC***",gTime.Hours, gTime.Minutes,temperature);
         }
         else
         {
-            sprintf((char*)buffer,"    %02d:%02d:%02d    ",gTime.Hours, gTime.Minutes, gTime.Seconds);
+            sprintf((char*)buffer,"    %02d:%02d %02dC   ",gTime.Hours, gTime.Minutes,temperature);
         }
 
         time++;

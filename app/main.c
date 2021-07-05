@@ -22,7 +22,7 @@ int main( void )
     serial_init();
     heart_init();
     clock_init();
-    // dog_init();
+    dog_init();
 
     for (; ;)
     {
@@ -30,7 +30,7 @@ int main( void )
         clock_task();
         
         heart_beat();
-        // peth_the_dog();
+        peth_the_dog();
     } 
     return 0u;
 }
