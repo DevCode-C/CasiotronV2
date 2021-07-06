@@ -206,7 +206,6 @@ void showClock(void)
     HAL_RTC_GetDate(&RTC_InitStructure,&gDate,RTC_FORMAT_BIN);
     printf("%02d:%02d:%02d - ",gTime.Hours, gTime.Minutes, gTime.Seconds);
     printf("%02d/%02d/%04d\n",gDate.Date, gDate.Month, gDate.Year+yearConversion);
-    // printf("h\n");
     clockState = CLOCK_IDLE;
 }
 
