@@ -84,10 +84,10 @@ void clock_init(void)
     MOD_TEMP_Init(&temp_Handle);
 
     __HAL_RCC_GPIOC_CLK_ENABLE();
-    GPIO_InitStructure.Pin = GPIO_PIN_13;
+    GPIO_InitStructure.Pin = GPIO_BUTTON_PIN;
     GPIO_InitStructure.Mode = GPIO_MODE_INPUT;
     GPIO_InitStructure.Pull = GPIO_PULLUP;
-    HAL_GPIO_Init(GPIOC,&GPIO_InitStructure);
+    HAL_GPIO_Init(GPIO_BUTTON_PORT,&GPIO_InitStructure);
 
 
     __HAL_RCC_RTC_ENABLE();
@@ -376,7 +376,18 @@ void i2c_init(void)
     i2c_Handle.Init.GeneralCallMode = I2C_GENERALCALL_DISABLE;
     i2c_Handle.Init.NoStretchMode = I2C_NOSTRETCH_DISABLE;
     HAL_I2C_Init(&i2c_Handle);
-    
+
+}
+
+void MOD_LCD_MspInit( LCD_HandleTypeDef *hlcd )
+{
+    GPIO_InitTypeDef GPIO_InitStructure;
+    __HAL_RCC_GPIOC_CLK_ENABLE();
+    GPIO_InitStructure.Pin          = LCD_PINES;
+    GPIO_InitStructure.Mode         = GPIO_MODE_OUTPUT_PP;
+    GPIO_InitStructure.Pull         = GPIO_NOPULL;
+    GPIO_InitStructure.Speed        = GPIO_SPEED_FREQ_HIGH;
+    HAL_GPIO_Init(LCD_PORT,&GPIO_InitStructure);
 }
 
 uint8_t dayOfWeek(uint8_t d, uint8_t m, uint16_t y)
