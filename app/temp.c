@@ -4,14 +4,12 @@
 
 void MOD_TEMP_Init( TEMP_HandleTypeDef *htemp )
 {
+    MOD_TEMP_MspInit(htemp);
+
     uint8_t buffer[3] = {0};
     buffer[0] = RESOLUTION_REGISTER;
     buffer[1] = _0_5C;
     HAL_I2C_Master_Transmit(htemp->I2cHandler,MCP9808_ADDRES_W,buffer,2U,HAL_MAX_DELAY);
-
-
-
-    MOD_TEMP_MspInit(htemp);    
 }
 
 __weak void MOD_TEMP_MspInit( TEMP_HandleTypeDef *htemp )
@@ -46,6 +44,12 @@ uint16_t MOD_TEMP_Read( TEMP_HandleTypeDef *htemp )
     // printf("Temperature R: %d, %d, %ld.%ld\n", 0x0F& test[1],0xF0&test[2],temperature/100,temperature%100);
 }
 
-void MOD_TEMP_SetAlarms( TEMP_HandleTypeDef *htemp, uint16_t lower, uint16_t upper  );
+void MOD_TEMP_SetAlarms( TEMP_HandleTypeDef *htemp, uint16_t lower, uint16_t upper  )
+{
 
-void MOD_TEMP_DisableAlarm ( LCD_HandleTypeDef *hlcd );
+}
+
+void MOD_TEMP_DisableAlarm ( LCD_HandleTypeDef *hlcd )
+{
+    
+}

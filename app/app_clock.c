@@ -337,8 +337,8 @@ void spi_init(void)
 {
     spi_Handle.Instance                  = SPI1;
     spi_Handle.Init.Mode                 = SPI_MODE_MASTER;
-    spi_Handle.Init.BaudRatePrescaler    = SPI_BAUDRATEPRESCALER_16;
-    spi_Handle.Init.Direction            = SPI_DIRECTION_2LINES;
+    spi_Handle.Init.BaudRatePrescaler    = SPI_BAUDRATEPRESCALER_16;    //    Fclk/16= 3MHz
+    spi_Handle.Init.Direction            = SPI_DIRECTION_1LINE;         //    TX only
     spi_Handle.Init.CLKPhase             = SPI_PHASE_2EDGE;
     spi_Handle.Init.CLKPolarity          = SPI_POLARITY_LOW;
     spi_Handle.Init.CRCCalculation       = SPI_CRCCALCULATION_DISABLE;
