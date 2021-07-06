@@ -16,14 +16,24 @@
 #define DATE    2U
 #define ALARM   3U
 
-#define EEPROM_PORT     GPIOB       //PORT para la EERPOM
-#define CS_EEPROM       GPIO_PIN_10 //PIN activado en bajo para la EERPOM
-
 #define LCD_PORT        GPIOC   //LCD PORT
 #define LCD_PINES       GPIO_PIN_0 | GPIO_PIN_1 | GPIO_PIN_2  //LCD Pines
 #define LCD_CS          GPIO_PIN_0  //PIN activado en bajo para la LCD
 #define LCD_RS          GPIO_PIN_1  // Selector data/command
 #define LCD_RST         GPIO_PIN_2  //Reset del LCD, activado en bajo
+
+#define GPIO_LED_PIN_BOARD  GPIO_PIN_5  //Led de la tarjeta
+#define GPIO_LED_PORT_BOARD GPIOA       //Puerto del led de la tarjeta
+
+#define GPIO_BUTTON_PIN     GPIO_PIN_13 
+#define GPIO_BUTTON_PORT    GPIOC
+
+#define UART_PINES      GPIO_PIN_2 | GPIO_PIN_3 //UART Pines
+#define UART_PORT       GPIOA
+
+#define SPI_PINES       GPIO_PIN_3 | GPIO_PIN_4 | GPIO_PIN_5  //SPI Pines
+#define SPI_PORT        GPIOB
+
 
 typedef struct _serial_MsgTypedef
 {

@@ -2,6 +2,8 @@
 
 void MOD_LCD_Init( LCD_HandleTypeDef *hlcd )
 {
+    MOD_LCD_MspInit(hlcd);
+    
     HAL_GPIO_WritePin(hlcd->CsPort,hlcd->CsPin,SET);
     HAL_GPIO_WritePin(hlcd->RstPort,hlcd->RstPin,RESET);
     HAL_Delay(2);
@@ -21,7 +23,6 @@ void MOD_LCD_Init( LCD_HandleTypeDef *hlcd )
     MOD_LCD_Command(hlcd,CLEAR_DISPLAY);
     HAL_Delay(10);
 
-    MOD_LCD_MspInit(hlcd);
 }
 
 __weak void MOD_LCD_MspInit( LCD_HandleTypeDef *hlcd )
@@ -33,7 +34,6 @@ void MOD_LCD_Command( LCD_HandleTypeDef *hlcd, uint8_t cmd )
 {
     HAL_GPIO_WritePin(hlcd->CsPort,hlcd->CsPin,RESET);
     HAL_GPIO_WritePin(hlcd->RsPort,hlcd->RsPin,RESET);
-    // HAL_SPI_Transmit(hlcd->SpiHandler,&cmd,1,100);
     HAL_SPI_Transmit_IT(hlcd->SpiHandler,&cmd,1);
     HAL_GPIO_WritePin(hlcd->CsPort,hlcd->CsPin,SET);
 }
@@ -42,7 +42,6 @@ void MOD_LCD_Data( LCD_HandleTypeDef *hlcd, uint8_t data )
 {
     HAL_GPIO_WritePin(hlcd->CsPort,hlcd->CsPin,RESET);
     HAL_GPIO_WritePin(hlcd->RsPort,hlcd->RsPin,SET);
-    // HAL_SPI_Transmit(hlcd->SpiHandler,&data,1,100);
     HAL_SPI_Transmit_IT(hlcd->SpiHandler,&data,1);
     HAL_GPIO_WritePin(hlcd->CsPort,hlcd->CsPin,SET);
     
@@ -55,7 +54,6 @@ void MOD_LCD_String( LCD_HandleTypeDef *hlcd, char *str )
     {
         MOD_LCD_Data(hlcd,str[i]);
     }
-    
 }
 
 void MOD_LCD_SetCursor( LCD_HandleTypeDef *hlcd, uint8_t row, uint8_t col )
