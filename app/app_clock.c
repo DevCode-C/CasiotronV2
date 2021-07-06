@@ -7,7 +7,9 @@
 #define CLOCK_SHOW          1U
 #define CLOCK_SHOW_ALARM    2U
 #define CLOCK_SET_DATA      3U 
-#define CLOCK_ALARM_UP      4U 
+#define CLOCK_ALARM_UP      4U
+
+#define CLOCK_ALARM_TEMP_UP 5U
 
 #define TIME_TRANSITION     1000U
 
@@ -61,6 +63,8 @@ static Serial_MsgTypeDef    SerialSet_Data;
 
 __IO ITStatus AlarmRTC               = RESET;
 __IO ITStatus Alarm_Active           = RESET;
+__IO ITStatus Alarm_TEMP             = RESET;
+__IO ITStatus Alarm_TEMP_Active      = RESET;
 __IO static uint8_t clockState       = CLOCK_IDLE;
 
 /*
@@ -179,6 +183,11 @@ HAL_StatusTypeDef setTemp(int8_t lower, uint8_t uper)
 {
     HAL_StatusTypeDef   flag    = HAL_OK;
 
+    MOD_TEMP_SetAlarms(&temp_Handle,lower,uper);
+    
+    HAL_NVIC_SetPriority(EXTI2_3_IRQn,1,0);
+    HAL_NVIC_EnableIRQ(EXTI2_3_IRQn);
+    Alarm_TEMP = SET;
     return flag;
 }
 
@@ -193,7 +202,7 @@ void clockIdle(void)
     {
         clockState = CLOCK_SHOW_ALARM;
     }
-    if(AlarmRTC == SET)
+    if(AlarmRTC == SET || Alarm_TEMP_Active == SET)
     {
         clockState = CLOCK_ALARM_UP;
     }
@@ -229,7 +238,12 @@ void showClock(void)
         MOD_LCD_SetCursor(&lcd_display,2,15);
         MOD_LCD_Data(&lcd_display,'A');
     }
-    
+    if (Alarm_TEMP == SET)
+    {
+        MOD_LCD_SetCursor(&lcd_display,2,16);
+        MOD_LCD_Data(&lcd_display,'T');
+    }
+
     clockState = CLOCK_IDLE; 
 }
 
@@ -246,7 +260,14 @@ void showAlarmUp(void)
         AlarmRTC = RESET;
         HAL_RTC_DeactivateAlarm(&RTC_InitStructure,RTC_ALARM_A);
     }
-
+    if (Alarm_TEMP_Active == SET)
+    {
+        Alarm_TEMP_Active = RESET;
+        Alarm_TEMP = RESET;
+        MOD_TEMP_DisableAlarm(&temp_Handle);
+        HAL_NVIC_DisableIRQ(EXTI2_3_IRQn);
+    }
+    
 
     if (HAL_GetTick() - tick >= TIME_TRANSITION)
     {
@@ -279,16 +300,23 @@ void clockShowAlarm(void)
 {
     
     uint8_t           buffer[17]    = {0};
+    uint8_t       tempBuffer[2]    = {0};
     RTC_AlarmTypeDef    gAlarm      = {0};
     static uint8_t      flagButon   = 0;
+    uint8_t             lowerTemp   = 0;
+    uint8_t             upperTemp   = 0;
 
+    MOD_TEMP_ReadRegister(&temp_Handle,tempBuffer,ALERT_TEMP_LOWER_B_TRIP_REGISTER);
+    lowerTemp = (tempBuffer[0] << 4) | (tempBuffer[1]>>4);
+    MOD_TEMP_ReadRegister(&temp_Handle,tempBuffer,ALERT_TEMP_UPPER_B_TRIP_REGISTER);
+    upperTemp = (tempBuffer[0] << 4) | (tempBuffer[1]>>4);
     HAL_RTC_GetAlarm(&RTC_InitStructure,&gAlarm,RTC_ALARM_A,RTC_FORMAT_BIN);
     
     if (flagButon == 0 && !HAL_GPIO_ReadPin(GPIOC,GPIO_PIN_13))
     {
-        if (__HAL_RTC_ALARM_GET_IT_SOURCE(&RTC_InitStructure,RTC_ALARM_A))
+        if (__HAL_RTC_ALARM_GET_IT_SOURCE(&RTC_InitStructure,RTC_ALARM_A) || Alarm_TEMP == SET)
         {
-            sprintf((char*)buffer,"ALARM %02d:%02d:%02d ",gAlarm.AlarmTime.Hours, gAlarm.AlarmTime.Minutes, gAlarm.AlarmTime.Seconds);
+            sprintf((char*)buffer," A %02d:%02d %02d-%02dC ",gAlarm.AlarmTime.Hours, gAlarm.AlarmTime.Minutes,lowerTemp,upperTemp);
             MOD_LCD_SetCursor(&lcd_display,2,1);
             MOD_LCD_String(&lcd_display,(char*)buffer);
         }
@@ -390,6 +418,20 @@ void MOD_LCD_MspInit( LCD_HandleTypeDef *hlcd )
     HAL_GPIO_Init(LCD_PORT,&GPIO_InitStructure);
 }
 
+void MOD_TEMP_MspInit( TEMP_HandleTypeDef *htemp )
+{
+    GPIO_InitTypeDef GPIO_InitStructure;
+    __HAL_RCC_GPIOC_CLK_ENABLE();
+    GPIO_InitStructure.Pin          = GPIO_PIN_ALERT;
+    GPIO_InitStructure.Mode         = GPIO_MODE_IT_FALLING;
+    GPIO_InitStructure.Pull         = GPIO_NOPULL;
+    GPIO_InitStructure.Speed        = GPIO_SPEED_FREQ_HIGH;
+    HAL_GPIO_Init(GPIO_PORT_ALERT,&GPIO_InitStructure);
+
+    htemp->AlertPort = GPIO_PORT_ALERT;
+    htemp->AlertPin = GPIO_PIN_ALERT;
+}
+
 uint8_t dayOfWeek(uint8_t d, uint8_t m, uint16_t y)
 {
     uint8_t a = ((14 - m)/12);
@@ -403,4 +445,9 @@ uint8_t dayOfWeek(uint8_t d, uint8_t m, uint16_t y)
 void HAL_RTC_AlarmAEventCallback(RTC_HandleTypeDef *hrtc)
 {
     AlarmRTC = SET;
+}
+
+void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
+{
+    Alarm_TEMP_Active = SET;
 }

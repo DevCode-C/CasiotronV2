@@ -36,6 +36,9 @@
 #define SPI_PINES       GPIO_PIN_3 | GPIO_PIN_4 | GPIO_PIN_5  //SPI Pines
 #define SPI_PORT        GPIOB
 
+//PIN ALERT
+#define GPIO_PIN_ALERT  GPIO_PIN_3
+#define GPIO_PORT_ALERT GPIOC
 
 typedef struct _serial_MsgTypedef
 {
@@ -49,6 +52,7 @@ typedef struct _serial_MsgTypedef
 void USART2_IRQHandler(void);
 void RTC_IRQHandler(void);
 void SPI1_IRQHandler(void);
+void I2C1_IRQHandler(void);
 
 #endif
 

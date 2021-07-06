@@ -1,7 +1,6 @@
 #ifndef __TEMP__H
 #define __TEMP__H
 #include "app_bsp.h"
-#include "lcd.h"
 
 #define DEFAULT_ADDRES                      0x07U   //Default addres without left shitf
 #define ADDRES_STATIC                       0x30U   //Addres static with left shift
@@ -27,6 +26,8 @@
 #define  _0_25C         0x01U   //Time conversion = 65 ms typical
 #define  _0_125C        0x02U   //Time conversion = 130 ms typical
 #define  _0_0625C       0x03U   //Time conversion = 250 ms typical (Power-up default)
+
+
 
 
 /**
@@ -67,9 +68,13 @@ typedef struct
     //agregar más elementos si se requieren
 }TEMP_HandleTypeDef;
 
-/*
-Inicializa el sensor para que este esté listo para recibir datos a desplegar en su pantalla,
- mediante la estructura TEMP_HandleTypeDef se debe seleccionar el handler del I2C
+/**
+ * @brief Inicializa el sensor para que este esté listo para recibir datos a desplegar en su pantalla,
+ *      mediante la estructura TEMP_HandleTypeDef se debe seleccionar el handler del I2C
+ * 
+ * @param TEMP_HandleTypeDef, *htemp Pointer struct 
+ * 
+ * @return None (void)
 */
 void MOD_TEMP_Init( TEMP_HandleTypeDef *htemp );
 
@@ -109,6 +114,17 @@ void MOD_TEMP_SetAlarms( TEMP_HandleTypeDef *htemp, uint16_t lower, uint16_t upp
  * 
  * @return None (void)
 */
-void MOD_TEMP_DisableAlarm ( LCD_HandleTypeDef *hlcd );
+void MOD_TEMP_DisableAlarm ( TEMP_HandleTypeDef *htemp );
+
+/**
+ * @brief Lectura de registros.
+ * 
+ * @param TEMP_HandleTypeDef, *htemp Pointer struct 
+ * @param uint8_t, *buffer Array de minimo dos elementos (array[2])  
+ * @param uint8_t, RegisterToRead  Registro a leer
+ * 
+ * @return None (void)
+*/
+void MOD_TEMP_ReadRegister(TEMP_HandleTypeDef *htemp, uint8_t * buffer, uint8_t RegisterToRead);
 
 #endif

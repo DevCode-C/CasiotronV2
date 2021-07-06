@@ -65,3 +65,14 @@ void SPI1_IRQHandler(void)
 {
     HAL_SPI_IRQHandler(&spi_Handle);
 }
+
+extern I2C_HandleTypeDef i2c_Handle;
+void I2C1_IRQHandler(void)
+{
+    HAL_I2C_EV_IRQHandler(&i2c_Handle);
+}
+
+void EXTI2_3_IRQHandler(void)
+{
+    HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_ALERT);
+}
