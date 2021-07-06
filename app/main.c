@@ -40,11 +40,11 @@ void heart_init(void)
     GPIO_InitTypeDef GPIO_InitStructure;
     __HAL_RCC_GPIOA_CLK_ENABLE();
 
-    GPIO_InitStructure.Pin = GPIO_PIN_5;
+    GPIO_InitStructure.Pin = GPIO_LED_PIN_BOARD;
     GPIO_InitStructure.Mode = GPIO_MODE_OUTPUT_PP;
     GPIO_InitStructure.Pull = GPIO_NOPULL;
     GPIO_InitStructure.Speed = GPIO_SPEED_FREQ_HIGH;
-    HAL_GPIO_Init(GPIOA,&GPIO_InitStructure);
+    HAL_GPIO_Init(GPIO_LED_PORT_BOARD,&GPIO_InitStructure);
     hearBeatTick = HAL_GetTick();
 }
 void heart_beat(void)
@@ -52,7 +52,7 @@ void heart_beat(void)
     if (HAL_GetTick() - hearBeatTick >= 300)
     {
         hearBeatTick = HAL_GetTick();
-        HAL_GPIO_TogglePin(GPIOA,GPIO_PIN_5);
+        HAL_GPIO_TogglePin(GPIO_LED_PORT_BOARD,GPIO_LED_PIN_BOARD);
     }
     
 }
@@ -68,6 +68,7 @@ void dog_init(void)
     
     WWDGTick = HAL_GetTick();
 }
+
 void peth_the_dog(void)
 {
     if ((HAL_GetTick() - WWDGTick) >= 40)

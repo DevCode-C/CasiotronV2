@@ -38,13 +38,13 @@ void HAL_UART_MspInit(UART_HandleTypeDef *huart)
     __HAL_RCC_USART2_CLK_ENABLE();
     __HAL_RCC_GPIOA_CLK_ENABLE();
 
-    GPIO_InitStructure.Pin  = GPIO_PIN_2 | GPIO_PIN_3;
+    GPIO_InitStructure.Pin      = UART_PINES;
     GPIO_InitStructure.Mode     = GPIO_MODE_AF_PP;
     GPIO_InitStructure.Pull     = GPIO_NOPULL;
     GPIO_InitStructure.Speed    = GPIO_SPEED_FREQ_HIGH;
     GPIO_InitStructure.Alternate = GPIO_AF1_USART2;
 
-    HAL_GPIO_Init(GPIOA,&GPIO_InitStructure);
+    HAL_GPIO_Init(UART_PORT,&GPIO_InitStructure);
     HAL_NVIC_SetPriority(USART2_IRQn,0,0);
     HAL_NVIC_EnableIRQ(USART2_IRQn);
 }
@@ -77,21 +77,14 @@ void HAL_SPI_MspInit(SPI_HandleTypeDef *hspi)
     __HAL_RCC_GPIOB_CLK_ENABLE();
     __HAL_RCC_SPI1_CLK_ENABLE();
 
-    GPIO_InitStructure.Pin          = GPIO_PIN_3 | GPIO_PIN_4 | GPIO_PIN_5;
+    GPIO_InitStructure.Pin          = SPI_PINES;
     GPIO_InitStructure.Mode         = GPIO_MODE_AF_PP;
     GPIO_InitStructure.Pull         = GPIO_PULLUP;
     GPIO_InitStructure.Speed        = GPIO_SPEED_FREQ_HIGH;
     GPIO_InitStructure.Alternate    = GPIO_AF0_SPI1;
-    HAL_GPIO_Init(GPIOB, &GPIO_InitStructure);
-
-    __HAL_RCC_GPIOC_CLK_ENABLE();
-    GPIO_InitStructure.Pin          = LCD_PINES;
-    GPIO_InitStructure.Mode         = GPIO_MODE_OUTPUT_PP;
-    GPIO_InitStructure.Pull         = GPIO_NOPULL;
-    GPIO_InitStructure.Speed        = GPIO_SPEED_FREQ_HIGH;
-    HAL_GPIO_Init(LCD_PORT,&GPIO_InitStructure);
+    HAL_GPIO_Init(SPI_PORT, &GPIO_InitStructure);
 
     HAL_NVIC_SetPriority(SPI1_IRQn,1,0);
     HAL_NVIC_EnableIRQ(SPI1_IRQn);
-
 }
+

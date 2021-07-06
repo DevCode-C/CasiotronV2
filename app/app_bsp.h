@@ -21,6 +21,16 @@
 #define LCD_RS          GPIO_PIN_1  // Selector data/command
 #define LCD_RST         GPIO_PIN_2  //Reset del LCD, activado en bajo
 
+#define GPIO_LED_PIN_BOARD  GPIO_PIN_5  //Led de la tarjeta
+#define GPIO_LED_PORT_BOARD GPIOA       //Puerto del led de la tarjeta
+
+#define UART_PINES      GPIO_PIN_2 | GPIO_PIN_3
+#define UART_PORT       GPIOA
+
+#define SPI_PINES       GPIO_PIN_3 | GPIO_PIN_4 | GPIO_PIN_5  //SPI Pines
+#define SPI_PORT        GPIOB
+
+
 typedef struct _serial_MsgTypedef
 {
     uint8_t msg;        //Tipo de mensaje
