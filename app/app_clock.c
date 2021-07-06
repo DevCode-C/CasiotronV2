@@ -59,12 +59,13 @@ void clock_init(void)
     initialise_monitor_handles();
     printf("\n");
     spi_init();
+    lcd_init();
     
     __HAL_RCC_GPIOC_CLK_ENABLE();
-    GPIO_InitStructure.Pin = GPIO_PIN_13;
+    GPIO_InitStructure.Pin = GPIO_BUTTON_PIN;
     GPIO_InitStructure.Mode = GPIO_MODE_INPUT;
     GPIO_InitStructure.Pull = GPIO_PULLUP;
-    HAL_GPIO_Init(GPIOC,&GPIO_InitStructure);
+    HAL_GPIO_Init(GPIO_BUTTON_PORT,&GPIO_InitStructure);
 
 
     __HAL_RCC_RTC_ENABLE();
@@ -96,7 +97,6 @@ void clock_init(void)
     HAL_RTC_SetAlarm_IT(&RTC_InitStructure,&RTC_AlarmConfig,RTC_FORMAT_BIN);
     HAL_RTC_DeactivateAlarm(&RTC_InitStructure,RTC_ALARM_A);
     
-    lcd_init();
     tick = HAL_GetTick();
 }
 
