@@ -54,7 +54,6 @@ void heart_beat(void)
         hearBeatTick = HAL_GetTick();
         HAL_GPIO_TogglePin(GPIO_LED_PORT_BOARD,GPIO_LED_PIN_BOARD);
     }
-    
 }
 
 void dog_init(void)
