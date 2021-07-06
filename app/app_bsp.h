@@ -25,10 +25,10 @@
 #define GPIO_LED_PIN_BOARD  GPIO_PIN_5  //Led de la tarjeta
 #define GPIO_LED_PORT_BOARD GPIOA       //Puerto del led de la tarjeta
 
-#define GPIO_BUTTON_PIN     GPIO_PIN_13
+#define GPIO_BUTTON_PIN     GPIO_PIN_13 
 #define GPIO_BUTTON_PORT    GPIOC
 
-#define UART_PINES      GPIO_PIN_2 | GPIO_PIN_3
+#define UART_PINES      GPIO_PIN_2 | GPIO_PIN_3 //UART Pines
 #define UART_PORT       GPIOA
 
 #define SPI_PINES       GPIO_PIN_3 | GPIO_PIN_4 | GPIO_PIN_5  //SPI Pines
