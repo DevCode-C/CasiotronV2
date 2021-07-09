@@ -49,8 +49,7 @@ SPI_HandleTypeDef              spi_Handle              = {0};
 static clockSelection clockSelectionFun[] = {clockIdle,showClock,clockShowAlarm,clockSetData,showAlarmUp};
 
 extern Serial_MsgTypeDef    SerialTranferData;
-extern SPI_HandleTypeDef    spi_Handle;
-extern void initialise_monitor_handles(void);
+// extern void initialise_monitor_handles(void);
 
 __IO ITStatus AlarmRTC               = RESET;
 __IO ITStatus Alarm_Active           = RESET;
