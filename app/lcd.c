@@ -1,5 +1,7 @@
 #include "lcd.h"
 
+#define CURSOR  0x80U
+
 void MOD_LCD_Init( LCD_HandleTypeDef *hlcd )
 {
     MOD_LCD_MspInit(hlcd);
@@ -34,15 +36,16 @@ void MOD_LCD_Command( LCD_HandleTypeDef *hlcd, uint8_t cmd )
 {
     HAL_GPIO_WritePin(hlcd->CsPort,hlcd->CsPin,RESET);
     HAL_GPIO_WritePin(hlcd->RsPort,hlcd->RsPin,RESET);
-    HAL_SPI_Transmit_IT(hlcd->SpiHandler,&cmd,1);
+    HAL_SPI_Transmit(hlcd->SpiHandler,&cmd,1,100);
     HAL_GPIO_WritePin(hlcd->CsPort,hlcd->CsPin,SET);
+    
 }
 
 void MOD_LCD_Data( LCD_HandleTypeDef *hlcd, uint8_t data )
 {
     HAL_GPIO_WritePin(hlcd->CsPort,hlcd->CsPin,RESET);
     HAL_GPIO_WritePin(hlcd->RsPort,hlcd->RsPin,SET);
-    HAL_SPI_Transmit_IT(hlcd->SpiHandler,&data,1);
+    HAL_SPI_Transmit(hlcd->SpiHandler,&data,1,100);
     HAL_GPIO_WritePin(hlcd->CsPort,hlcd->CsPin,SET);
     
 }
@@ -64,17 +67,17 @@ void MOD_LCD_SetCursor( LCD_HandleTypeDef *hlcd, uint8_t row, uint8_t col )
     {
         if (row == 0)
         {
-            MOD_LCD_Command(hlcd,0x80 | col);
+            MOD_LCD_Command(hlcd,CURSOR | col);
         }
         else if (row == 1)
         {
-            MOD_LCD_Command(hlcd,0x80 |(0x40|col));
+            MOD_LCD_Command(hlcd,CURSOR |(0x40|col));
         }
     }
     else
     {
         row = 0;
         col = 0;
-        MOD_LCD_Command(hlcd,0x80 | col);
+        MOD_LCD_Command(hlcd,CURSOR | col);
     }
 }

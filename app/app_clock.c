@@ -19,6 +19,12 @@ HAL_StatusTypeDef setTime(uint8_t hour, uint8_t minutes, uint16_t seconds);
 HAL_StatusTypeDef setDate(uint8_t day, uint8_t month, uint16_t year);
 HAL_StatusTypeDef setAlarm(uint8_t hour, uint8_t minutes);
 
+void DecToStr(uint8_t *buffer, int32_t val);
+uint8_t number_digits(int32_t num);
+void sprint_Date(char* buffer, RTC_DateTypeDef DateData);
+void sprint_Time(char* buffer,RTC_TimeTypeDef TimeData, uint8_t stars);
+void sprint_Alarm(char* buffer, RTC_AlarmTypeDef AlarmData);
+
 void lcd_init(void);
 void spi_init(void);
 
@@ -56,8 +62,8 @@ void clock_init(void)
 {
     GPIO_InitTypeDef GPIO_InitStructure;
     
-    initialise_monitor_handles();
-    printf("\n");
+    // initialise_monitor_handles();
+    // printf("\n");
     spi_init();
     lcd_init();
     
@@ -179,17 +185,16 @@ void showClock(void)
     uint8_t           buffer[17]    = {0};
     RTC_TimeTypeDef     gTime       = {0};
     RTC_DateTypeDef     gDate       = {0};
-    uint8_t             dayweekSel  = 0;
+    // uint8_t             dayweekSel  = 0;
     
     HAL_RTC_GetTime(&RTC_InitStructure,&gTime,RTC_FORMAT_BIN);
     HAL_RTC_GetDate(&RTC_InitStructure,&gDate,RTC_FORMAT_BIN);
 
-    dayweekSel = dayOfWeek(gDate.Date, gDate.Month,gDate.Year+yearConversion);
-    sprintf((char*)buffer," %s,%02d %04d %s",months[gDate.Month],gDate.Date,gDate.Year+yearConversion,days[dayweekSel]);
+    sprint_Date((char*)buffer,gDate);
     MOD_LCD_SetCursor(&lcd_display,1,1);
     MOD_LCD_String(&lcd_display,(char*)buffer);
 
-    sprintf((char*)buffer,"    %02d:%02d:%02d    ",gTime.Hours, gTime.Minutes, gTime.Seconds);
+    sprint_Time((char*)buffer,gTime,0);
     MOD_LCD_SetCursor(&lcd_display,2,1);
     MOD_LCD_String(&lcd_display,(char*)buffer);
     if (__HAL_RTC_ALARM_GET_IT_SOURCE(&RTC_InitStructure,RTC_ALARM_A))
@@ -221,11 +226,11 @@ void showAlarmUp(void)
         HAL_RTC_GetDate(&RTC_InitStructure,&gDate,RTC_FORMAT_BIN);
         if (time%2)
         {
-            sprintf((char*)buffer,"*** %02d:%02d:%02d ***",gTime.Hours, gTime.Minutes, gTime.Seconds);
+            sprint_Time((char*)buffer,gTime,1);
         }
         else
         {
-            sprintf((char*)buffer,"    %02d:%02d:%02d    ",gTime.Hours, gTime.Minutes, gTime.Seconds);
+            sprint_Time((char*)buffer,gTime,0);
         }
 
         time++;
@@ -253,7 +258,7 @@ void clockShowAlarm(void)
     {
         if (__HAL_RTC_ALARM_GET_IT_SOURCE(&RTC_InitStructure,RTC_ALARM_A))
         {
-            sprintf((char*)buffer,"ALARM %02d:%02d:%02d ",gAlarm.AlarmTime.Hours, gAlarm.AlarmTime.Minutes, gAlarm.AlarmTime.Seconds);
+            sprint_Alarm((char*)buffer,gAlarm);
             MOD_LCD_SetCursor(&lcd_display,2,1);
             MOD_LCD_String(&lcd_display,(char*)buffer);
         }
@@ -300,8 +305,8 @@ void spi_init(void)
 {
     spi_Handle.Instance                  = SPI1;
     spi_Handle.Init.Mode                 = SPI_MODE_MASTER;
-    spi_Handle.Init.BaudRatePrescaler    = SPI_BAUDRATEPRESCALER_16;
-    spi_Handle.Init.Direction            = SPI_DIRECTION_2LINES;
+    spi_Handle.Init.BaudRatePrescaler    = SPI_BAUDRATEPRESCALER_256; //48MHz/128 = 375KHz -> 1/375KHz = 2.66uS *8 = 21uS  
+    spi_Handle.Init.Direction            = SPI_DIRECTION_1LINE;
     spi_Handle.Init.CLKPhase             = SPI_PHASE_2EDGE;
     spi_Handle.Init.CLKPolarity          = SPI_POLARITY_LOW;
     spi_Handle.Init.CRCCalculation       = SPI_CRCCALCULATION_DISABLE;
@@ -311,9 +316,7 @@ void spi_init(void)
     spi_Handle.Init.NSS                  = SPI_NSS_SOFT;
     spi_Handle.Init.TIMode               = SPI_TIMODE_DISABLE;
     HAL_SPI_Init(&spi_Handle);
-    HAL_GPIO_WritePin(LCD_PORT,LCD_CS,SET);
 }
-
 
 void lcd_init(void)
 {
@@ -328,17 +331,6 @@ void lcd_init(void)
     MOD_LCD_Init(&lcd_display);
 }
 
-void MOD_LCD_MspInit( LCD_HandleTypeDef *hlcd )
-{
-    GPIO_InitTypeDef GPIO_InitStructure;
-    __HAL_RCC_GPIOC_CLK_ENABLE();
-    GPIO_InitStructure.Pin          = LCD_PINES;
-    GPIO_InitStructure.Mode         = GPIO_MODE_OUTPUT_PP;
-    GPIO_InitStructure.Pull         = GPIO_NOPULL;
-    GPIO_InitStructure.Speed        = GPIO_SPEED_FREQ_HIGH;
-    HAL_GPIO_Init(LCD_PORT,&GPIO_InitStructure);
-}
-
 uint8_t dayOfWeek(uint8_t d, uint8_t m, uint16_t y)
 {
     uint8_t a = ((14 - m)/12);
@@ -347,6 +339,191 @@ uint8_t dayOfWeek(uint8_t d, uint8_t m, uint16_t y)
 
     d = (d + y + (y/4) - (y/100) + (y/400) + ((31*m)/12)) % 7;
     return d;
+}
+
+
+void DecToStr(uint8_t *buffer, int32_t val)
+{
+    uint8_t nElements = number_digits(val)+1;
+    uint8_t bufferTemp[nElements];
+    uint8_t i;
+    if (val < 0)
+    {   val *= (-1);
+        for (i = 1; i <= nElements; i++)
+        {
+            bufferTemp[nElements - i] =(uint8_t) ((val % 10UL) + '0');
+            val/=10;
+        }
+        bufferTemp[i - 1] = '\0';
+        bufferTemp[0] = '-';
+        strcpy((char *)buffer,(const char*)bufferTemp);
+    }
+    else if(val == 0)
+    {
+        strcpy((char *)buffer,"0\0");
+    }
+    else
+    {
+        for (i = 1; i <= nElements; i++)
+        {
+            bufferTemp[nElements - i] =(uint8_t) ((val % 10UL) + '0');
+            val/=10;
+        }
+        bufferTemp[i - 1] = '\0';
+        strcpy((char *)buffer,(const char*)&bufferTemp[1]);
+    }
+
+    
+}
+
+uint8_t number_digits(int32_t num)
+{
+    uint8_t count = 0;
+
+    if (num < 0)
+    {
+        num *= (-1);
+    }
+    while(num > 0)
+    {
+        count++;
+        num /= 10;
+    }
+    return count;
+}
+
+void sprint_Date(char* buffer, RTC_DateTypeDef DateData)
+{
+    char bufferTemp[16] = {0};
+    char buffernum[5] = {0};
+    uint8_t  dayweekSel  = 0;
+    strcat(bufferTemp," "); 
+    strcat(bufferTemp,months[DateData.Month]); 
+    strcat(bufferTemp,","); 
+    strcat(bufferTemp,"00");
+    DecToStr((uint8_t*)buffernum,DateData.Date);
+    if (strlen(buffernum) == 1)
+    {
+        strcpy(&bufferTemp[6],buffernum);    
+    }
+    else
+    {
+        strcpy(&bufferTemp[5],buffernum);
+    }
+    strcat(bufferTemp," ");
+    DecToStr((uint8_t*)buffernum,DateData.Year + yearConversion);
+    strcat(bufferTemp,buffernum);
+    strcat(bufferTemp," ");
+    dayweekSel = dayOfWeek(DateData.Date, DateData.Month,DateData.Year+yearConversion);
+    strcat(bufferTemp,days[dayweekSel]);
+    strcat(bufferTemp," ");
+    strcpy(buffer,bufferTemp);
+}
+
+void sprint_Time(char* buffer,RTC_TimeTypeDef TimeData, uint8_t stars)
+{
+    char bufferTemp[17] = {0};
+    char buffernum[3] = {0};
+
+    if (stars == 0)
+    {
+        strcat(bufferTemp,"    ");
+        strcpy(&bufferTemp[12],"    ");
+    }
+    else
+    {
+        strcat(bufferTemp,"*** ");
+        strcpy(&bufferTemp[12]," ***");
+    }
+
+    strcat(bufferTemp, "00");
+    DecToStr((uint8_t*)buffernum,TimeData.Hours);
+    if (strlen(buffernum) == 1)
+    {
+        strcpy(&bufferTemp[5],buffernum);
+    }
+    else
+    {
+        strcpy(&bufferTemp[4],buffernum);
+    }
+    CLEAR_BUFFER(buffernum);
+    strcat(bufferTemp,":");
+    strcat(bufferTemp, "00");
+    DecToStr((uint8_t*)buffernum,TimeData.Minutes);
+    if (strlen(buffernum) == 1)
+    {
+        strcpy(&bufferTemp[8],buffernum);
+    }
+    else
+    {
+        strcpy(&bufferTemp[7],buffernum);
+    }
+    CLEAR_BUFFER(buffernum);
+    strcat(bufferTemp,":");
+    strcat(bufferTemp, "00");
+    DecToStr((uint8_t*)buffernum,TimeData.Seconds);
+    if (strlen(buffernum) == 1)
+    {
+        strcpy(&bufferTemp[11],buffernum);
+    }
+    else
+    {
+        strcpy(&bufferTemp[10],buffernum);
+    }
+
+    if (stars == 0)
+    {
+        strcat(bufferTemp,"    ");
+    }
+    else
+    {
+        strcat(bufferTemp," ***");
+    }
+    strcpy(buffer,bufferTemp);
+}
+
+void sprint_Alarm(char* buffer, RTC_AlarmTypeDef AlarmData)
+{
+    char bufferTemp[17] = {0};
+    char buffernum[3] = {0};
+
+    strcat(bufferTemp,"ALARM ");
+    strcat(bufferTemp, "00");
+    DecToStr((uint8_t*)buffernum,AlarmData.AlarmTime.Hours);
+    if (strlen(buffernum) == 1)
+    {
+        strcpy(&bufferTemp[7],buffernum);
+    }
+    else
+    {
+        strcpy(&bufferTemp[6],buffernum);
+    }
+    CLEAR_BUFFER(buffernum);
+    strcat(bufferTemp,":");
+    strcat(bufferTemp, "00");
+    DecToStr((uint8_t*)buffernum,AlarmData.AlarmTime.Minutes);
+    if (strlen(buffernum) == 1)
+    {
+        strcpy(&bufferTemp[10],buffernum);
+    }
+    else
+    {
+        strcpy(&bufferTemp[9],buffernum);
+    }
+    CLEAR_BUFFER(buffernum);
+    strcat(bufferTemp,":");
+    strcat(bufferTemp, "00");
+    DecToStr((uint8_t*)buffernum,AlarmData.AlarmTime.Seconds);
+    if (strlen(buffernum) == 1)
+    {
+        strcpy(&bufferTemp[13],buffernum);
+    }
+    else
+    {
+        strcpy(&bufferTemp[12],buffernum);
+    }
+    strcat(bufferTemp, " ");
+    strcpy(buffer,bufferTemp);
 }
 
 void HAL_RTC_AlarmAEventCallback(RTC_HandleTypeDef *hrtc)
