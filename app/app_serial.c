@@ -251,9 +251,51 @@ HAL_StatusTypeDef checkDataTime(uint8_t hour, uint8_t minutes, uint16_t seconds)
 HAL_StatusTypeDef checkDataDate(uint8_t day, uint8_t month, uint16_t year)
 {
     HAL_StatusTypeDef flag = HAL_ERROR;
-    if ((day <= 30) && (month <= 12) && (year <= 9999) && (month >= 1) && (day >= 1))
+    if ((day <= 31) && (month <= 12) && (year <= 9999) && (month >= 1) && (day >= 1))
     {
-        flag = HAL_OK;
+        switch (month)
+        {
+            case 1:
+            case 3:
+            case 5:
+            case 7:
+            case 8:
+            case 10:
+            case 12:
+                flag = HAL_ERROR;
+                if (day <= 31)
+                {
+                    flag = HAL_OK;
+                }
+                break;
+            case 4:
+            case 6:
+            case 9:
+            case 11:
+                flag = HAL_ERROR;
+                if (day <= 30)
+                {
+                    flag = HAL_OK;
+                }
+                break;
+            case 2:
+                flag = HAL_ERROR;
+                if ((year % 4 == 0) && (year % 100 != 0))
+                {
+                    if (day <= 29)
+                    {
+                        flag = HAL_OK;
+                    }
+                }
+                if (day<= 28)
+                {
+                    flag = HAL_OK;
+                }                
+        }
+        if (flag == HAL_OK)
+        {
+            flag = HAL_OK;
+        }
     }
     return flag;
 }

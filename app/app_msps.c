@@ -1,10 +1,4 @@
-#include "stm32f0xx.h"
-#include "stm32f0xx_hal.h"
-#include <stdint.h>
 #include "app_bsp.h"
-#include "stm32f0xx_hal_conf.h"
-#include "stm32f070xb.h"
-#include "stm32f0xx_hal_rcc.h"
 
 void HAL_MspInit( void )
 {
@@ -83,8 +77,16 @@ void HAL_SPI_MspInit(SPI_HandleTypeDef *hspi)
     GPIO_InitStructure.Speed        = GPIO_SPEED_FREQ_HIGH;
     GPIO_InitStructure.Alternate    = GPIO_AF0_SPI1;
     HAL_GPIO_Init(SPI_PORT, &GPIO_InitStructure);
-
-    HAL_NVIC_SetPriority(SPI1_IRQn,1,0);
-    HAL_NVIC_EnableIRQ(SPI1_IRQn);
 }
 
+void MOD_LCD_MspInit( LCD_HandleTypeDef *hlcd )
+{
+    GPIO_InitTypeDef GPIO_InitStructure;
+    __HAL_RCC_GPIOC_CLK_ENABLE();
+    GPIO_InitStructure.Pin          = LCD_PINES;
+    GPIO_InitStructure.Mode         = GPIO_MODE_OUTPUT_PP;
+    GPIO_InitStructure.Pull         = GPIO_NOPULL;
+    GPIO_InitStructure.Speed        = GPIO_SPEED_FREQ_HIGH;
+    HAL_GPIO_Init(LCD_PORT,&GPIO_InitStructure);
+    HAL_GPIO_WritePin(LCD_PORT,LCD_CS,SET);
+}
