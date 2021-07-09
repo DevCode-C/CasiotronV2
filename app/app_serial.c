@@ -76,12 +76,6 @@ void serialdle(void)
 {
     uint8_t data = 0;
     uint8_t index = 0;
-    // if (statusRx)
-    // {
-    //     statusRx = RESET;
-    //     memcpy((char*)BufferTemp,(const char*)RxBuffer,strlen((const char*)RxBuffer));
-    //     serialState = SERIAL_AT;
-    // }
     if ((HAL_GetTick() - serialTimeTick) >= 5000)
     {
         serialTimeTick = HAL_GetTick();
@@ -282,16 +276,6 @@ void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart)
 
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 {
-    // static uint32_t i = 0;
-    // RxBuffer[i] = RxByte;
-    // i++;
-    // if(RxBuffer[i-1] == '\r')
-    // {
-    //     RxBuffer[i-1] = '\0';
-    //     statusRx = SET;
-    //     i=0;
-    // }
-    // statusRx = SET;
     HIL_BUFFER_Write(&CircBuffer,RxByte);
     HAL_UART_Receive_IT(&UartHandle,&RxByte,1);
 }
