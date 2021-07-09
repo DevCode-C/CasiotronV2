@@ -167,7 +167,7 @@ void clockIdle(void)
         tick = HAL_GetTick();
         clockState = CLOCK_SHOW;
     }
-    if (HAL_GPIO_ReadPin(GPIOC,GPIO_PIN_13) == 0)
+    if (HAL_GPIO_ReadPin(GPIO_BUTTON_PORT,GPIO_BUTTON_PIN) == 0)
     {
         clockState = CLOCK_SHOW_ALARM;
     }
@@ -239,7 +239,7 @@ void showAlarmUp(void)
         MOD_LCD_String(&lcd_display,(char*)buffer);
     }
     
-    if (!HAL_GPIO_ReadPin(GPIOC,GPIO_PIN_13) || time > 59)
+    if (!HAL_GPIO_ReadPin(GPIO_BUTTON_PORT,GPIO_BUTTON_PIN) || time > 59)
     {
         clockState = CLOCK_IDLE;
     }
@@ -255,7 +255,7 @@ void clockShowAlarm(void)
 
     HAL_RTC_GetAlarm(&RTC_InitStructure,&gAlarm,RTC_ALARM_A,RTC_FORMAT_BIN);
     
-    if (flagButon == 0 && !HAL_GPIO_ReadPin(GPIOC,GPIO_PIN_13))
+    if (flagButon == 0 && !HAL_GPIO_ReadPin(GPIO_BUTTON_PORT,GPIO_BUTTON_PIN))
     {
         if (__HAL_RTC_ALARM_GET_IT_SOURCE(&RTC_InitStructure,RTC_ALARM_A))
         {
@@ -270,7 +270,7 @@ void clockShowAlarm(void)
         }
         flagButon =1;
     }
-    else if (!HAL_GPIO_ReadPin(GPIOC,GPIO_PIN_13))
+    else if (!HAL_GPIO_ReadPin(GPIO_BUTTON_PORT,GPIO_BUTTON_PIN))
     {
         clockState = CLOCK_SHOW_ALARM;
     }
