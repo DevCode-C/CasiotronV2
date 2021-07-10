@@ -185,7 +185,6 @@ void showClock(void)
     uint8_t           buffer[17]    = {0};
     RTC_TimeTypeDef     gTime       = {0};
     RTC_DateTypeDef     gDate       = {0};
-    // uint8_t             dayweekSel  = 0;
     
     HAL_RTC_GetTime(&RTC_InitStructure,&gTime,RTC_FORMAT_BIN);
     HAL_RTC_GetDate(&RTC_InitStructure,&gDate,RTC_FORMAT_BIN);
@@ -305,7 +304,7 @@ void spi_init(void)
 {
     spi_Handle.Instance                  = SPI1;
     spi_Handle.Init.Mode                 = SPI_MODE_MASTER;
-    spi_Handle.Init.BaudRatePrescaler    = SPI_BAUDRATEPRESCALER_256; //48MHz/128 = 375KHz -> 1/375KHz = 2.66uS *8 = 21uS  
+    spi_Handle.Init.BaudRatePrescaler    = SPI_BAUDRATEPRESCALER_256;   
     spi_Handle.Init.Direction            = SPI_DIRECTION_1LINE;
     spi_Handle.Init.CLKPhase             = SPI_PHASE_2EDGE;
     spi_Handle.Init.CLKPolarity          = SPI_POLARITY_LOW;

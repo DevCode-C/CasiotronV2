@@ -3,14 +3,23 @@
 #include "app_bsp.h"
 
 
-/*
-Inicializacion del Clock
+/**
+ * @brief Inicializacion de todos los parametros relacionados al "APP_CLOCK"
+ * 
+ * @param NONE (void)
+ * 
+ * @return NONE (void)
 */
 void clock_init(void);
 
-/*
-Funcion principal del reloj
-*/
+/** -------------------------------------------------------------
+ * @brief Funcion principal del reloj
+ * 
+ * @param NONE (void)
+ * 
+ * @return NONE (void)
+ *
+ * ---------------------------------------------------------------*/
 void clock_task(void);
 
 #endif
