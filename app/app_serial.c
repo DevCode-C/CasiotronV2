@@ -8,17 +8,92 @@
 #define SERIAL_ERROR    5U
 #define SERIAL_OK       6U
 
+/**---------------------------------------------------------------
+Brief.- Breve descripcion de la función
+Param.- <nombre> descripcion del parámetro. si existe
+Param.- <nombre> descripcion del parámetro. si existe
+Return.- descripcion del valor del parámetro. si existe
+----------------------------------------------------------------*/
 void serialdle(void);
+
+/**---------------------------------------------------------------
+Brief.- Breve descripcion de la función
+Param.- <nombre> descripcion del parámetro. si existe
+Param.- <nombre> descripcion del parámetro. si existe
+Return.- descripcion del valor del parámetro. si existe
+----------------------------------------------------------------*/
 void serialAT_Sel(void);
+
+/**---------------------------------------------------------------
+Brief.- Breve descripcion de la función
+Param.- <nombre> descripcion del parámetro. si existe
+Param.- <nombre> descripcion del parámetro. si existe
+Return.- descripcion del valor del parámetro. si existe
+----------------------------------------------------------------*/
 void serialTime(void);
+
+/**---------------------------------------------------------------
+Brief.- Breve descripcion de la función
+Param.- <nombre> descripcion del parámetro. si existe
+Param.- <nombre> descripcion del parámetro. si existe
+Return.- descripcion del valor del parámetro. si existe
+----------------------------------------------------------------*/
 void serialDate(void);
+
+/**---------------------------------------------------------------
+Brief.- Breve descripcion de la función
+Param.- <nombre> descripcion del parámetro. si existe
+Param.- <nombre> descripcion del parámetro. si existe
+Return.- descripcion del valor del parámetro. si existe
+----------------------------------------------------------------*/
 void serialAlarm(void);
+
+/**---------------------------------------------------------------
+Brief.- Breve descripcion de la función
+Param.- <nombre> descripcion del parámetro. si existe
+Param.- <nombre> descripcion del parámetro. si existe
+Return.- descripcion del valor del parámetro. si existe
+----------------------------------------------------------------*/
 void serialOK(void);
+
+/**---------------------------------------------------------------
+Brief.- Breve descripcion de la función
+Param.- <nombre> descripcion del parámetro. si existe
+Param.- <nombre> descripcion del parámetro. si existe
+Return.- descripcion del valor del parámetro. si existe
+----------------------------------------------------------------*/
 void serialERROR(void);
 
+/**---------------------------------------------------------------
+Brief.- Breve descripcion de la función
+Param.- <nombre> descripcion del parámetro. si existe
+Param.- <nombre> descripcion del parámetro. si existe
+Return.- descripcion del valor del parámetro. si existe
+----------------------------------------------------------------*/
 int32_t validate_StrToInt(char * buffer);
+
+/**---------------------------------------------------------------
+Brief.- Breve descripcion de la función
+Param.- <nombre> descripcion del parámetro. si existe
+Param.- <nombre> descripcion del parámetro. si existe
+Return.- descripcion del valor del parámetro. si existe
+----------------------------------------------------------------*/
 HAL_StatusTypeDef checkDataTime(uint8_t hour, uint8_t minutes, uint16_t seconds);
+
+/**---------------------------------------------------------------
+Brief.- Breve descripcion de la función
+Param.- <nombre> descripcion del parámetro. si existe
+Param.- <nombre> descripcion del parámetro. si existe
+Return.- descripcion del valor del parámetro. si existe
+----------------------------------------------------------------*/
 HAL_StatusTypeDef checkDataDate(uint8_t day, uint8_t month, uint16_t year);
+
+/**---------------------------------------------------------------
+Brief.- Breve descripcion de la función
+Param.- <nombre> descripcion del parámetro. si existe
+Param.- <nombre> descripcion del parámetro. si existe
+Return.- descripcion del valor del parámetro. si existe
+----------------------------------------------------------------*/
 HAL_StatusTypeDef checkDataAlarm(uint8_t hour, uint8_t minutes);
 
 typedef void (*serialSelection)(void);

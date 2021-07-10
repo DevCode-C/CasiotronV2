@@ -9,28 +9,128 @@
 
 #define TIME_TRANSITION     1000U
 
+/**---------------------------------------------------------------
+Brief.- Breve descripcion de la función
+Param.- <nombre> descripcion del parámetro. si existe
+Param.- <nombre> descripcion del parámetro. si existe
+Return.- descripcion del valor del parámetro. si existe
+----------------------------------------------------------------*/
 void clockIdle(void);
+
+/**---------------------------------------------------------------
+Brief.- Breve descripcion de la función
+Param.- <nombre> descripcion del parámetro. si existe
+Param.- <nombre> descripcion del parámetro. si existe
+Return.- descripcion del valor del parámetro. si existe
+----------------------------------------------------------------*/
 void showClock(void);
+
+/**---------------------------------------------------------------
+Brief.- Breve descripcion de la función
+Param.- <nombre> descripcion del parámetro. si existe
+Param.- <nombre> descripcion del parámetro. si existe
+Return.- descripcion del valor del parámetro. si existe
+----------------------------------------------------------------*/
 void showAlarmUp(void);
+
+/**---------------------------------------------------------------
+Brief.- Breve descripcion de la función
+Param.- <nombre> descripcion del parámetro. si existe
+Param.- <nombre> descripcion del parámetro. si existe
+Return.- descripcion del valor del parámetro. si existe
+----------------------------------------------------------------*/
 void clockSetData(void);
+
+/**---------------------------------------------------------------
+Brief.- Breve descripcion de la función
+Param.- <nombre> descripcion del parámetro. si existe
+Param.- <nombre> descripcion del parámetro. si existe
+Return.- descripcion del valor del parámetro. si existe
+----------------------------------------------------------------*/
 void clockShowAlarm(void);
 
+/**---------------------------------------------------------------
+Brief.- Breve descripcion de la función
+Param.- <nombre> descripcion del parámetro. si existe
+Param.- <nombre> descripcion del parámetro. si existe
+Return.- descripcion del valor del parámetro. si existe
+----------------------------------------------------------------*/
 HAL_StatusTypeDef setTime(uint8_t hour, uint8_t minutes, uint16_t seconds);
+
+/**---------------------------------------------------------------
+Brief.- Breve descripcion de la función
+Param.- <nombre> descripcion del parámetro. si existe
+Param.- <nombre> descripcion del parámetro. si existe
+Return.- descripcion del valor del parámetro. si existe
+----------------------------------------------------------------*/
 HAL_StatusTypeDef setDate(uint8_t day, uint8_t month, uint16_t year);
+
+/**---------------------------------------------------------------
+Brief.- Breve descripcion de la función
+Param.- <nombre> descripcion del parámetro. si existe
+Param.- <nombre> descripcion del parámetro. si existe
+Return.- descripcion del valor del parámetro. si existe
+----------------------------------------------------------------*/
 HAL_StatusTypeDef setAlarm(uint8_t hour, uint8_t minutes);
 
+/**---------------------------------------------------------------
+Brief.- Breve descripcion de la función
+Param.- <nombre> descripcion del parámetro. si existe
+Param.- <nombre> descripcion del parámetro. si existe
+Return.- descripcion del valor del parámetro. si existe
+----------------------------------------------------------------*/
 void DecToStr(uint8_t *buffer, int32_t val);
+
+/**---------------------------------------------------------------
+Brief.- Breve descripcion de la función
+Param.- <nombre> descripcion del parámetro. si existe
+Param.- <nombre> descripcion del parámetro. si existe
+Return.- descripcion del valor del parámetro. si existe
+----------------------------------------------------------------*/
 uint8_t number_digits(int32_t num);
 void sprint_Date(char* buffer, RTC_DateTypeDef DateData);
+
+/**---------------------------------------------------------------
+Brief.- Breve descripcion de la función
+Param.- <nombre> descripcion del parámetro. si existe
+Param.- <nombre> descripcion del parámetro. si existe
+Return.- descripcion del valor del parámetro. si existe
+----------------------------------------------------------------*/
 void sprint_Time(char* buffer,RTC_TimeTypeDef TimeData, uint8_t stars);
+
+/**---------------------------------------------------------------
+Brief.- Breve descripcion de la función
+Param.- <nombre> descripcion del parámetro. si existe
+Param.- <nombre> descripcion del parámetro. si existe
+Return.- descripcion del valor del parámetro. si existe
+----------------------------------------------------------------*/
 void sprint_Alarm(char* buffer, RTC_AlarmTypeDef AlarmData);
 
+/**---------------------------------------------------------------
+Brief.- Breve descripcion de la función
+Param.- <nombre> descripcion del parámetro. si existe
+Param.- <nombre> descripcion del parámetro. si existe
+Return.- descripcion del valor del parámetro. si existe
+----------------------------------------------------------------*/
 void lcd_init(void);
+
+/**---------------------------------------------------------------
+Brief.- Breve descripcion de la función
+Param.- <nombre> descripcion del parámetro. si existe
+Param.- <nombre> descripcion del parámetro. si existe
+Return.- descripcion del valor del parámetro. si existe
+----------------------------------------------------------------*/
 void spi_init(void);
 
 /*
 Algoritmo de congruencia de Zeller
 */
+/**---------------------------------------------------------------
+Brief.- Breve descripcion de la función
+Param.- <nombre> descripcion del parámetro. si existe
+Param.- <nombre> descripcion del parámetro. si existe
+Return.- descripcion del valor del parámetro. si existe
+----------------------------------------------------------------*/
 uint8_t dayOfWeek(uint8_t d, uint8_t m, uint16_t y);
 
 typedef void (*clockSelection)(void);
@@ -190,11 +290,11 @@ void showClock(void)
     HAL_RTC_GetDate(&RTC_InitStructure,&gDate,RTC_FORMAT_BIN);
 
     sprint_Date((char*)buffer,gDate);
-    MOD_LCD_SetCursor(&lcd_display,1,1);
+    // MOD_LCD_SetCursor(&lcd_display,1,1);
     MOD_LCD_String(&lcd_display,(char*)buffer);
 
-    sprint_Time((char*)buffer,gTime,0);
     MOD_LCD_SetCursor(&lcd_display,2,1);
+    sprint_Time((char*)buffer,gTime,0);
     MOD_LCD_String(&lcd_display,(char*)buffer);
     if (__HAL_RTC_ALARM_GET_IT_SOURCE(&RTC_InitStructure,RTC_ALARM_A))
     {
@@ -217,7 +317,7 @@ void showAlarmUp(void)
         HAL_RTC_DeactivateAlarm(&RTC_InitStructure,RTC_ALARM_A);
     }
 
-
+    MOD_LCD_SetCursor(&lcd_display,2,1);
     if (HAL_GetTick() - tick >= TIME_TRANSITION)
     {
         tick = HAL_GetTick();
@@ -233,7 +333,6 @@ void showAlarmUp(void)
         }
 
         time++;
-        MOD_LCD_SetCursor(&lcd_display,2,1);
         MOD_LCD_String(&lcd_display,(char*)buffer);
     }
     
@@ -255,15 +354,15 @@ void clockShowAlarm(void)
     
     if (flagButon == 0 && !HAL_GPIO_ReadPin(GPIO_BUTTON_PORT,GPIO_BUTTON_PIN))
     {
+        MOD_LCD_SetCursor(&lcd_display,2,1);
         if (__HAL_RTC_ALARM_GET_IT_SOURCE(&RTC_InitStructure,RTC_ALARM_A))
         {
             sprint_Alarm((char*)buffer,gAlarm);
-            MOD_LCD_SetCursor(&lcd_display,2,1);
             MOD_LCD_String(&lcd_display,(char*)buffer);
         }
         else
         {
-            MOD_LCD_SetCursor(&lcd_display,2,1);
+            // MOD_LCD_SetCursor(&lcd_display,2,1);
             MOD_LCD_String(&lcd_display,(char*)nAlarm);
         }
         flagButon =1;
@@ -393,30 +492,49 @@ uint8_t number_digits(int32_t num)
 
 void sprint_Date(char* buffer, RTC_DateTypeDef DateData)
 {
-    char bufferTemp[16] = {0};
     char buffernum[5] = {0};
     uint8_t  dayweekSel  = 0;
-    strcat(bufferTemp," "); 
-    strcat(bufferTemp,months[DateData.Month]); 
-    strcat(bufferTemp,","); 
-    strcat(bufferTemp,"00");
+    MOD_LCD_SetCursor(&lcd_display,1,1);
+    MOD_LCD_Data(&lcd_display,' ');
+    MOD_LCD_String(&lcd_display,(char*)months[DateData.Month]);
+    MOD_LCD_Data(&lcd_display,',');
     DecToStr((uint8_t*)buffernum,DateData.Date);
-    if (strlen(buffernum) == 1)
+    MOD_LCD_Data(&lcd_display,'0');
+    if (strlen(buffernum) == 2)
     {
-        strcpy(&bufferTemp[6],buffernum);    
+        MOD_LCD_SetCursor(&lcd_display,1,6);
     }
-    else
-    {
-        strcpy(&bufferTemp[5],buffernum);
-    }
-    strcat(bufferTemp," ");
+    MOD_LCD_String(&lcd_display,buffernum);
+    CLEAR_BUFFER(buffernum);
+
+    MOD_LCD_SetCursor(&lcd_display,1,9);
     DecToStr((uint8_t*)buffernum,DateData.Year + yearConversion);
-    strcat(bufferTemp,buffernum);
-    strcat(bufferTemp," ");
+    MOD_LCD_String(&lcd_display,buffernum);
+    MOD_LCD_Data(&lcd_display,' ');
     dayweekSel = dayOfWeek(DateData.Date, DateData.Month,DateData.Year+yearConversion);
-    strcat(bufferTemp,days[dayweekSel]);
-    strcat(bufferTemp," ");
-    strcpy(buffer,bufferTemp);
+    MOD_LCD_String(&lcd_display,(char*)days[dayweekSel]);
+    // uint8_t  dayweekSel  = 0;
+    // strcat(bufferTemp," "); 
+    // strcat(bufferTemp,months[DateData.Month]); 
+    // strcat(bufferTemp,","); 
+    // strcat(bufferTemp,"00");
+    // DecToStr((uint8_t*)buffernum,DateData.Date);
+    // if (strlen(buffernum) == 1)
+    // {
+    //     strcpy(&bufferTemp[6],buffernum);    
+    // }
+    // else
+    // {
+    //     strcpy(&bufferTemp[5],buffernum);
+    // }
+    // strcat(bufferTemp," ");
+    // DecToStr((uint8_t*)buffernum,DateData.Year + yearConversion);
+    // strcat(bufferTemp,buffernum);
+    // strcat(bufferTemp," ");
+    // dayweekSel = dayOfWeek(DateData.Date, DateData.Month,DateData.Year+yearConversion);
+    // strcat(bufferTemp,days[dayweekSel]);
+    // strcat(bufferTemp," ");
+    // strcpy(buffer,bufferTemp);
 }
 
 void sprint_Time(char* buffer,RTC_TimeTypeDef TimeData, uint8_t stars)
