@@ -6,9 +6,6 @@
 Brief.- Punto de entrada del programa
 -------------------------------------------------------------------------------------------------*/
 
-static uint32_t hearBeatTick    = 0; 
-uint32_t WWDGTick               = 0; 
-WWDG_HandleTypeDef WWDG_HandleInit  = {0};
 
 /**---------------------------------------------------------------
 Brief.- Inicializacion del HEART_BEAT
@@ -37,6 +34,10 @@ Param.- NONE (VOID)
 Return.- NONE (VOID)
 ----------------------------------------------------------------*/
 static void peth_the_dog(void);
+
+static uint32_t hearBeatTick    = 0; 
+uint32_t WWDGTick               = 0; 
+WWDG_HandleTypeDef WWDG_HandleInit  = {0};
 
 int main( void )
 {

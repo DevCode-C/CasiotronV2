@@ -400,17 +400,6 @@ void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart)
 
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 {
-    // static uint32_t i = 0;
-    // RxBuffer[i] = RxByte;
-    // i++;
-    // if(RxBuffer[i-1] == '\r')
-    // {
-    //     RxBuffer[i-1] = '\0';
-    //     statusRx = SET;
-    //     i=0;
-    // }
-    // statusRx = SET;
-    // HIL_BUFFER_Write(&CircBuffer,RxByte);
     HIL_QUEUE_Write(&QueueSerialRx,(void*)&RxByte);
     HAL_UART_Receive_IT(&UartHandle,&RxByte,1);
 }
