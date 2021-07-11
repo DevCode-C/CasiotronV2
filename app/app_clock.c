@@ -10,126 +10,126 @@
 #define TIME_TRANSITION     1000U
 
 /**---------------------------------------------------------------
-Brief.- Breve descripcion de la función
-Param.- <nombre> descripcion del parámetro. si existe
-Param.- <nombre> descripcion del parámetro. si existe
-Return.- descripcion del valor del parámetro. si existe
+Brief.- Funcion que verifica el estado de la banderas y selecciona el estado correspondiente
+Param.- NONE (VOID)
+Return.- NONE (VOID)
 ----------------------------------------------------------------*/
 void clockIdle(void);
 
 /**---------------------------------------------------------------
-Brief.- Breve descripcion de la función
-Param.- <nombre> descripcion del parámetro. si existe
-Param.- <nombre> descripcion del parámetro. si existe
-Return.- descripcion del valor del parámetro. si existe
+Brief.- Muestra por la lcd el tiempo actual del RTC
+Param.- NONE (VOID)
+Return.- NONE (VOID)
 ----------------------------------------------------------------*/
 void showClock(void);
 
 /**---------------------------------------------------------------
-Brief.- Breve descripcion de la función
-Param.- <nombre> descripcion del parámetro. si existe
-Param.- <nombre> descripcion del parámetro. si existe
-Return.- descripcion del valor del parámetro. si existe
+Brief.- Muestra por la lcd la alarma cuando se activo la bandera "ALARMRTC"
+Param.- NONE (VOID)
+Return.- NONE (VOID)
 ----------------------------------------------------------------*/
 void showAlarmUp(void);
 
 /**---------------------------------------------------------------
-Brief.- Breve descripcion de la función
-Param.- <nombre> descripcion del parámetro. si existe
-Param.- <nombre> descripcion del parámetro. si existe
-Return.- descripcion del valor del parámetro. si existe
+Brief.- Verifica el tipo de de dato y manda al estado correpondiente para asignar la informacion
+Param.- NONE (VOID)
+Return.- NONE (VOID)
 ----------------------------------------------------------------*/
 void clockSetData(void);
 
 /**---------------------------------------------------------------
-Brief.- Breve descripcion de la función
-Param.- <nombre> descripcion del parámetro. si existe
-Param.- <nombre> descripcion del parámetro. si existe
-Return.- descripcion del valor del parámetro. si existe
+Brief.- Muestra por la lcd la hora de activacion de alarma o si no esta configurada
+Param.- NONE (VOID)
+Return.- NONE (VOID)
 ----------------------------------------------------------------*/
 void clockShowAlarm(void);
 
 /**---------------------------------------------------------------
-Brief.- Breve descripcion de la función
-Param.- <nombre> descripcion del parámetro. si existe
-Param.- <nombre> descripcion del parámetro. si existe
-Return.- descripcion del valor del parámetro. si existe
+Brief.- Actualiza la informacion del RTC Time
+Param.- uint8_t hour, Valor decimal de la nueva hora
+Param.- uint8_t minutes, Valor decima de los nuevos minutos
+Param.- uint16_t seconds, Valor decimal de los segundos
+Return.- NONE (VOID)
 ----------------------------------------------------------------*/
-HAL_StatusTypeDef setTime(uint8_t hour, uint8_t minutes, uint16_t seconds);
+void setTime(uint8_t hour, uint8_t minutes, uint16_t seconds);
 
 /**---------------------------------------------------------------
-Brief.- Breve descripcion de la función
-Param.- <nombre> descripcion del parámetro. si existe
-Param.- <nombre> descripcion del parámetro. si existe
-Return.- descripcion del valor del parámetro. si existe
+Brief.- Actualiza la informacion del RTC Date
+Param.- uint8_t dia, Valor decimal del dia
+Param.- uint8_t mes, Valor decima del mes
+Param.- uint16_t año, Valor decimal del año
+Return.- NONE (VOID)
 ----------------------------------------------------------------*/
-HAL_StatusTypeDef setDate(uint8_t day, uint8_t month, uint16_t year);
+void setDate(uint8_t day, uint8_t month, uint16_t year);
 
 /**---------------------------------------------------------------
-Brief.- Breve descripcion de la función
-Param.- <nombre> descripcion del parámetro. si existe
-Param.- <nombre> descripcion del parámetro. si existe
-Return.- descripcion del valor del parámetro. si existe
+Brief.- Actualiza la informacion del RTC Alarm
+Param.- uint8_t hour, Valor decimal de la nueva hora
+Param.- uint8_t minutes, Valor decima de los nuevos minutos
+Return.- NONE (VOID)
 ----------------------------------------------------------------*/
-HAL_StatusTypeDef setAlarm(uint8_t hour, uint8_t minutes);
+void setAlarm(uint8_t hour, uint8_t minutes);
 
 /**---------------------------------------------------------------
-Brief.- Breve descripcion de la función
-Param.- <nombre> descripcion del parámetro. si existe
-Param.- <nombre> descripcion del parámetro. si existe
-Return.- descripcion del valor del parámetro. si existe
+Brief.- Convierte valores deciamles a caracteres para alacenarlos en el buffer
+Param.- uint8_t *buffer, buffer donde se almacena la informacion 
+Param.- int32_t val, valor decimal para convertir 
+Return.- NONE (VOID)
 ----------------------------------------------------------------*/
 void DecToStr(uint8_t *buffer, int32_t val);
 
 /**---------------------------------------------------------------
-Brief.- Breve descripcion de la función
-Param.- <nombre> descripcion del parámetro. si existe
-Param.- <nombre> descripcion del parámetro. si existe
-Return.- descripcion del valor del parámetro. si existe
+Brief.- Verifica la cantida de digitos en un valor decimal 
+Param.- int32_t num, Valor decimal a contar
+Return.- uint8_t, el numero de digitos contados
 ----------------------------------------------------------------*/
 uint8_t number_digits(int32_t num);
+
+/**---------------------------------------------------------------
+Brief.- Realiza la configuracion de la informacion de DATE para mostrar por LCD
+Param.- char* buffer, Buffer donde se gurada la informacion
+Param.- RTC_DateTypeDef DateData, Estrucutra que contiene los datos que se mostraran 
+Return.- NONE (VOID)
+----------------------------------------------------------------*/
 void sprint_Date(char* buffer, RTC_DateTypeDef DateData);
 
 /**---------------------------------------------------------------
-Brief.- Breve descripcion de la función
-Param.- <nombre> descripcion del parámetro. si existe
-Param.- <nombre> descripcion del parámetro. si existe
-Return.- descripcion del valor del parámetro. si existe
+Brief.- Realiza la configuracion de la informacion de TIME para mostrar por LCD
+Param.- char* buffer, Buffer donde se gurada la informacion
+Param.- RTC_TimeTypeDef TimeData, Estrucutra que contiene los datos que se mostraran 
+Param.- uint8_t stars, Bandera que selecciona el mostrar "*" o " "
+Return.- NONE (VOID)
 ----------------------------------------------------------------*/
 void sprint_Time(char* buffer,RTC_TimeTypeDef TimeData, uint8_t stars);
 
 /**---------------------------------------------------------------
-Brief.- Breve descripcion de la función
-Param.- <nombre> descripcion del parámetro. si existe
-Param.- <nombre> descripcion del parámetro. si existe
-Return.- descripcion del valor del parámetro. si existe
+Brief.- Realiza la configuracion de la informacion de ALARM para mostrar por LCD
+Param.- char* buffer, Buffer donde se gurada la informacion
+Param.- RTC_AlarmTypeDef AlarmData, Estrucutra que contiene los datos que se mostraran 
+Return.- NONE (VOID)
 ----------------------------------------------------------------*/
 void sprint_Alarm(char* buffer, RTC_AlarmTypeDef AlarmData);
 
 /**---------------------------------------------------------------
-Brief.- Breve descripcion de la función
-Param.- <nombre> descripcion del parámetro. si existe
-Param.- <nombre> descripcion del parámetro. si existe
-Return.- descripcion del valor del parámetro. si existe
+Brief.- Inicializacion del modulo LCD
+Param.- NONE (VOID)
+Return.- NONE (VOID)
 ----------------------------------------------------------------*/
 void lcd_init(void);
 
 /**---------------------------------------------------------------
-Brief.- Breve descripcion de la función
-Param.- <nombre> descripcion del parámetro. si existe
-Param.- <nombre> descripcion del parámetro. si existe
-Return.- descripcion del valor del parámetro. si existe
+Brief.- Inicializacion del modulo SPI
+Param.- NONE (VOID)
+Return.- NONE (VOID)
 ----------------------------------------------------------------*/
 void spi_init(void);
 
-/*
-Algoritmo de congruencia de Zeller
-*/
 /**---------------------------------------------------------------
-Brief.- Breve descripcion de la función
-Param.- <nombre> descripcion del parámetro. si existe
-Param.- <nombre> descripcion del parámetro. si existe
-Return.- descripcion del valor del parámetro. si existe
+Brief.- Algoritmo de congruencia de Zeller,
+Param.- uint8_t d, numero del dia de la semana
+Param.- uint8_t m, numero del mes 
+Param.- uint16_t y, año
+Return.- uint8_t El numero del dia de la semana acorde al d,m,y
 ----------------------------------------------------------------*/
 uint8_t dayOfWeek(uint8_t d, uint8_t m, uint16_t y);
 
@@ -211,52 +211,35 @@ void clock_task(void)
     clockSelectionFun[clockState]();
 }
 
-HAL_StatusTypeDef setTime(uint8_t hour, uint8_t minutes, uint16_t seconds)
+void setTime(uint8_t hour, uint8_t minutes, uint16_t seconds)
 {
-    HAL_StatusTypeDef   flag    = HAL_OK;
-    if (flag == HAL_OK)
-    {
-        RTC_TImeConfig.Hours             = hour;
-        RTC_TImeConfig.Minutes           = minutes;
-        RTC_TImeConfig.Seconds           = seconds;
-        HAL_RTC_SetTime(&RTC_InitStructure,&RTC_TImeConfig,RTC_FORMAT_BIN);
-    }
     
-    return flag;
+    RTC_TImeConfig.Hours             = hour;
+    RTC_TImeConfig.Minutes           = minutes;
+    RTC_TImeConfig.Seconds           = seconds;
+    HAL_RTC_SetTime(&RTC_InitStructure,&RTC_TImeConfig,RTC_FORMAT_BIN);
+    
 }
 
-HAL_StatusTypeDef setDate(uint8_t day, uint8_t month, uint16_t year)
+void setDate(uint8_t day, uint8_t month, uint16_t year)
 {
-    HAL_StatusTypeDef   flag    = HAL_OK;
-    if (flag == HAL_OK)
-    {
-        yearConversion = (year - (year%100)); 
-
-        RTC_DateConfig.Date  = day;
-        RTC_DateConfig.Month = month;
-        RTC_DateConfig.Year  = (year%100);
-        HAL_RTC_SetDate(&RTC_InitStructure,&RTC_DateConfig,RTC_FORMAT_BIN);
-    }
+    yearConversion = (year - (year%100)); 
+    RTC_DateConfig.Date  = day;
+    RTC_DateConfig.Month = month;
+    RTC_DateConfig.Year  = (year%100);
+    HAL_RTC_SetDate(&RTC_InitStructure,&RTC_DateConfig,RTC_FORMAT_BIN);
     
-    return flag;
 }
 
-HAL_StatusTypeDef setAlarm(uint8_t hour, uint8_t minutes)
+void setAlarm(uint8_t hour, uint8_t minutes)
 {
-    HAL_StatusTypeDef   flag    = HAL_OK;
-    if (flag == HAL_OK)
-    {
-        Alarm_Active = SET;
-        RTC_AlarmConfig.Alarm = RTC_ALARM_A;
-        RTC_AlarmConfig.AlarmTime.Hours = hour;
-        RTC_AlarmConfig.AlarmTime.Minutes = minutes;
-        RTC_AlarmConfig.AlarmTime.Seconds = 0;
-        RTC_AlarmConfig.AlarmTime.TimeFormat = RTC_HOURFORMAT_24;
-        HAL_RTC_SetAlarm_IT(&RTC_InitStructure,&RTC_AlarmConfig,RTC_FORMAT_BIN);
-    }
-    
-
-    return flag;
+    Alarm_Active = SET;
+    RTC_AlarmConfig.Alarm = RTC_ALARM_A;
+    RTC_AlarmConfig.AlarmTime.Hours = hour;
+    RTC_AlarmConfig.AlarmTime.Minutes = minutes;
+    RTC_AlarmConfig.AlarmTime.Seconds = 0;
+    RTC_AlarmConfig.AlarmTime.TimeFormat = RTC_HOURFORMAT_24;
+    HAL_RTC_SetAlarm_IT(&RTC_InitStructure,&RTC_AlarmConfig,RTC_FORMAT_BIN);
 }
 
 void clockIdle(void)

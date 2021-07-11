@@ -36,7 +36,7 @@ void HIL_BUFFER_Write( BUFFER_HandleTypeDef *hbuffer, uint8_t data );
 Brief.- Lee un dato del buffer, el dato que es leído ya no existirá dentro del buffer. 
         Si el buffer está vacío no se leerá ningún dato, y el valor regresado por la función no será válido
 Param.- BUFFER_HandleTypeDef *hbuffer 
-Return.- uint8_t
+Return.- uint8_t, El valor encontrado en el buffer
 ----------------------------------------------------------------*/
 uint8_t HIL_BUFFER_Read( BUFFER_HandleTypeDef *hbuffer );
 
@@ -44,7 +44,9 @@ uint8_t HIL_BUFFER_Read( BUFFER_HandleTypeDef *hbuffer );
 /**---------------------------------------------------------------
 Brief.- La función regresa un uno si no hay más elementos que se puedan leer del buffer circular y 
         un cero si al menos existe un elemento que se pueda leer.
+
 Param.- BUFFER_HandleTypeDef *hbuffer 
+
 Return.- uint8_t
 ----------------------------------------------------------------*/
 uint8_t HIL_BUFFER_IsEmpty( BUFFER_HandleTypeDef *hbuffer );
