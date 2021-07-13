@@ -11,6 +11,7 @@
 #include "stm32f0xx_hal.h"
 #include "stm32f0xx_hal_i2c.h"
 #include "lcd.h"
+#include "temp.h"
 
 
 #define NONE    0U

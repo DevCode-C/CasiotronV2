@@ -102,6 +102,20 @@ void HAL_I2C_MspInit(I2C_HandleTypeDef *hi2c)
     HAL_NVIC_EnableIRQ(I2C1_IRQn);
 }
 
+void MOD_TEMP_MspInit( TEMP_HandleTypeDef *htemp )
+{
+    GPIO_InitTypeDef GPIO_InitStructure;
+    __HAL_RCC_GPIOC_CLK_ENABLE();
+    GPIO_InitStructure.Pin          = GPIO_PIN_ALERT;
+    GPIO_InitStructure.Mode         = GPIO_MODE_IT_FALLING;
+    GPIO_InitStructure.Pull         = GPIO_NOPULL;
+    GPIO_InitStructure.Speed        = GPIO_SPEED_FREQ_HIGH;
+    HAL_GPIO_Init(GPIO_PORT_ALERT,&GPIO_InitStructure);
+
+    htemp->AlertPort = GPIO_PORT_ALERT;
+    htemp->AlertPin = GPIO_PIN_ALERT;
+}
+
 void MOD_LCD_MspInit( LCD_HandleTypeDef *hlcd )
 {
     GPIO_InitTypeDef GPIO_InitStructure;
