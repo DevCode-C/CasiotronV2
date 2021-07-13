@@ -12,14 +12,14 @@
 */
 void clock_init(void);
 
-/** -------------------------------------------------------------
+/**
  * @brief Funcion principal del reloj
  * 
  * @param NONE (void)
  * 
  * @return NONE (void)
  *
- * ---------------------------------------------------------------*/
+*/
 void clock_task(void);
 
 #endif

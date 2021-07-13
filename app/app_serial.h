@@ -3,18 +3,22 @@
 #include "app_bsp.h"
 #include "buffer.h"
 
-/**---------------------------------------------------------------
-Brief.- Funcion que inicializa los parametros relacionados al "APP_SERIAL"
-Param.- NONE (VOID)
-Return.- NONE (VOID)
-----------------------------------------------------------------*/
+/**
+ * @brief Funcion que inicializa los parametros relacionados al "APP_SERIAL"
+ * 
+ * @param NONE (void)
+ * 
+ * @return NONE (void)
+*/
 void serial_init(void);
 
-/**---------------------------------------------------------------
-Brief.- Funcion encargada de recibir, procesar y transmitir la informacion
-Param.- NONE (VOID)
-Return.- NONE (VOID)
-----------------------------------------------------------------*/
+/**
+ * @brief Funcion encargada de recibir, procesar y transmitir la informacion
+ * 
+ * @param NONE (void)
+ * 
+ * @return  NONE (void)
+*/
 void serial_Task(void);
 
 #endif

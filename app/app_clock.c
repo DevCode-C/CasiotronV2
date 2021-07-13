@@ -9,128 +9,174 @@
 
 #define TIME_TRANSITION     1000U
 
-/**---------------------------------------------------------------
-Brief.- Funcion que verifica el estado de la banderas y selecciona el estado correspondiente
-Param.- NONE (VOID)
-Return.- NONE (VOID)
-----------------------------------------------------------------*/
+/**
+ * @brief Funcion que verifica el estado de la banderas y selecciona el estado correspondiente
+ * 
+ * @param NONE (VOID)
+ * 
+ * @return NONE (VOID)
+*/
 void clockIdle(void);
 
-/**---------------------------------------------------------------
-Brief.- Muestra por la lcd el tiempo actual del RTC
-Param.- NONE (VOID)
-Return.- NONE (VOID)
-----------------------------------------------------------------*/
+/**
+ * @brief Muestra por la lcd el tiempo actual del RTC
+ * 
+ * @param NONE (VOID)
+ * 
+ * @return NONE (VOID)
+*/
 void showClock(void);
 
-/**---------------------------------------------------------------
-Brief.- Muestra por la lcd la alarma cuando se activo la bandera "ALARMRTC"
-Param.- NONE (VOID)
-Return.- NONE (VOID)
-----------------------------------------------------------------*/
+/**
+ * @brief Muestra por la lcd la alarma cuando se activo la bandera "ALARMRTC"
+ * 
+ * @param NONE (VOID)
+ * 
+ * @return NONE (VOID)
+*/
 void showAlarmUp(void);
 
-/**---------------------------------------------------------------
-Brief.- Verifica el tipo de de dato y manda al estado correpondiente para asignar la informacion
-Param.- NONE (VOID)
-Return.- NONE (VOID)
-----------------------------------------------------------------*/
+/**
+ * @brief Verifica el tipo de de dato y manda al estado correpondiente para asignar la informacion
+ * 
+ * @param NONE (VOID)
+ * 
+ * @return NONE (VOID)
+*/
 void clockSetData(void);
 
-/**---------------------------------------------------------------
-Brief.- Muestra por la lcd la hora de activacion de alarma o si no esta configurada
-Param.- NONE (VOID)
-Return.- NONE (VOID)
-----------------------------------------------------------------*/
+/**
+ * @brief Muestra por la lcd la hora de activacion de alarma o si no esta configurada
+ * 
+ * @param NONE (VOID)
+ * 
+ * @return NONE (VOID)
+*/
 void clockShowAlarm(void);
 
-/**---------------------------------------------------------------
-Brief.- Actualiza la informacion del RTC Time
-Param.- uint8_t hour, Valor decimal de la nueva hora
-Param.- uint8_t minutes, Valor decima de los nuevos minutos
-Param.- uint16_t seconds, Valor decimal de los segundos
-Return.- NONE (VOID)
-----------------------------------------------------------------*/
+/**
+ * @brief  Actualiza la informacion del RTC Time
+ * 
+ * @param uint8_t hour, Valor decimal de la nueva hora
+ * 
+ * @param uint8_t minutes, Valor decima de los nuevos minutos
+ * 
+ * @param uint16_t seconds, Valor decimal de los segundos
+ * 
+ * @return NONE (VOID)
+*/
 void setTime(uint8_t hour, uint8_t minutes, uint16_t seconds);
 
-/**---------------------------------------------------------------
-Brief.- Actualiza la informacion del RTC Date
-Param.- uint8_t dia, Valor decimal del dia
-Param.- uint8_t mes, Valor decima del mes
-Param.- uint16_t año, Valor decimal del año
-Return.- NONE (VOID)
-----------------------------------------------------------------*/
+/**
+ * @brief  Actualiza la informacion del RTC Date
+ * 
+ * @param uint8_t dia, Valor decimal del dia
+ * 
+ * @param uint8_t mes, Valor decima del mes
+ * 
+ * @param uint16_t año, Valor decimal del año
+ * 
+ * @return NONE (VOID)
+*/
 void setDate(uint8_t day, uint8_t month, uint16_t year);
 
-/**---------------------------------------------------------------
-Brief.- Actualiza la informacion del RTC Alarm
-Param.- uint8_t hour, Valor decimal de la nueva hora
-Param.- uint8_t minutes, Valor decima de los nuevos minutos
-Return.- NONE (VOID)
-----------------------------------------------------------------*/
+/**
+ * @brief  Actualiza la informacion del RTC Alarm
+ * 
+ * @param uint8_t hour, Valor decimal de la nueva hora
+ * 
+ * @param uint8_t minutes, Valor decima de los nuevos minutos
+ * 
+ * @return NONE (VOID)
+*/
 void setAlarm(uint8_t hour, uint8_t minutes);
 
-/**---------------------------------------------------------------
-Brief.- Convierte valores deciamles a caracteres para alacenarlos en el buffer
-Param.- uint8_t *buffer, buffer donde se almacena la informacion 
-Param.- int32_t val, valor decimal para convertir 
-Return.- NONE (VOID)
-----------------------------------------------------------------*/
+
+/**
+ * @brief  Convierte valores deciamles a caracteres para alacenarlos en el buffer
+ * 
+ * @param uint8_t *buffer, buffer donde se almacena la informacion 
+ * 
+ * @param int32_t val, valor decimal para convertir 
+ * 
+ * @return NONE (VOID)
+*/
 void DecToStr(uint8_t *buffer, int32_t val);
 
-/**---------------------------------------------------------------
-Brief.- Verifica la cantida de digitos en un valor decimal 
-Param.- int32_t num, Valor decimal a contar
-Return.- uint8_t, el numero de digitos contados
-----------------------------------------------------------------*/
+
+/**
+ * @brief  Verifica la cantida de digitos en un valor decimal 
+ * 
+ * @param int32_t num, Valor decimal a contar
+ * 
+ * @return uint8_t, el numero de digitos contados
+*/
 uint8_t number_digits(int32_t num);
 
-/**---------------------------------------------------------------
-Brief.- Realiza la configuracion de la informacion de DATE para mostrar por LCD
-Param.- char* buffer, Buffer donde se gurada la informacion
-Param.- RTC_DateTypeDef DateData, Estrucutra que contiene los datos que se mostraran 
-Return.- NONE (VOID)
-----------------------------------------------------------------*/
+/**
+ * @brief  Realiza la configuracion de la informacion de DATE para mostrar por LCD
+ * 
+ * @param char* buffer, Buffer donde se gurada la informacion
+ * 
+ * @param RTC_DateTypeDef DateData, Estrucutra que contiene los datos que se mostraran 
+ * 
+ * @return NONE (VOID)
+*/
 void sprint_Date(char* buffer, RTC_DateTypeDef DateData);
 
-/**---------------------------------------------------------------
-Brief.- Realiza la configuracion de la informacion de TIME para mostrar por LCD
-Param.- char* buffer, Buffer donde se gurada la informacion
-Param.- RTC_TimeTypeDef TimeData, Estrucutra que contiene los datos que se mostraran 
-Param.- uint8_t stars, Bandera que selecciona el mostrar "*" o " "
-Return.- NONE (VOID)
-----------------------------------------------------------------*/
+/**
+ * @brief  Realiza la configuracion de la informacion de TIME para mostrar por LCD
+ * 
+ * @param char* buffer, Buffer donde se gurada la informacion
+ * 
+ * @param RTC_TimeTypeDef TimeData, Estrucutra que contiene los datos que se mostraran 
+ * 
+ * @param uint8_t stars, Bandera que selecciona el mostrar "*" o " "
+ * 
+ * @return NONE (VOID)
+*/
 void sprint_Time(char* buffer,RTC_TimeTypeDef TimeData, uint8_t stars);
 
-/**---------------------------------------------------------------
-Brief.- Realiza la configuracion de la informacion de ALARM para mostrar por LCD
-Param.- char* buffer, Buffer donde se gurada la informacion
-Param.- RTC_AlarmTypeDef AlarmData, Estrucutra que contiene los datos que se mostraran 
-Return.- NONE (VOID)
-----------------------------------------------------------------*/
+/**
+ * @brief  Realiza la configuracion de la informacion de ALARM para mostrar por LCD
+ * 
+ * @param char* buffer, Buffer donde se gurada la informacion
+ * 
+ * @param RTC_AlarmTypeDef AlarmData, Estrucutra que contiene los datos que se mostraran 
+ * 
+ * @return NONE (VOID)
+*/
 void sprint_Alarm(char* buffer, RTC_AlarmTypeDef AlarmData);
 
-/**---------------------------------------------------------------
-Brief.- Inicializacion del modulo LCD
-Param.- NONE (VOID)
-Return.- NONE (VOID)
-----------------------------------------------------------------*/
+/**
+ * @brief  Inicializacion del modulo LCD
+ * 
+ * @param NONE (VOID)
+ * 
+ * @return NONE (VOID)
+*/
 void lcd_init(void);
 
-/**---------------------------------------------------------------
-Brief.- Inicializacion del modulo SPI
-Param.- NONE (VOID)
-Return.- NONE (VOID)
-----------------------------------------------------------------*/
+/**
+ * @brief  Inicializacion del modulo SPI
+ * 
+ * @param NONE (VOID)
+ * 
+ * @return NONE (VOID)
+*/
 void spi_init(void);
 
-/**---------------------------------------------------------------
-Brief.- Algoritmo de congruencia de Zeller,
-Param.- uint8_t d, numero del dia de la semana
-Param.- uint8_t m, numero del mes 
-Param.- uint16_t y, año
-Return.- uint8_t El numero del dia de la semana acorde al d,m,y
-----------------------------------------------------------------*/
+/**
+ * @brief  Algoritmo de congruencia de Zeller,
+ * 
+ * @param uint8_t d, numero del dia de la semana
+ * 
+ * @param uint8_t m, numero del mes 
+ * 
+ * @param uint16_t y, año
+ * 
+ * @return uint8_t El numero del dia de la semana acorde al d,m,y
+*/
 uint8_t dayOfWeek(uint8_t d, uint8_t m, uint16_t y);
 
 typedef void (*clockSelection)(void);
@@ -272,8 +318,8 @@ void showClock(void)
     HAL_RTC_GetTime(&RTC_InitStructure,&gTime,RTC_FORMAT_BIN);
     HAL_RTC_GetDate(&RTC_InitStructure,&gDate,RTC_FORMAT_BIN);
 
+    // MOD_LCD_SetCursor(&lcd_display,1,1); 
     sprint_Date((char*)buffer,gDate);
-    // MOD_LCD_SetCursor(&lcd_display,1,1);
     MOD_LCD_String(&lcd_display,(char*)buffer);
 
     MOD_LCD_SetCursor(&lcd_display,2,1);

@@ -8,86 +8,113 @@
 #define SERIAL_ERROR    5U
 #define SERIAL_OK       6U
 
-/**---------------------------------------------------------------
-Brief.- Verifica el estado de la banderas y selecciona el estado correspondiente
-Param.- NONE (VOID)
-Return.- NONE (VOID)
-----------------------------------------------------------------*/
+/**
+ * @brief Verifica el estado de la banderas y selecciona el estado correspondiente
+ * 
+ * @param NONE (VOID)
+ * 
+ * @return NONE (VOID)
+*/
 void serialdle(void);
 
-/**---------------------------------------------------------------
-Brief.- Verifica el tipo de mensaje encontrado
-Param.- NONE (VOID)
-Return.- NONE (VOID)
-----------------------------------------------------------------*/
+/**
+ * @brief Verifica el tipo de mensaje encontrado
+ * 
+ * @param NONE (VOID)
+ * 
+ * @return NONE (VOID)
+*/
 void serialAT_Sel(void);
 
-/**---------------------------------------------------------------
-Brief.- Segmenta los parametros necesario para el tipo TIME y los verifica
-Param.- NONE (VOID)
-Return.- NONE (VOID)
-----------------------------------------------------------------*/
+/**
+ * @brief Segmenta los parametros necesario para el tipo TIME y los verifica
+ * 
+ * @param NONE (VOID)
+ * 
+ * @return NONE (VOID)
+*/
 void serialTime(void);
 
-/**---------------------------------------------------------------
-Brief.- Segmenta los parametros necesario para el tipo DATE y los verifica
-Param.- NONE (VOID)
-Return.- NONE (VOID)
-----------------------------------------------------------------*/
+/**
+ * @brief Segmenta los parametros necesario para el tipo DATE y los verifica
+ * 
+ * @param NONE (VOID)
+ * 
+ * @return NONE (VOID)
+*/
 void serialDate(void);
 
-/**---------------------------------------------------------------
-Brief.- Segmenta los parametros necesario para el tipo ALARM y los verifica
-Param.- NONE (VOID)
-Return.- NONE (VOID)
-----------------------------------------------------------------*/
+/**
+ * @brief Segmenta los parametros necesario para el tipo ALARM y los verifica
+ * 
+ * @param NONE (VOID)
+ * 
+ * @return NONE (VOID)
+*/
 void serialAlarm(void);
 
-/**---------------------------------------------------------------
-Brief.- Manda por UART el mensaje "OK"
-Param.- NONE (VOID)
-Return.- NONE (VOID)
-----------------------------------------------------------------*/
+/**
+ * @brief Manda por UART el mensaje "OK"
+ * 
+ * @param NONE (VOID)
+ * 
+ * @return NONE (VOID)
+*/
 void serialOK(void);
 
-/**---------------------------------------------------------------
-Brief.- Manda por UART el mensaje "ERROR"
-Param.- NONE (VOID)
-Return.- NONE (VOID)
-----------------------------------------------------------------*/
+/**
+ * @brief Manda por UART el mensaje "ERROR"
+ * 
+ * @param NONE (VOID)
+ * 
+ * @return NONE (VOID)
+*/
 void serialERROR(void);
 
-/**---------------------------------------------------------------
-Brief.- Valida, convierte y retorna el string a int32
-Param.- char * buffer
-Return.- int32_t, -1 si el string es invalido
-----------------------------------------------------------------*/
+/**
+ * @brief Valida, convierte y retorna el string a int32
+ * 
+ * @param char * buffer
+ * 
+ * @return int32_t, -1 si el string es invalido
+*/
 int32_t validate_StrToInt(char * buffer);
 
-/**---------------------------------------------------------------
-Brief.- Verifica los parametros relacionado al TIME
-Param.- uint8_t hour, Valor decimal de la hora
-Param.- uint8_t minutes, Valor decima de los minutos
-Param.- uint16_t seconds, Valor decimal de los segundos
-Return.- HAL_StatusTypeDef, HAL_OK si los parametros son correctos
-----------------------------------------------------------------*/
+/**
+ * @brief Verifica los parametros relacionado al TIME
+ * 
+ * @param uint8_t hour, Valor decimal de la hora
+ * 
+ * @param uint8_t minutes, Valor decima de los minutos
+ * 
+ * @param uint16_t seconds, Valor decimal de los segundos
+ * 
+ * @return HAL_StatusTypeDef, HAL_OK si los parametros son correctos
+*/
 HAL_StatusTypeDef checkDataTime(uint8_t hour, uint8_t minutes, uint16_t seconds);
 
-/**---------------------------------------------------------------
-Brief.- Verifica los parametros relacionado al DATE
-Param.- uint8_t dia, Valor decimal del dia
-Param.- uint8_t mes, Valor decima del mes
-Param.- uint16_t año, Valor decimal del año
-Return.- HAL_StatusTypeDef, HAL_OK si los parametros son correctos
-----------------------------------------------------------------*/
+/**
+ * @brief Verifica los parametros relacionado al DATE
+ * 
+ * @param uint8_t dia, Valor decimal del dia
+ * 
+ * @param uint8_t mes, Valor decima del mes
+ * 
+ * @param uint16_t año, Valor decimal del año
+ * 
+ * @return HAL_StatusTypeDef, HAL_OK si los parametros son correctos
+*/
 HAL_StatusTypeDef checkDataDate(uint8_t day, uint8_t month, uint16_t year);
 
-/**---------------------------------------------------------------
-Brief.- Verifica los parametros relacionado al ALARM
-Param.- uint8_t hour, Valor decimal de la hora
-Param.- uint8_t minutes, Valor decima de los minutos
-Return.- HAL_StatusTypeDef, HAL_OK si los parametros son correctos
-----------------------------------------------------------------*/
+/**
+ * @brief Verifica los parametros relacionado al ALARM
+ * 
+ * @param uint8_t hour, Valor decimal de la hora
+ * 
+ * @param uint8_t minutes, Valor decima de los minutos
+ * 
+ * @return HAL_StatusTypeDef, HAL_OK si los parametros son correctos
+*/
 HAL_StatusTypeDef checkDataAlarm(uint8_t hour, uint8_t minutes);
 
 typedef void (*serialSelection)(void);
