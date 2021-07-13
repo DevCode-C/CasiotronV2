@@ -72,15 +72,15 @@ __IO static uint8_t clockState       = CLOCK_IDLE;
 */
 extern SPI_HandleTypeDef    spi_Handle;
 extern QUEUE_HandleTypeDef  QueueSerialTx;
-extern void initialise_monitor_handles(void);
+// extern void initialise_monitor_handles(void);
 
 uint8_t test[3] = {0};
 void clock_init(void)
 {
     GPIO_InitTypeDef GPIO_InitStructure;
     
-    initialise_monitor_handles();
-    printf("\n");
+    // initialise_monitor_handles();
+    // printf("\n");
     spi_init();
     i2c_init();
     lcd_init();
