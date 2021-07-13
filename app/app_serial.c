@@ -103,7 +103,7 @@ static uint8_t RxByte;
 static uint8_t RxBuffer[30];
 static uint8_t BufferTemp[30];
 
-uint8_t bufferCircular[200];
+uint8_t bufferCircular[116];
 BUFFER_HandleTypeDef CircBuffer;
 static uint32_t serialTimeTick;
 
@@ -131,7 +131,7 @@ void serial_init()
     uartState = SET;
 
     CircBuffer.Buffer = bufferCircular;
-    CircBuffer.Elements = 200U;
+    CircBuffer.Elements = 116U;
     HIL_BUFFER_Init(&CircBuffer);
     serialTimeTick = HAL_GetTick();
 }
@@ -145,7 +145,7 @@ void serialdle(void)
 {
     uint8_t data = 0;
     uint8_t index = 0;
-    if ((HAL_GetTick() - serialTimeTick) >= 5000)
+    if ((HAL_GetTick() - serialTimeTick) > 10)
     {
         serialTimeTick = HAL_GetTick();
         while (HIL_BUFFER_IsEmpty(&CircBuffer) == 0)
