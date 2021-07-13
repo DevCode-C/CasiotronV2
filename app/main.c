@@ -7,32 +7,40 @@ Brief.- Punto de entrada del programa
 -------------------------------------------------------------------------------------------------*/
 
 
-/**---------------------------------------------------------------
-Brief.- Inicializacion del HEART_BEAT
-Param.- NONE (VOID)
-Return.- NONE (VOID)
-----------------------------------------------------------------*/
+/**
+ * @brief Inicializacion del HEART_BEAT
+ * 
+ * @param NONE (VOID)
+ * 
+ * @return NONE (VOID)
+*/
 static void heart_init(void);
 
-/**---------------------------------------------------------------
-Brief.- Task HEART_BEAT
-Param.- NONE (VOID)
-Return.- NONE (VOID)
-----------------------------------------------------------------*/
+/**
+ * @brief Task HEART_BEAT
+ * 
+ * @param NONE (VOID)
+ * 
+ * @return NONE (VOID)
+*/
 static void heart_beat(void);
 
-/**---------------------------------------------------------------
-Brief.- Inicializacion del WWDG
-Param.- NONE (VOID)
-Return.- NONE (VOID)
-----------------------------------------------------------------*/
+/**
+ * @brief Inicializacion del WWDG
+ * 
+ * @param NONE (VOID)
+ * 
+ * @return NONE (VOID)
+*/
 static void dog_init(void);
 
-/**---------------------------------------------------------------
-Brief.- Actualizacion del contador del WWDG
-Param.- NONE (VOID)
-Return.- NONE (VOID)
-----------------------------------------------------------------*/
+/**
+ * @brief Actualizacion de contador del WWDG
+ * 
+ * @param NONE (VOID)
+ * 
+ * @return NONE (VOID)
+*/
 static void peth_the_dog(void);
 
 static uint32_t hearBeatTick    = 0; 
