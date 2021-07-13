@@ -10,8 +10,8 @@ typedef struct
     uint32_t	Elements;
     uint32_t	Head;
     uint32_t	Tail;
-    uint8_t	    Empty;
-    uint8_t	    Full;
+    uint8_t	Empty;
+    uint8_t	Full;
 }BUFFER_HandleTypeDef;
 
 /**---------------------------------------------------------------
