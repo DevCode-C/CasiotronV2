@@ -13,7 +13,6 @@ void MOD_TEMP_Init( TEMP_HandleTypeDef *htemp )
 
     buffer[0] = CONFIGURATION_REGISTER;
     buffer[1] = 0x00U;
-    // buffer[2] = 0x38U;
     buffer[2] = 0x00U;
     HAL_I2C_Master_Transmit(htemp->I2cHandler,MCP9808_ADDRES_W,buffer,3U,HAL_MAX_DELAY);
 }
@@ -40,14 +39,6 @@ uint16_t MOD_TEMP_Read( TEMP_HandleTypeDef *htemp )
     }
 
     return temperature;
-
-    // test[0] = TEMPERATURE_REGISTER;
-    // HAL_I2C_Master_Transmit(&i2c_Handle,MCP9808_ADDRES_W,test,0x01U,HAL_MAX_DELAY);
-    // HAL_I2C_Master_Receive(&i2c_Handle,MCP9808_ADDRES_R,&test[1],2,HAL_MAX_DELAY);
-    // uint32_t temperature =  0;
-    // temperature = (((0x0F&test[1])*100) *(2<<3)) + ((test[2]*100)/(2<<3));
-    // // temperature = temperature * 100;
-    // printf("Temperature R: %d, %d, %ld.%ld\n", 0x0F& test[1],0xF0&test[2],temperature/100,temperature%100);
 }
 
 void MOD_TEMP_SetAlarms( TEMP_HandleTypeDef *htemp, uint16_t lower, uint16_t upper  )
@@ -74,20 +65,7 @@ void MOD_TEMP_SetAlarms( TEMP_HandleTypeDef *htemp, uint16_t lower, uint16_t upp
     buffer[0] = CONFIGURATION_REGISTER;
     buffer[1] = 0x00U;
     buffer[2] = 0x08U;
-    // buffer[2] = 0x00U;
     HAL_I2C_Master_Transmit(htemp->I2cHandler,MCP9808_ADDRES_W,buffer,3U,HAL_MAX_DELAY);
-
-    // uint8_t registerPointer = 0;
-    // uint8_t test[2] = {0};
-    // registerPointer = ALERT_TEMP_UPPER_B_TRIP_REGISTER;
-    // HAL_I2C_Master_Transmit(htemp->I2cHandler,MCP9808_ADDRES_W,&registerPointer,1U,HAL_MAX_DELAY);
-    // HAL_I2C_Master_Receive(htemp->I2cHandler,MCP9808_ADDRES_R,test,2,HAL_MAX_DELAY);
-    // printf("Limite inferior: %d\n",( (test[0]<<4) | (test[1]>>4) ) );
-
-    // registerPointer = ALERT_TEMP_UPPER_B_TRIP_REGISTER;
-    // HAL_I2C_Master_Transmit(htemp->I2cHandler,MCP9808_ADDRES_W,&registerPointer,1U,HAL_MAX_DELAY);
-    // HAL_I2C_Master_Receive(htemp->I2cHandler,MCP9808_ADDRES_R,test,2,HAL_MAX_DELAY);
-    // printf("Limite superior: %d\n",( (test[0]<<4) | (test[1]>>4) ) );
 
 }
 
@@ -97,6 +75,16 @@ void MOD_TEMP_DisableAlarm ( TEMP_HandleTypeDef *htemp )
     buffer[0] = CONFIGURATION_REGISTER;
     buffer[1] = 0x00U;
     buffer[2] = 0x00U;
+    HAL_I2C_Master_Transmit(htemp->I2cHandler,MCP9808_ADDRES_W,buffer,3U,HAL_MAX_DELAY);
+
+    buffer[0] = ALERT_TEMP_UPPER_B_TRIP_REGISTER;
+    buffer[1] = (0x0F & (0>>4));
+    buffer[2] = (0xF0 & (0<<4));
+    HAL_I2C_Master_Transmit(htemp->I2cHandler,MCP9808_ADDRES_W,buffer,3U,HAL_MAX_DELAY);
+
+    buffer[0] = ALERT_TEMP_LOWER_B_TRIP_REGISTER;
+    buffer[1] = (0x0F & (0>>4));
+    buffer[2] = (0xF0 & (0<<4));
     HAL_I2C_Master_Transmit(htemp->I2cHandler,MCP9808_ADDRES_W,buffer,3U,HAL_MAX_DELAY);
 
 }
