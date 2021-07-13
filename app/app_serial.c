@@ -11,18 +11,115 @@
 #define SERIAL_OK       6U
 #define SERIAL_TEMP     7U
 
+/**
+ * @brief Verifica el estado de la banderas y selecciona el estado correspondiente
+ * 
+ * @param NONE (VOID)
+ * 
+ * @return NONE (VOID)
+*/
 void serialdle(void);
+
+/**
+ * @brief Verifica el tipo de mensaje encontrado
+ * 
+ * @param NONE (VOID)
+ * 
+ * @return NONE (VOID)
+*/
 void serialAT_Sel(void);
+
+/**
+ * @brief Segmenta los parametros necesario para el tipo TIME y los verifica
+ * 
+ * @param NONE (VOID)
+ * 
+ * @return NONE (VOID)
+*/
 void serialTime(void);
+
+/**
+ * @brief Segmenta los parametros necesario para el tipo DATE y los verifica
+ * 
+ * @param NONE (VOID)
+ * 
+ * @return NONE (VOID)
+*/
 void serialDate(void);
+
+/**
+ * @brief Segmenta los parametros necesario para el tipo ALARM y los verifica
+ * 
+ * @param NONE (VOID)
+ * 
+ * @return NONE (VOID)
+*/
 void serialAlarm(void);
+
 void serialTemp(void);
+
+/**
+ * @brief Manda por UART el mensaje "OK"
+ * 
+ * @param NONE (VOID)
+ * 
+ * @return NONE (VOID)
+*/
 void serialOK(void);
+
+/**
+ * @brief Manda por UART el mensaje "ERROR"
+ * 
+ * @param NONE (VOID)
+ * 
+ * @return NONE (VOID)
+*/
 void serialERROR(void);
 
+/**
+ * @brief Valida, convierte y retorna el string a int32
+ * 
+ * @param char * buffer
+ * 
+ * @return int32_t, -1 si el string es invalido
+*/
 int32_t validate_StrToInt(char * buffer);
+
+/**
+ * @brief Verifica los parametros relacionado al TIME
+ * 
+ * @param uint8_t hour, Valor decimal de la hora
+ * 
+ * @param uint8_t minutes, Valor decima de los minutos
+ * 
+ * @param uint16_t seconds, Valor decimal de los segundos
+ * 
+ * @return HAL_StatusTypeDef, HAL_OK si los parametros son correctos
+*/
 HAL_StatusTypeDef checkDataTime(uint8_t hour, uint8_t minutes, uint16_t seconds);
+
+/**
+ * @brief Verifica los parametros relacionado al DATE
+ * 
+ * @param uint8_t dia, Valor decimal del dia
+ * 
+ * @param uint8_t mes, Valor decima del mes
+ * 
+ * @param uint16_t año, Valor decimal del año
+ * 
+ * @return HAL_StatusTypeDef, HAL_OK si los parametros son correctos
+*/
 HAL_StatusTypeDef checkDataDate(uint8_t day, uint8_t month, uint16_t year);
+
+/**
+ * @brief Verifica los parametros relacionado al ALARM
+ * 
+ * @param uint8_t hour, Valor decimal de la hora
+ * 
+ * @param uint8_t minutes, Valor decima de los minutos
+ * 
+ * @return HAL_StatusTypeDef, HAL_OK si los parametros son correctos
+*/
 HAL_StatusTypeDef checkDataAlarm(uint8_t hour, uint8_t minutes);
 HAL_StatusTypeDef checkDataTemp(int8_t lower, uint8_t uper);
 
@@ -68,7 +165,7 @@ void serial_init()
     uartState = SET;
 
     QueueSerialRx.Buffer = (void*) SerialRx_BufferQ;
-    QueueSerialRx.Elements = 100U;
+    QueueSerialRx.Elements = 116U;
     QueueSerialRx.Size = sizeof(uint8_t);
     HIL_QUEUE_Init(&QueueSerialRx);
 
@@ -89,7 +186,7 @@ void serialdle(void)
 {
     uint8_t data = 0;
     uint8_t index = 0;
-    if ((HAL_GetTick() - serialTimeTick) >= 5000)
+    if ((HAL_GetTick() - serialTimeTick) > 10)
     {
         serialTimeTick = HAL_GetTick();
         while (HIL_QUEUE_IsEmpty(&QueueSerialRx) == 0)
@@ -305,9 +402,51 @@ HAL_StatusTypeDef checkDataTime(uint8_t hour, uint8_t minutes, uint16_t seconds)
 HAL_StatusTypeDef checkDataDate(uint8_t day, uint8_t month, uint16_t year)
 {
     HAL_StatusTypeDef flag = HAL_ERROR;
-    if ((day <= 30) && (month <= 12) && (year <= 9999) && (month >= 1) && (day >= 1))
+    if ((day <= 31) && (month <= 12) && (year <= 9999) && (month >= 1) && (day >= 1))
     {
-        flag = HAL_OK;
+        switch (month)
+        {
+            case 1:
+            case 3:
+            case 5:
+            case 7:
+            case 8:
+            case 10:
+            case 12:
+                flag = HAL_ERROR;
+                if (day <= 31)
+                {
+                    flag = HAL_OK;
+                }
+                break;
+            case 4:
+            case 6:
+            case 9:
+            case 11:
+                flag = HAL_ERROR;
+                if (day <= 30)
+                {
+                    flag = HAL_OK;
+                }
+                break;
+            case 2:
+                flag = HAL_ERROR;
+                if ((year % 4 == 0) && (year % 100 != 0))
+                {
+                    if (day <= 29)
+                    {
+                        flag = HAL_OK;
+                    }
+                }
+                if (day<= 28)
+                {
+                    flag = HAL_OK;
+                }                
+        }
+        if (flag == HAL_OK)
+        {
+            flag = HAL_OK;
+        }
     }
     return flag;
 }

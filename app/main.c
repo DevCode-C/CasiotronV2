@@ -6,15 +6,46 @@
 Brief.- Punto de entrada del programa
 -------------------------------------------------------------------------------------------------*/
 
+
+/**
+ * @brief Inicializacion del HEART_BEAT
+ * 
+ * @param NONE (VOID)
+ * 
+ * @return NONE (VOID)
+*/
+static void heart_init(void);
+
+/**
+ * @brief Task HEART_BEAT
+ * 
+ * @param NONE (VOID)
+ * 
+ * @return NONE (VOID)
+*/
+static void heart_beat(void);
+
+/**
+ * @brief Inicializacion del WWDG
+ * 
+ * @param NONE (VOID)
+ * 
+ * @return NONE (VOID)
+*/
+static void dog_init(void);
+
+/**
+ * @brief Actualizacion de contador del WWDG
+ * 
+ * @param NONE (VOID)
+ * 
+ * @return NONE (VOID)
+*/
+static void peth_the_dog(void);
+
 static uint32_t hearBeatTick    = 0; 
 uint32_t WWDGTick               = 0; 
 WWDG_HandleTypeDef WWDG_HandleInit  = {0};
-
-static void heart_init(void);
-static void heart_beat(void);
-
-static void dog_init(void);
-static void peth_the_dog(void);
 
 int main( void )
 {

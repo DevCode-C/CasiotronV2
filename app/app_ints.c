@@ -60,17 +60,17 @@ void RTC_IRQHandler(void)
     HAL_RTC_AlarmIRQHandler(&RTC_InitStructure);
 }
 
-extern SPI_HandleTypeDef spi_Handle;
-void SPI1_IRQHandler(void)
-{
-    HAL_SPI_IRQHandler(&spi_Handle);
-}
+// extern SPI_HandleTypeDef spi_Handle;
+// void SPI1_IRQHandler(void)
+// {
+//     HAL_SPI_IRQHandler(&spi_Handle);
+// }
 
-extern I2C_HandleTypeDef i2c_Handle;
-void I2C1_IRQHandler(void)
-{
-    HAL_I2C_EV_IRQHandler(&i2c_Handle);
-}
+// extern I2C_HandleTypeDef i2c_Handle;
+// void I2C1_IRQHandler(void)
+// {
+//     HAL_I2C_EV_IRQHandler(&i2c_Handle);
+// }
 
 void EXTI2_3_IRQHandler(void)
 {
