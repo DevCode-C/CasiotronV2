@@ -159,7 +159,7 @@ void serial_init()
     uartState = SET;
 
     QueueSerialRx.Buffer = (void*) SerialRx_BufferQ;
-    QueueSerialRx.Elements = 100U;
+    QueueSerialRx.Elements = 116U;
     QueueSerialRx.Size = sizeof(uint8_t);
     HIL_QUEUE_Init(&QueueSerialRx);
 
