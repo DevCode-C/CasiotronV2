@@ -58,11 +58,11 @@ void clockShowAlarm(void);
 /**
  * @brief  RTC Time Update data
  * 
- * @param uint8_t hour, Valor decimal de la nueva hora
+ * @param uint8_t hour, Decimal value of hour (i.e 0U - 23U)
  * 
- * @param uint8_t minutes, Valor decima de los nuevos minutos
+ * @param uint8_t minutes, Decimal value of minutes (i.e 0U - 59U)
  * 
- * @param uint16_t seconds, Valor decimal de los segundos
+ * @param uint16_t seconds, Decimal value of seconds (i.e 0U - 59U)
  * 
  * @return NONE (VOID)
 */
@@ -71,11 +71,11 @@ void setTime(uint8_t hour, uint8_t minutes, uint16_t seconds);
 /**
  * @brief  RTC Date Update data
  * 
- * @param uint8_t dia, Valor decimal del dia
+ * @param uint8_t day, Decimal value of day (i.e 1U - 31U)
  * 
- * @param uint8_t mes, Valor decima del mes
+ * @param uint8_t mes, month, Decimal value of month (i.e 1U - 12U)
  * 
- * @param uint16_t año, Valor decimal del año
+ * @param uint16_t year, Decimal value of year (i.e 0U - 9999U)
  * 
  * @return NONE (VOID)
 */
@@ -84,9 +84,9 @@ void setDate(uint8_t day, uint8_t month, uint16_t year);
 /**
  * @brief  RTC Alarm Update data
  * 
- * @param uint8_t hour, Valor decimal de la nueva hora
+ * @param uint8_t hour, Decimal value of hour (i.e 0U - 23U)
  * 
- * @param uint8_t minutes, Valor decima de los nuevos minutos
+ * @param uint8_t minutes, Decimal value of minutes (i.e 0U - 59U)
  * 
  * @return NONE (VOID)
 */
@@ -115,35 +115,35 @@ void DecToStr(uint8_t *buffer, int32_t val);
 uint8_t number_digits(int32_t num);
 
 /**
- * @brief  Realiza la configuracion de la informacion de DATE para mostrar por LCD
+ * @brief Make the configuration of the DATE information to display by LCD
  * 
  * @param char* buffer, *buffer,  Data storage 
  * 
- * @param RTC_DateTypeDef DateData, Estrucutra que contiene los datos que se mostraran 
+ * @param RTC_DateTypeDef DateData, Structure, which contains the data related to DATE
  * 
  * @return NONE (VOID)
 */
 void sprint_Date(char* buffer, RTC_DateTypeDef DateData);
 
 /**
- * @brief  Realiza la configuracion de la informacion de TIME para mostrar por LCD
+ * @brief  Make the configuration of the TIME information to display by LCD
  * 
  * @param char* buffer, *buffer,  Data storage 
  * 
- * @param RTC_TimeTypeDef TimeData, Estrucutra que contiene los datos que se mostraran 
+ * @param RTC_TimeTypeDef TimeData, Structure, which contains the data related to TIME
  * 
- * @param uint8_t stars, Bandera que selecciona el mostrar "*" o " "
+ * @param uint8_t stars, If stars are equal to 1, the LCD show "*" in the edges
  * 
  * @return NONE (VOID)
 */
 void sprint_Time(char* buffer,RTC_TimeTypeDef TimeData, uint8_t stars);
 
 /**
- * @brief  Realiza la configuracion de la informacion de ALARM para mostrar por LCD
+ * @brief  Make the configuration of the ALARM information to display by LCD
  * 
  * @param char* buffer, *buffer,  Data storage 
  * 
- * @param RTC_AlarmTypeDef AlarmData, Estrucutra que contiene los datos que se mostraran 
+ * @param RTC_AlarmTypeDef AlarmData, Structure, which contains the data related to ALARM
  * 
  * @return NONE (VOID)
 */
