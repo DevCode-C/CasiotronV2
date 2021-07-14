@@ -8,7 +8,7 @@ Brief.- Punto de entrada del programa
 
 
 /**
- * @brief Inicializacion del HEART_BEAT
+ * @brief HEART_BEAT Init 
  * 
  * @param NONE (VOID)
  * 
@@ -17,7 +17,7 @@ Brief.- Punto de entrada del programa
 static void heart_init(void);
 
 /**
- * @brief Task HEART_BEAT
+ * @brief HEART_BEAT Task (Led Toggle)
  * 
  * @param NONE (VOID)
  * 
@@ -26,7 +26,7 @@ static void heart_init(void);
 static void heart_beat(void);
 
 /**
- * @brief Inicializacion del WWDG
+ * @brief WWDG Init
  * 
  * @param NONE (VOID)
  * 
@@ -35,7 +35,7 @@ static void heart_beat(void);
 static void dog_init(void);
 
 /**
- * @brief Actualizacion de contador del WWDG
+ * @brief WWDG Refresh
  * 
  * @param NONE (VOID)
  * 

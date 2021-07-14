@@ -5,7 +5,7 @@
 #include "queue.h"
 
 /**
- * @brief Funcion que inicializa los parametros relacionados al "APP_SERIAL"
+ * @brief Serial Init and configurations of related parameters
  * 
  * @param NONE (void)
  * 
@@ -14,7 +14,7 @@
 void serial_init(void);
 
 /**
- * @brief Funcion encargada de recibir, procesar y transmitir la informacion
+ * @brief Task to receive, process and transmmit data
  * 
  * @param NONE (void)
  * 
