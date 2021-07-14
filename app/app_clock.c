@@ -10,7 +10,7 @@
 #define TIME_TRANSITION     1000U
 
 /**
- * @brief Funcion que verifica el estado de la banderas y selecciona el estado correspondiente
+ * @brief Verify the flags state and select the corresponding state 
  * 
  * @param NONE (VOID)
  * 
@@ -19,7 +19,7 @@
 void clockIdle(void);
 
 /**
- * @brief Muestra por la lcd el tiempo actual del RTC
+ * @brief Show the actual time and date for LCD
  * 
  * @param NONE (VOID)
  * 
@@ -28,8 +28,8 @@ void clockIdle(void);
 void showClock(void);
 
 /**
- * @brief Muestra por la lcd la alarma cuando se activo la bandera "ALARMRTC"
- * 
+ * @brief Show the active alarm when flag 'ALARMRTC' is equal to 'SET'
+ *        
  * @param NONE (VOID)
  * 
  * @return NONE (VOID)
@@ -37,8 +37,8 @@ void showClock(void);
 void showAlarmUp(void);
 
 /**
- * @brief Verifica el tipo de de dato y manda al estado correpondiente para asignar la informacion
- * 
+ * @brief Verify the found data type and set the correspondig state for set related information  
+ *  
  * @param NONE (VOID)
  * 
  * @return NONE (VOID)
@@ -46,7 +46,8 @@ void showAlarmUp(void);
 void clockSetData(void);
 
 /**
- * @brief Muestra por la lcd la hora de activacion de alarma o si no esta configurada
+ * @brief Show the time when alarm goint to active, if not configuret, show "NO ALARM CONFIG"
+ *
  * 
  * @param NONE (VOID)
  * 
@@ -55,7 +56,7 @@ void clockSetData(void);
 void clockShowAlarm(void);
 
 /**
- * @brief  Actualiza la informacion del RTC Time
+ * @brief  RTC Time Update data
  * 
  * @param uint8_t hour, Valor decimal de la nueva hora
  * 
@@ -68,7 +69,7 @@ void clockShowAlarm(void);
 void setTime(uint8_t hour, uint8_t minutes, uint16_t seconds);
 
 /**
- * @brief  Actualiza la informacion del RTC Date
+ * @brief  RTC Date Update data
  * 
  * @param uint8_t dia, Valor decimal del dia
  * 
@@ -81,7 +82,7 @@ void setTime(uint8_t hour, uint8_t minutes, uint16_t seconds);
 void setDate(uint8_t day, uint8_t month, uint16_t year);
 
 /**
- * @brief  Actualiza la informacion del RTC Alarm
+ * @brief  RTC Alarm Update data
  * 
  * @param uint8_t hour, Valor decimal de la nueva hora
  * 
@@ -93,11 +94,11 @@ void setAlarm(uint8_t hour, uint8_t minutes);
 
 
 /**
- * @brief  Convierte valores deciamles a caracteres para alacenarlos en el buffer
+ * @brief  Conversion of decimal values to character ASCCI and store up in buffer
  * 
- * @param uint8_t *buffer, buffer donde se almacena la informacion 
+ * @param uint8_t *buffer,  Data storage 
  * 
- * @param int32_t val, valor decimal para convertir 
+ * @param int32_t val, Decimal value 
  * 
  * @return NONE (VOID)
 */
@@ -105,18 +106,18 @@ void DecToStr(uint8_t *buffer, int32_t val);
 
 
 /**
- * @brief  Verifica la cantida de digitos en un valor decimal 
+ * @brief  Verify the numbers of digit characters of a decimal value
+ *  
+ * @param int32_t num, Decimal value
  * 
- * @param int32_t num, Valor decimal a contar
- * 
- * @return uint8_t, el numero de digitos contados
+ * @return uint8_t, Number of digit characters 
 */
 uint8_t number_digits(int32_t num);
 
 /**
  * @brief  Realiza la configuracion de la informacion de DATE para mostrar por LCD
  * 
- * @param char* buffer, Buffer donde se gurada la informacion
+ * @param char* buffer, *buffer,  Data storage 
  * 
  * @param RTC_DateTypeDef DateData, Estrucutra que contiene los datos que se mostraran 
  * 
@@ -127,7 +128,7 @@ void sprint_Date(char* buffer, RTC_DateTypeDef DateData);
 /**
  * @brief  Realiza la configuracion de la informacion de TIME para mostrar por LCD
  * 
- * @param char* buffer, Buffer donde se gurada la informacion
+ * @param char* buffer, *buffer,  Data storage 
  * 
  * @param RTC_TimeTypeDef TimeData, Estrucutra que contiene los datos que se mostraran 
  * 
@@ -140,7 +141,7 @@ void sprint_Time(char* buffer,RTC_TimeTypeDef TimeData, uint8_t stars);
 /**
  * @brief  Realiza la configuracion de la informacion de ALARM para mostrar por LCD
  * 
- * @param char* buffer, Buffer donde se gurada la informacion
+ * @param char* buffer, *buffer,  Data storage 
  * 
  * @param RTC_AlarmTypeDef AlarmData, Estrucutra que contiene los datos que se mostraran 
  * 
@@ -149,7 +150,7 @@ void sprint_Time(char* buffer,RTC_TimeTypeDef TimeData, uint8_t stars);
 void sprint_Alarm(char* buffer, RTC_AlarmTypeDef AlarmData);
 
 /**
- * @brief  Inicializacion del modulo LCD
+ * @brief  LCD Module init
  * 
  * @param NONE (VOID)
  * 
@@ -158,7 +159,7 @@ void sprint_Alarm(char* buffer, RTC_AlarmTypeDef AlarmData);
 void lcd_init(void);
 
 /**
- * @brief  Inicializacion del modulo SPI
+ * @brief  SPI Module init
  * 
  * @param NONE (VOID)
  * 
@@ -167,15 +168,15 @@ void lcd_init(void);
 void spi_init(void);
 
 /**
- * @brief  Algoritmo de congruencia de Zeller,
+ * @brief  Zeller's congruence algorithm
  * 
- * @param uint8_t d, numero del dia de la semana
+ * @param uint8_t d, Decimal value of day (i.e 1U - 31U)
  * 
- * @param uint8_t m, numero del mes 
+ * @param uint8_t m, Decimal value of month (i.e 1U - 12U)
  * 
- * @param uint16_t y, año
+ * @param uint16_t y, Decimal value of year (i.e 0U - 9999U)
  * 
- * @return uint8_t El numero del dia de la semana acorde al d,m,y
+ * @return uint8_t day of the week (i.e 0U - 6U)
 */
 uint8_t dayOfWeek(uint8_t d, uint8_t m, uint16_t y);
 

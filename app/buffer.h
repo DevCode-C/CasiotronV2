@@ -16,42 +16,38 @@ typedef struct
 
 
 /**
- * @brief  Inicializa el buffer circular colando los elementos head y tail a cero, 
- *         y los valores de empty a uno y full a cero. 
+ * @brief  Initialize the circular buffer by setting values in head, tail, empty and full
  * 
- * @param BUFFER_HandleTypeDef *hbuffer 
+ * @param BUFFER_HandleTypeDef *hbuffer, Control Struct 
  * 
  * @return NONE (void)
 */
 void HIL_BUFFER_Init( BUFFER_HandleTypeDef *hbuffer );
 
 /**
- * @brief  Escribe un nuevo dato de 8 bits en el buffer si hay espacio disponible, 
- *         de no haberlo no se escribirá dato alguno
+ * @brief  Write a uint8_t value to a circular buffer if there is at least one space available
  * 
- * @param BUFFER_HandleTypeDef *hbuffer 
+ * @param BUFFER_HandleTypeDef *hbuffer, Control Struct 
  * 
  * @return NONE (void)
 */
 void HIL_BUFFER_Write( BUFFER_HandleTypeDef *hbuffer, uint8_t data );
 
 /**
- * @brief  Lee un dato del buffer, el dato que es leído ya no existirá dentro del buffer. 
- *         Si el buffer está vacío no se leerá ningún dato, y el valor regresado por la función no será válido
+ * @brief  Read a uint8_t value from circular buffer and that element will removed in circular buffer
  * 
- * @param BUFFER_HandleTypeDef *hbuffer 
+ * @param BUFFER_HandleTypeDef *hbuffer, Control Struct 
  * 
- * @return uint8_t, El valor encontrado en el buffer
+ * @return uint8_t, If circular buffer contain at least one element return a valid value
 */
 uint8_t HIL_BUFFER_Read( BUFFER_HandleTypeDef *hbuffer );
 
 /**
- * @brief  La función regresa un uno si no hay más elementos que se puedan leer del buffer circular y 
- *         un cero si al menos existe un elemento que se pueda leer.
+ * @brief  Verify if the circular buffer is empty or not
+ *          
+ * @param BUFFER_HandleTypeDef *hbuffer, Control Struct 
  * 
- * @param BUFFER_HandleTypeDef *hbuffer 
- * 
- * @return uint8_t Un cero si al menos existe un elemento que se pueda leer
+ * @return uint8_t, Zero if in circular buffer contain at least one element
 */
 uint8_t HIL_BUFFER_IsEmpty( BUFFER_HandleTypeDef *hbuffer );
 

@@ -9,7 +9,7 @@
 #define SERIAL_OK       6U
 
 /**
- * @brief Verifica el estado de la banderas y selecciona el estado correspondiente
+ * @brief Verify the flags state and select the corresponding state 
  * 
  * @param NONE (VOID)
  * 
@@ -18,7 +18,7 @@
 void serialdle(void);
 
 /**
- * @brief Verifica el tipo de mensaje encontrado
+ * @brief Verify the found msg type
  * 
  * @param NONE (VOID)
  * 
@@ -27,7 +27,7 @@ void serialdle(void);
 void serialAT_Sel(void);
 
 /**
- * @brief Segmenta los parametros necesario para el tipo TIME y los verifica
+ * @brief Segmenting and check all the TIME related parameters
  * 
  * @param NONE (VOID)
  * 
@@ -36,7 +36,7 @@ void serialAT_Sel(void);
 void serialTime(void);
 
 /**
- * @brief Segmenta los parametros necesario para el tipo DATE y los verifica
+ * @brief Segmenting and check all the DATE related parameters
  * 
  * @param NONE (VOID)
  * 
@@ -45,7 +45,7 @@ void serialTime(void);
 void serialDate(void);
 
 /**
- * @brief Segmenta los parametros necesario para el tipo ALARM y los verifica
+ * @brief Segmenting and check all the ALARM related parameters
  * 
  * @param NONE (VOID)
  * 
@@ -54,7 +54,7 @@ void serialDate(void);
 void serialAlarm(void);
 
 /**
- * @brief Manda por UART el mensaje "OK"
+ * @brief Send by UART the msg "OK"
  * 
  * @param NONE (VOID)
  * 
@@ -63,7 +63,7 @@ void serialAlarm(void);
 void serialOK(void);
 
 /**
- * @brief Manda por UART el mensaje "ERROR"
+ * @brief Send by UART the msg "ERROR"
  * 
  * @param NONE (VOID)
  * 
@@ -72,48 +72,48 @@ void serialOK(void);
 void serialERROR(void);
 
 /**
- * @brief Valida, convierte y retorna el string a int32
+ * @brief Enter a string for validate, convert and return a int32
  * 
  * @param char * buffer
  * 
- * @return int32_t, -1 si el string es invalido
+ * @return int32_t, -1 if char* buffer is invalidate
 */
 int32_t validate_StrToInt(char * buffer);
 
 /**
- * @brief Verifica los parametros relacionado al TIME
+ * @brief Verifying related parameters of TIME
  * 
- * @param uint8_t hour, Valor decimal de la hora
+ * @param uint8_t hour, Decimal value of hour (i.e 0U - 23U)
  * 
- * @param uint8_t minutes, Valor decima de los minutos
+ * @param uint8_t minutes, Decimal value of minutes (i.e 0U - 59U)
  * 
- * @param uint16_t seconds, Valor decimal de los segundos
+ * @param uint16_t seconds, Decimal value of seconds (i.e 0U - 59U)
  * 
- * @return HAL_StatusTypeDef, HAL_OK si los parametros son correctos
+ * @return HAL_StatusTypeDef, HAL_OK If all parameters are correct
 */
 HAL_StatusTypeDef checkDataTime(uint8_t hour, uint8_t minutes, uint16_t seconds);
 
 /**
- * @brief Verifica los parametros relacionado al DATE
+ * @brief Verifying related parameters of DATE
  * 
- * @param uint8_t dia, Valor decimal del dia
+ * @param uint8_t day, Decimal value of day (i.e 1U - 31U)
  * 
- * @param uint8_t mes, Valor decima del mes
+ * @param uint8_t month, Decimal value of month (i.e 1U - 12U)
  * 
- * @param uint16_t año, Valor decimal del año
+ * @param uint16_t year, Decimal value of year (i.e 0U - 9999U)
  * 
- * @return HAL_StatusTypeDef, HAL_OK si los parametros son correctos
+ * @return HAL_StatusTypeDef, HAL_OK If all parameters are correct
 */
 HAL_StatusTypeDef checkDataDate(uint8_t day, uint8_t month, uint16_t year);
 
 /**
- * @brief Verifica los parametros relacionado al ALARM
+ * @brief Verifying related parameters of ALARM
  * 
- * @param uint8_t hour, Valor decimal de la hora
+ * @param uint8_t hour, Decimal value of hour (i.e 0U - 23U)
  * 
- * @param uint8_t minutes, Valor decima de los minutos
+ * @param uint8_t minutes, Decimal value of minutes (i.e 0U - 59U)
  * 
- * @return HAL_StatusTypeDef, HAL_OK si los parametros son correctos
+ * @return HAL_StatusTypeDef, HAL_OK If all parameters are correct
 */
 HAL_StatusTypeDef checkDataAlarm(uint8_t hour, uint8_t minutes);
 
