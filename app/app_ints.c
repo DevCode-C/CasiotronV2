@@ -59,3 +59,8 @@ void RTC_IRQHandler(void)
 {
     HAL_RTC_AlarmIRQHandler(&RTC_InitStructure);
 }
+extern TIM_HandleTypeDef TimHandle;
+void TIM3_IRQHandler(void)
+{
+    HAL_TIM_IRQHandler(&TimHandle);
+}

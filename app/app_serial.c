@@ -7,6 +7,7 @@
 #define SERIAL_ALARM    4U
 #define SERIAL_ERROR    5U
 #define SERIAL_OK       6U
+#define SERIAL_HEART    7U
 
 /**
  * @brief Verify the flags state and select the corresponding state 
@@ -52,6 +53,15 @@ void serialDate(void);
  * @return NONE (VOID)
 */
 void serialAlarm(void);
+
+/**
+ * @brief Segmenting and check all the HEARTBEAT related parameters
+ * 
+ * @param NONE (VOID)
+ * 
+ * @return NONE (VOID)
+*/
+void serialHeart(void);
 
 /**
  * @brief Send by UART the msg "OK"
@@ -117,11 +127,20 @@ HAL_StatusTypeDef checkDataDate(uint8_t day, uint8_t month, uint16_t year);
 */
 HAL_StatusTypeDef checkDataAlarm(uint8_t hour, uint8_t minutes);
 
+/**
+ * @brief Verifying related parameters of BLINK TIME
+ * 
+ * @param uint16_t time, Decimal value of time (i.e 50U - 1000U)
+ * 
+ * @return HAL_StatusTypeDef, HAL_OK If all parameters are correct
+*/
+HAL_StatusTypeDef checkDataBlinkTime(uint16_t time);
+
 typedef void (*serialSelection)(void);
 
 const char* msgOK           = {"OK\r\n"};
 const char* msgError        = {"ERROR\r\n"};
-const char *comando_AT[]    = {"AT+TIME" , "AT+DATE" , "AT+ALARM"};
+const char *comando_AT[]    = {"AT+TIME" , "AT+DATE" , "AT+ALARM" , "AT+HEARTBEAT"};
 
 UART_HandleTypeDef UartHandle           = {0};
 
@@ -135,8 +154,9 @@ uint8_t Serial_MSG_BufferQ[100];
 QUEUE_HandleTypeDef QueueSerialTx;
 
 static uint32_t serialTimeTick;
+extern uint16_t hearBeatTickTime;
 
-static serialSelection SerialStateFun[] = {serialdle,serialAT_Sel,serialTime,serialDate,serialAlarm,serialERROR,serialOK};
+static serialSelection SerialStateFun[] = {serialdle,serialAT_Sel,serialTime,serialDate,serialAlarm,serialERROR,serialOK,serialHeart};
 
 __IO static ITStatus uartState             = SET;
 __IO static ITStatus uartError             = RESET;
@@ -223,6 +243,10 @@ void serialAT_Sel(void)
     {
         serialState = SERIAL_ALARM;
     }
+    else if (strcmp(InpuyComand,comando_AT[3]) == 0)
+    {
+        serialState = SERIAL_HEART;
+    }
     else
     {
         serialState = SERIAL_ERROR;
@@ -306,6 +330,28 @@ void serialAlarm(void)
         HIL_QUEUE_Write(&QueueSerialTx,&SerialTranferData);
         serialState = SERIAL_OK;
     }
+}
+
+void serialHeart(void)
+{
+    uint16_t             blinkTime            = 0;
+    // Serial_MsgTypeDef   SerialTranferData     = {NONE,0,0,0};
+    char *parametro                           = NULL;
+    serialState = SERIAL_ERROR;
+
+    parametro = strtok(NULL, "\0" );
+    blinkTime = validate_StrToInt(parametro);
+    if (checkDataBlinkTime(blinkTime) == HAL_OK)
+    {
+        // SerialTranferData.msg       = BLINK;
+        // SerialTranferData.param1    = blinkTime;
+        // SerialTranferData.param2    = 0;
+        // SerialTranferData.param3    = 0;
+        // HIL_QUEUE_Write(&QueueSerialTx, &SerialTranferData);
+        hearBeatTickTime = blinkTime;
+        serialState = SERIAL_OK;
+    }
+    
 }
 
 void serialOK(void)
@@ -419,6 +465,18 @@ HAL_StatusTypeDef checkDataAlarm(uint8_t hour, uint8_t minutes)
     }
     return flag;
 }
+
+HAL_StatusTypeDef checkDataBlinkTime(uint16_t time)
+{
+    HAL_StatusTypeDef flag = HAL_ERROR;
+    if ((time >= 50U) && ( time % 50 == 0))
+    {
+        flag = HAL_OK;
+    }
+    
+    return flag;
+}
+
 
 void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart)
 {

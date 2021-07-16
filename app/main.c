@@ -43,25 +43,29 @@ static void dog_init(void);
 */
 static void peth_the_dog(void);
 
+void timer_Init(void);
+
 static uint32_t hearBeatTick    = 0; 
 uint32_t WWDGTick               = 0; 
+uint16_t hearBeatTickTime       = 300U;
 WWDG_HandleTypeDef WWDG_HandleInit  = {0};
+TIM_HandleTypeDef TimHandle;
 
 int main( void )
 {
     HAL_Init( );
-    serial_init();
+    // serial_init();
     heart_init();
-    clock_init();
-    dog_init();
-
+    // clock_init();
+    // dog_init();
+    timer_Init();
     for (; ;)
     {
-        serial_Task();
-        clock_task();
+        // serial_Task();
+        // clock_task();
         
-        heart_beat();
-        peth_the_dog();
+        // heart_beat();
+        // peth_the_dog();
     } 
     return 0u;
 }
@@ -80,7 +84,7 @@ void heart_init(void)
 }
 void heart_beat(void)
 {
-    if (HAL_GetTick() - hearBeatTick >= 300)
+    if (HAL_GetTick() - hearBeatTick >= hearBeatTickTime)
     {
         hearBeatTick = HAL_GetTick();
         HAL_GPIO_TogglePin(GPIO_LED_PORT_BOARD,GPIO_LED_PIN_BOARD);
@@ -107,4 +111,26 @@ void peth_the_dog(void)
         HAL_WWDG_Refresh(&WWDG_HandleInit);
     }
     
+}
+
+void timer_Init(void)
+{
+    uint32_t prescalerValue = 0;
+    prescalerValue = (uint32_t)(SystemCoreClock/10000) - 1;
+
+    TimHandle.Instance = TIM3;
+    TimHandle.Init.Period = 1000;
+    TimHandle.Init.Prescaler = prescalerValue;
+    TimHandle.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
+    TimHandle.Init.CounterMode = TIM_COUNTERMODE_UP;
+    TimHandle.Init.RepetitionCounter = 0;
+    TimHandle.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
+    HAL_TIM_Base_Init(&TimHandle);
+
+    HAL_TIM_Base_Start_IT(&TimHandle);
+}
+
+void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
+{
+    HAL_GPIO_TogglePin(GPIO_LED_PORT_BOARD,GPIO_LED_PIN_BOARD);
 }

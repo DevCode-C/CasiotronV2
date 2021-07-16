@@ -14,13 +14,9 @@ void HIL_BUFFER_Write( BUFFER_HandleTypeDef *hbuffer, uint8_t data )
     {
         hbuffer->Empty = 0;
         hbuffer->Buffer[hbuffer->Head] = data;
-        hbuffer->Head++; 
+        hbuffer->Head = (hbuffer->Head + 1) % hbuffer->Elements; 
 
-        if (hbuffer->Head == (hbuffer->Elements))
-        {
-            hbuffer->Head = 0;
-        }
-        else if (hbuffer->Head == hbuffer->Tail)
+        if (hbuffer->Head == hbuffer->Tail)
         {
             hbuffer->Full = 1;
         }
@@ -38,7 +34,8 @@ uint8_t HIL_BUFFER_Read( BUFFER_HandleTypeDef *hbuffer )
     if (hbuffer->Empty == 0)
     {
         temp = hbuffer->Buffer[hbuffer->Tail];
-        hbuffer->Tail++;
+        hbuffer->Tail = (hbuffer->Tail + 1) % hbuffer->Elements;
+        
         if (hbuffer->Tail == hbuffer->Head)
         {
             hbuffer->Empty = 1;
@@ -46,12 +43,6 @@ uint8_t HIL_BUFFER_Read( BUFFER_HandleTypeDef *hbuffer )
             hbuffer->Head   = 0;
             hbuffer->Tail   = 0;
         }
-        else if (hbuffer->Tail == (hbuffer->Elements))
-        {
-            hbuffer->Tail = 0;
-        }
-        else
-        {}
     }
     else
     {
