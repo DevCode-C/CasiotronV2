@@ -10,10 +10,40 @@ static uint32_t hearBeatTick    = 0;
 uint32_t WWDGTick               = 0; 
 WWDG_HandleTypeDef WWDG_HandleInit  = {0};
 
+/**
+ * @brief HEART_BEAT Init 
+ * 
+ * @param NONE (VOID)
+ * 
+ * @return NONE (VOID)
+*/
 static void heart_init(void);
+
+/**
+ * @brief HEART_BEAT Task (Led Toggle)
+ * 
+ * @param NONE (VOID)
+ * 
+ * @return NONE (VOID)
+*/
 static void heart_beat(void);
 
+/**
+ * @brief WWDG Init
+ * 
+ * @param NONE (VOID)
+ * 
+ * @return NONE (VOID)
+*/
 static void dog_init(void);
+
+/**
+ * @brief WWDG Refresh
+ * 
+ * @param NONE (VOID)
+ * 
+ * @return NONE (VOID)
+*/
 static void peth_the_dog(void);
 
 int main( void )

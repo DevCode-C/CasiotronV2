@@ -71,3 +71,6 @@ Especifica las coordenadas del LCD en el que se empezara a escribir donde los va
 void MOD_LCD_SetCursor( LCD_HandleTypeDef *hlcd, uint8_t row, uint8_t col );
 
 #endif
+
+//luis.alberto.hernandez@capgemini.com
+//carolina.rincon@capgemini.com

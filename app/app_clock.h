@@ -5,13 +5,22 @@
 #include "queue.h"
 
 
-/*
-Inicializacion del Clock
+/**
+ * @brief Clock Init and configurations of related parameters
+ * 
+ * @param NONE (void)
+ * 
+ * @return NONE (void)
 */
 void clock_init(void);
 
-/*
-Funcion principal del reloj
+/**
+ * @brief Task to see and show data of clock (Time, date and alarm)
+ * 
+ * @param NONE (void)
+ * 
+ * @return NONE (void)
+ *
 */
 void clock_task(void);
 

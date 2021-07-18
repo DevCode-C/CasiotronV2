@@ -9,6 +9,7 @@
 #include "string.h"
 #include "ctype.h"
 #include "stm32f0xx_hal.h"
+#include "lcd.h"
 
 
 #define NONE    0U
@@ -31,7 +32,7 @@
 #define UART_PINES      GPIO_PIN_2 | GPIO_PIN_3 //UART Pines
 #define UART_PORT       GPIOA
 
-#define SPI_PINES       GPIO_PIN_3 | GPIO_PIN_4 | GPIO_PIN_5  //SPI Pines
+#define SPI_PINES       GPIO_PIN_3 | GPIO_PIN_5  //SPI Pines
 #define SPI_PORT        GPIOB
 
 #define NVIC_PRIORITY_HIGHEST               0U
@@ -50,6 +51,7 @@
 #define DATA_AVAILABLE                      0U
 #define NO_FULL                             0U
 
+#define CLEAR_BUFFER(buffer)     memset(buffer,0,sizeof(buffer))
 
 typedef struct _serial_MsgTypedef
 {
