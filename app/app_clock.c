@@ -306,7 +306,7 @@ void clockIdle(void)
     {
         clockState = CLOCK_ALARM_UP;
     }
-    else if(HIL_QUEUE_Read(&QueueSerialTx,&SerialSet_Data) == 1)
+    if(HIL_QUEUE_Read(&QueueSerialTx,&SerialSet_Data) == 1)
     {
         clockState = CLOCK_SET_DATA;
     }

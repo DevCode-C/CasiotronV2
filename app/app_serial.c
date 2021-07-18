@@ -253,8 +253,10 @@ void serialTime(void)
         SerialTranferData.param1    = hour_day;
         SerialTranferData.param2    = min_month;
         SerialTranferData.param3    = sec_year;
-        HIL_QUEUE_Write(&QueueSerialTx,&SerialTranferData);
-        serialState = SERIAL_OK;
+        if (HIL_QUEUE_Write(&QueueSerialTx,&SerialTranferData) == WRITE_OK)
+        {
+            serialState = SERIAL_OK;    
+        }
     }
 }
 
@@ -281,8 +283,10 @@ void serialDate(void)
         SerialTranferData.param1    = hour_day;
         SerialTranferData.param2    = min_month;
         SerialTranferData.param3    = sec_year;
-        HIL_QUEUE_Write(&QueueSerialTx,&SerialTranferData);
-        serialState = SERIAL_OK;
+        if (HIL_QUEUE_Write(&QueueSerialTx,&SerialTranferData) == WRITE_OK)
+        {
+            serialState = SERIAL_OK;    
+        }
     }
 }
 void serialAlarm(void)
@@ -304,8 +308,10 @@ void serialAlarm(void)
         SerialTranferData.param1    = hour_day;
         SerialTranferData.param2    = min_month;
         SerialTranferData.param3    = 0;
-        HIL_QUEUE_Write(&QueueSerialTx,&SerialTranferData);
-        serialState = SERIAL_OK;
+        if (HIL_QUEUE_Write(&QueueSerialTx,&SerialTranferData) == WRITE_OK)
+        {
+            serialState = SERIAL_OK;    
+        }
     }
 }
 

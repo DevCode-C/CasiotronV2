@@ -51,6 +51,12 @@
 #define DATA_AVAILABLE                      0U
 #define NO_FULL                             0U
 
+#define WRITE_OK                            1U
+#define WRITE_ERROR                         0U
+
+#define READ_OK                             1U
+#define READ_ERROR                          0U
+
 #define CLEAR_BUFFER(buffer)     memset(buffer,0,sizeof(buffer))
 
 typedef struct _serial_MsgTypedef
