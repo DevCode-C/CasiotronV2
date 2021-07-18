@@ -45,7 +45,7 @@ static clockSelection clockSelectionFun[] = {clockIdle,showClock,clockShowAlarm,
 static Serial_MsgTypeDef    SerialSet_Data;
 extern SPI_HandleTypeDef    spi_Handle;
 extern QUEUE_HandleTypeDef  QueueSerialTx;
-extern void initialise_monitor_handles(void);
+// extern void initialise_monitor_handles(void);
 
 __IO ITStatus AlarmRTC               = RESET;
 __IO ITStatus Alarm_Active           = RESET;
@@ -58,8 +58,8 @@ void clock_init(void)
 {
     GPIO_InitTypeDef GPIO_InitStructure;
     
-    initialise_monitor_handles();
-    printf("\n");
+    // initialise_monitor_handles();
+    // printf("\n");
     spi_init();
     lcd_init();
     

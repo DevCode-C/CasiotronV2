@@ -32,11 +32,12 @@ UART_HandleTypeDef UartHandle           = {0};
 static uint8_t RxByte;
 static uint8_t BufferTemp[30];
 
-static uint8_t SerialRx_BufferQ[100];
+static uint8_t SerialRx_BufferQ[116];
 QUEUE_HandleTypeDef QueueSerialRx;
 
-uint8_t Serial_MSG_BufferQ[100];
+Serial_MsgTypeDef Serial_MSG_BufferQ[15];
 QUEUE_HandleTypeDef QueueSerialTx;
+
 
 static uint32_t serialTimeTick;
 
@@ -63,12 +64,12 @@ void serial_init()
     uartState = SET;
 
     QueueSerialRx.Buffer = (void*) SerialRx_BufferQ;
-    QueueSerialRx.Elements = 100U;
+    QueueSerialRx.Elements = 116U;
     QueueSerialRx.Size = sizeof(uint8_t);
     HIL_QUEUE_Init(&QueueSerialRx);
 
     QueueSerialTx.Buffer = (void*) Serial_MSG_BufferQ;
-    QueueSerialTx.Elements = 100U;
+    QueueSerialTx.Elements = 15U;
     QueueSerialTx.Size = sizeof(Serial_MsgTypeDef);
     HIL_QUEUE_Init(&QueueSerialTx);
 
@@ -84,7 +85,7 @@ void serialdle(void)
 {
     uint8_t data = 0;
     uint8_t index = 0;
-    if ((HAL_GetTick() - serialTimeTick) >= 5000)
+    if ((HAL_GetTick() - serialTimeTick) > 10)
     {
         serialTimeTick = HAL_GetTick();
         while (HIL_QUEUE_IsEmpty(&QueueSerialRx) == 0)
@@ -289,17 +290,6 @@ void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart)
 
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 {
-    // static uint32_t i = 0;
-    // RxBuffer[i] = RxByte;
-    // i++;
-    // if(RxBuffer[i-1] == '\r')
-    // {
-    //     RxBuffer[i-1] = '\0';
-    //     statusRx = SET;
-    //     i=0;
-    // }
-    // statusRx = SET;
-    // HIL_BUFFER_Write(&CircBuffer,RxByte);
     HIL_QUEUE_Write(&QueueSerialRx,(void*)&RxByte);
     HAL_UART_Receive_IT(&UartHandle,&RxByte,1);
 }
