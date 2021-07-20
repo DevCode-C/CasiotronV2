@@ -39,7 +39,7 @@ void HAL_UART_MspInit(UART_HandleTypeDef *huart)
     GPIO_InitStructure.Alternate = GPIO_AF1_USART2;
 
     HAL_GPIO_Init(UART_PORT,&GPIO_InitStructure);
-    HAL_NVIC_SetPriority(USART2_IRQn,0,0);
+    HAL_NVIC_SetPriority(USART2_IRQn,NVIC_PRIORITY_HIGHEST,0);
     HAL_NVIC_EnableIRQ(USART2_IRQn);
 }
 
@@ -54,7 +54,7 @@ void HAL_RTC_MspInit(RTC_HandleTypeDef *hrtc)
     __HAL_RCC_RTC_ENABLE();
     
     __HAL_RTC_ALARMA_ENABLE(hrtc);
-    HAL_NVIC_SetPriority(RTC_IRQn,2,0);
+    HAL_NVIC_SetPriority(RTC_IRQn,NVIC_PRIORITY_LOW,0);
     HAL_NVIC_EnableIRQ(RTC_IRQn);
 }
 

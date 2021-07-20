@@ -33,11 +33,13 @@ uint8_t HIL_BUFFER_Read( BUFFER_HandleTypeDef *hbuffer )
     uint8_t temp = 0;
     if (hbuffer->Empty == 0)
     {
+        hbuffer->Full = 0;
         temp = hbuffer->Buffer[hbuffer->Tail];
         hbuffer->Tail = (hbuffer->Tail + 1) % hbuffer->Elements;
         
-        if (hbuffer->Tail == hbuffer->Head)
+        if (hbuffer->Tail == hbuffer->Head) //Check if tail value are equal to head value
         {
+            //If are equal, set the members at initial values
             hbuffer->Empty = 1;
             hbuffer->Full = 0;
             hbuffer->Head   = 0;
@@ -46,6 +48,7 @@ uint8_t HIL_BUFFER_Read( BUFFER_HandleTypeDef *hbuffer )
     }
     else
     {
+        //If circular buufer is empty but if you try to read, return a invalid character ->'~'
         temp = INVALID_CHARACTER;
     }
     

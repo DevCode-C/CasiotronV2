@@ -16,10 +16,9 @@ typedef struct
 
 
 /**
- * @brief   Inicializa la cola de espera colocando los elementos head y tail a cero,
- *           y los valores de empty a uno y full a cero.
+ * @brief  Initialize the queue by setting values in head, tail, empty and full
  * 
- * @param QUEUE_HandleTypeDef *hqueue
+ * @param QUEUE_HandleTypeDef *hqueue, Control Struct 
  * 
  * @return NONE (void)
 */
@@ -36,6 +35,15 @@ void HIL_QUEUE_Init( QUEUE_HandleTypeDef *hqueue );
  * 
  * @return uint8_t si la escritura es exitosa la función regresa un uno y si no un cero
 */
+/**
+ * @brief  Copia la información referenciada por el puntero vacío data al buffer controlado por hqueue
+ * 
+ * @param QUEUE_HandleTypeDef *hqueue, Control Struct 
+ * 
+ * @param void* data,
+ * 
+ * @return uint8_t, si la escritura es exitosa la función regresa un uno y si no un cero  
+*/
 uint8_t HIL_QUEUE_Write( QUEUE_HandleTypeDef *hqueue, void *data );
 
 /**
@@ -50,15 +58,24 @@ uint8_t HIL_QUEUE_Write( QUEUE_HandleTypeDef *hqueue, void *data );
  * @return uint8_t, si la lectura es exitosa la 
  *         función regresa un uno y si no un cero (no hay información que leer y la cola está vacía) 
 */
+/**
+ * @brief  Lee un dato del buffer controlado por hqueue
+ * 
+ * @param QUEUE_HandleTypeDef *hqueue, Control Struct 
+ * 
+ * @param void* data, 
+ * 
+ * @return uint8_t,  si la lectura es exitosa la función regresa un uno y si no un cero
+*/
 uint8_t HIL_QUEUE_Read( QUEUE_HandleTypeDef *hqueue, void *data );
 
 /**
- * @brief   Verifica que la cola de espera contenga por lo menos algun elemento
+ * @brief  Read the flag Empty
  * 
- * @param QUEUE_HandleTypeDef *hqueue
+ * @param QUEUE_HandleTypeDef *hqueue, Control Struct 
  * 
- * @return uint8_t, La función regresa un uno si no hay más elementos que se puedan leer del buffer circular y 
- *          un cero si al menos existe un elemento que se pueda leer.
+ * @return uint8_t, La función regresa un uno si no hay más elementos que se puedan leer del buffer
+ *          un cero si al menos existe un elemento que se pueda leer. 
 */
 uint8_t HIL_QUEUE_IsEmpty( QUEUE_HandleTypeDef *hqueue );
 

@@ -37,6 +37,28 @@
 #define SPI_PINES       GPIO_PIN_3 | GPIO_PIN_5  //SPI Pines
 #define SPI_PORT        GPIOB
 
+#define NVIC_PRIORITY_HIGHEST               0U
+#define NVIC_PRIORITY_HIGH                  1U
+#define NVIC_PRIORITY_LOW                   2U
+#define NVIC_PRIORITY_LOWEST                3U
+
+#define NVIC_SUBPRIORITY_HIGHEST            0U
+#define NVIC_SUBPRIORITY_HIGH               1U
+#define NVIC_SUBPRIORITY_LOW                2U
+#define NVIC_SUBPRIORITY_LOWEST             3U
+
+#define FULL                                1U
+#define FULL_EMPTY                          1U
+#define DATA_NO_AVAILABLE                   1U
+#define DATA_AVAILABLE                      0U
+#define NO_FULL                             0U
+
+#define WRITE_OK                            1U
+#define WRITE_ERROR                         0U
+
+#define READ_OK                             1U
+#define READ_ERROR                          0U
+
 #define CLEAR_BUFFER(buffer)     memset(buffer,0,sizeof(buffer))
 
 typedef struct _serial_MsgTypedef

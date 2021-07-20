@@ -147,10 +147,10 @@ UART_HandleTypeDef UartHandle           = {0};
 static uint8_t RxByte;
 static uint8_t BufferTemp[30];
 
-static uint8_t SerialRx_BufferQ[100];
+static uint8_t SerialRx_BufferQ[116];
 QUEUE_HandleTypeDef QueueSerialRx;
 
-uint8_t Serial_MSG_BufferQ[100];
+Serial_MsgTypeDef Serial_MSG_BufferQ[8];
 QUEUE_HandleTypeDef QueueSerialTx;
 
 static uint32_t serialTimeTick;
@@ -184,7 +184,7 @@ void serial_init()
     HIL_QUEUE_Init(&QueueSerialRx);
 
     QueueSerialTx.Buffer = (void*) Serial_MSG_BufferQ;
-    QueueSerialTx.Elements = 100U;
+    QueueSerialTx.Elements = 15U;
     QueueSerialTx.Size = sizeof(Serial_MsgTypeDef);
     HIL_QUEUE_Init(&QueueSerialTx);
 
@@ -205,6 +205,7 @@ void serialdle(void)
         serialTimeTick = HAL_GetTick();
         while (HIL_QUEUE_IsEmpty(&QueueSerialRx) == 0)
         {
+            //Agregar modificacion para desahabilitar todas las interrupciones
             HAL_NVIC_DisableIRQ(USART2_IRQn);
             HIL_QUEUE_Read(&QueueSerialRx,&data);
             HAL_NVIC_EnableIRQ(USART2_IRQn);
@@ -276,8 +277,10 @@ void serialTime(void)
         SerialTranferData.param1    = hour_day;
         SerialTranferData.param2    = min_month;
         SerialTranferData.param3    = sec_year;
-        HIL_QUEUE_Write(&QueueSerialTx,&SerialTranferData);
-        serialState = SERIAL_OK;
+        if (HIL_QUEUE_Write(&QueueSerialTx,&SerialTranferData) == WRITE_OK)
+        {
+            serialState = SERIAL_OK;    
+        }
     }
 }
 
@@ -304,8 +307,10 @@ void serialDate(void)
         SerialTranferData.param1    = hour_day;
         SerialTranferData.param2    = min_month;
         SerialTranferData.param3    = sec_year;
-        HIL_QUEUE_Write(&QueueSerialTx,&SerialTranferData);
-        serialState = SERIAL_OK;
+        if (HIL_QUEUE_Write(&QueueSerialTx,&SerialTranferData) == WRITE_OK)
+        {
+            serialState = SERIAL_OK;    
+        }
     }
 }
 void serialAlarm(void)
@@ -327,8 +332,10 @@ void serialAlarm(void)
         SerialTranferData.param1    = hour_day;
         SerialTranferData.param2    = min_month;
         SerialTranferData.param3    = 0;
-        HIL_QUEUE_Write(&QueueSerialTx,&SerialTranferData);
-        serialState = SERIAL_OK;
+        if (HIL_QUEUE_Write(&QueueSerialTx,&SerialTranferData) == WRITE_OK)
+        {
+            serialState = SERIAL_OK;    
+        }
     }
 }
 
