@@ -2,10 +2,10 @@
 
 void HIL_QUEUE_Init( QUEUE_HandleTypeDef *hqueue )
 {
-    hqueue->Head    = 0;                //0 
-    hqueue->Tail    = 0;                //0
-    hqueue->Empty   = DATA_NO_AVAILABLE;    //1
-    hqueue->Full    = NO_FULL;                //0
+    hqueue->Head    = 0;                        //0 
+    hqueue->Tail    = 0;                        //0
+    hqueue->Empty   = DATA_NO_AVAILABLE;        //1
+    hqueue->Full    = NO_FULL;                  //0
 }
 
 uint8_t HIL_QUEUE_Write( QUEUE_HandleTypeDef *hqueue, void *data )

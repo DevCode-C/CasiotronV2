@@ -131,7 +131,7 @@ static uint8_t BufferTemp[30];
 static uint8_t SerialRx_BufferQ[116];
 QUEUE_HandleTypeDef QueueSerialRx;
 
-Serial_MsgTypeDef Serial_MSG_BufferQ[15];
+Serial_MsgTypeDef Serial_MSG_BufferQ[8];
 QUEUE_HandleTypeDef QueueSerialTx;
 
 
@@ -186,6 +186,7 @@ void serialdle(void)
         serialTimeTick = HAL_GetTick();
         while (HIL_QUEUE_IsEmpty(&QueueSerialRx) == 0)
         {
+            //Agregar modificacion para desahabilitar todas las interrupciones
             HAL_NVIC_DisableIRQ(USART2_IRQn);
             HIL_QUEUE_Read(&QueueSerialRx,&data);
             HAL_NVIC_EnableIRQ(USART2_IRQn);
