@@ -1,30 +1,28 @@
+#include "app_bsp.h"
 #include "queue.h"
+
 
 void HIL_QUEUE_Init( QUEUE_HandleTypeDef *hqueue )
 {
-    hqueue->Head    = 0;
-    hqueue->Tail    = 0;
-    hqueue->Empty   = 1;
-    hqueue->Full    = 0;
+    hqueue->Head    = 0;                        //0 
+    hqueue->Tail    = 0;                        //0
+    hqueue->Empty   = DATA_NO_AVAILABLE;        //1
+    hqueue->Full    = NO_FULL;                  //0
 }
 
 uint8_t HIL_QUEUE_Write( QUEUE_HandleTypeDef *hqueue, void *data )
 {
     uint8_t flag = 0;
-    if (hqueue->Full == 0)
+    if (hqueue->Full == NO_FULL)
     {
-        if ((hqueue->Elements-hqueue->Head) >= hqueue->Size)
-        {
-            flag = 1;
-            hqueue->Empty = 0;
-            memcpy(hqueue->Buffer + (hqueue->Head),data,hqueue->Size);
-            hqueue->Head += hqueue->Size;
-        }
+        flag = 1;
+        hqueue->Empty = DATA_AVAILABLE;
+        memcpy(hqueue->Buffer + (hqueue->Head * hqueue->Size),data,hqueue->Size);
+        hqueue->Head = (hqueue->Head + 1) % hqueue->Elements;
 
-        if (hqueue->Head >= (hqueue->Elements-1))
+        if (hqueue->Head == hqueue->Tail)
         {
-            hqueue->Full = 1;
-            flag = 0;
+            hqueue->Full = FULL;
         }
     }
     return flag;
@@ -33,17 +31,20 @@ uint8_t HIL_QUEUE_Write( QUEUE_HandleTypeDef *hqueue, void *data )
 uint8_t HIL_QUEUE_Read( QUEUE_HandleTypeDef *hqueue, void *data )
 {
     uint8_t flag = 0;
-    if (hqueue->Empty == 0)
+    if (hqueue->Empty == DATA_AVAILABLE)
     {
         flag = 1;
-        memcpy(data,hqueue->Buffer + (hqueue->Tail),hqueue->Size);
-        hqueue->Tail += hqueue->Size;
+        hqueue->Full = NO_FULL;
+        memcpy(data,hqueue->Buffer + (hqueue->Tail * hqueue->Size),hqueue->Size);
+
+        hqueue->Tail = (hqueue->Tail + 1) % hqueue->Elements;
+
         if (hqueue->Tail == hqueue->Head)
         {
             hqueue->Head    = 0;
             hqueue->Tail    = 0;
-            hqueue->Empty   = 1;
-            hqueue->Full    = 0;
+            hqueue->Empty   = DATA_NO_AVAILABLE;
+            hqueue->Full    = NO_FULL;
         }
     }
     

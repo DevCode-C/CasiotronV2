@@ -6,7 +6,7 @@
 
 
 /**
- * @brief Inicializacion de todos los parametros relacionados al "APP_CLOCK"
+ * @brief Clock Init and configurations of related parameters
  * 
  * @param NONE (void)
  * 
@@ -15,7 +15,7 @@
 void clock_init(void);
 
 /**
- * @brief Funcion principal del reloj
+ * @brief Task to see and show data of clock (Time, date and alarm)
  * 
  * @param NONE (void)
  * 

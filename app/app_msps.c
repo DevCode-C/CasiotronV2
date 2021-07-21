@@ -39,7 +39,7 @@ void HAL_UART_MspInit(UART_HandleTypeDef *huart)
     GPIO_InitStructure.Alternate = GPIO_AF1_USART2;
 
     HAL_GPIO_Init(UART_PORT,&GPIO_InitStructure);
-    HAL_NVIC_SetPriority(USART2_IRQn,0,0);
+    HAL_NVIC_SetPriority(USART2_IRQn,NVIC_PRIORITY_HIGHEST,0);
     HAL_NVIC_EnableIRQ(USART2_IRQn);
 }
 
@@ -54,7 +54,7 @@ void HAL_RTC_MspInit(RTC_HandleTypeDef *hrtc)
     __HAL_RCC_RTC_ENABLE();
     
     __HAL_RTC_ALARMA_ENABLE(hrtc);
-    HAL_NVIC_SetPriority(RTC_IRQn,2,0);
+    HAL_NVIC_SetPriority(RTC_IRQn,NVIC_PRIORITY_LOW,0);
     HAL_NVIC_EnableIRQ(RTC_IRQn);
     
     
@@ -126,4 +126,13 @@ void MOD_LCD_MspInit( LCD_HandleTypeDef *hlcd )
     GPIO_InitStructure.Speed        = GPIO_SPEED_FREQ_HIGH;
     HAL_GPIO_Init(LCD_PORT,&GPIO_InitStructure);
     HAL_GPIO_WritePin(LCD_PORT,LCD_CS,SET);
+}
+
+void HAL_TIM_Base_MspInit(TIM_HandleTypeDef *htim)
+{
+    __HAL_RCC_TIM3_CLK_ENABLE();
+
+    HAL_NVIC_SetPriority(TIM3_IRQn,0,0);
+
+    HAL_NVIC_EnableIRQ(TIM3_IRQn);
 }

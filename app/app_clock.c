@@ -14,7 +14,7 @@
 #define TIME_TRANSITION     1000U
 
 /**
- * @brief Funcion que verifica el estado de la banderas y selecciona el estado correspondiente
+ * @brief Verify the flags state and select the corresponding state 
  * 
  * @param NONE (VOID)
  * 
@@ -23,7 +23,7 @@
 void clockIdle(void);
 
 /**
- * @brief Muestra por la lcd el tiempo actual del RTC
+ * @brief Show the actual time and date for LCD
  * 
  * @param NONE (VOID)
  * 
@@ -32,8 +32,8 @@ void clockIdle(void);
 void showClock(void);
 
 /**
- * @brief Muestra por la lcd la alarma cuando se activo la bandera "ALARMRTC"
- * 
+ * @brief Show the active alarm when flag 'ALARMRTC' is equal to 'SET'
+ *        
  * @param NONE (VOID)
  * 
  * @return NONE (VOID)
@@ -41,8 +41,8 @@ void showClock(void);
 void showAlarmUp(void);
 
 /**
- * @brief Verifica el tipo de de dato y manda al estado correpondiente para asignar la informacion
- * 
+ * @brief Verify the found data type and set the correspondig state for set related information  
+ *  
  * @param NONE (VOID)
  * 
  * @return NONE (VOID)
@@ -50,7 +50,8 @@ void showAlarmUp(void);
 void clockSetData(void);
 
 /**
- * @brief Muestra por la lcd la hora de activacion de alarma o si no esta configurada
+ * @brief Show the time when alarm goint to active, if not configuret, show "NO ALARM CONFIG"
+ *
  * 
  * @param NONE (VOID)
  * 
@@ -59,37 +60,37 @@ void clockSetData(void);
 void clockShowAlarm(void);
 
 /**
- * @brief  Actualiza la informacion del RTC Time
+ * @brief  RTC Time Update data
  * 
- * @param uint8_t hour, Valor decimal de la nueva hora
+ * @param uint8_t hour, Decimal value of hour (i.e 0U - 23U)
  * 
- * @param uint8_t minutes, Valor decima de los nuevos minutos
+ * @param uint8_t minutes, Decimal value of minutes (i.e 0U - 59U)
  * 
- * @param uint16_t seconds, Valor decimal de los segundos
+ * @param uint16_t seconds, Decimal value of seconds (i.e 0U - 59U)
  * 
  * @return NONE (VOID)
 */
 void setTime(uint8_t hour, uint8_t minutes, uint16_t seconds);
 
 /**
- * @brief  Actualiza la informacion del RTC Date
+ * @brief  RTC Date Update data
  * 
- * @param uint8_t dia, Valor decimal del dia
+ * @param uint8_t day, Decimal value of day (i.e 1U - 31U)
  * 
- * @param uint8_t mes, Valor decima del mes
+ * @param uint8_t mes, month, Decimal value of month (i.e 1U - 12U)
  * 
- * @param uint16_t año, Valor decimal del año
+ * @param uint16_t year, Decimal value of year (i.e 0U - 9999U)
  * 
  * @return NONE (VOID)
 */
 void setDate(uint8_t day, uint8_t month, uint16_t year);
 
 /**
- * @brief  Actualiza la informacion del RTC Alarm
+ * @brief  RTC Alarm Update data
  * 
- * @param uint8_t hour, Valor decimal de la nueva hora
+ * @param uint8_t hour, Decimal value of hour (i.e 0U - 23U)
  * 
- * @param uint8_t minutes, Valor decima de los nuevos minutos
+ * @param uint8_t minutes, Decimal value of minutes (i.e 0U - 59U)
  * 
  * @return NONE (VOID)
 */
@@ -107,11 +108,20 @@ void setAlarm(uint8_t hour, uint8_t minutes);
 void setTemp(int8_t lower, uint8_t upper);
 
 /**
- * @brief  Convierte valores deciamles a caracteres para alacenarlos en el buffer
+ * @brief Update the time of HeartBeat
  * 
- * @param uint8_t *buffer, buffer donde se almacena la informacion 
+ * @param uint16_t blinkUpdate, New data time
  * 
- * @param int32_t val, valor decimal para convertir 
+ * @return NONE (VOID)
+*/
+void setBlink(uint16_t blinkUpdate);
+
+/**
+ * @brief  Conversion of decimal values to character ASCCI and store up in buffer
+ * 
+ * @param uint8_t *buffer,  Data storage 
+ * 
+ * @param int32_t val, Decimal value 
  * 
  * @return NONE (VOID)
 */
@@ -119,31 +129,31 @@ void DecToStr(uint8_t *buffer, int32_t val);
 
 
 /**
- * @brief  Verifica la cantida de digitos en un valor decimal 
+ * @brief  Verify the numbers of digit characters of a decimal value
+ *  
+ * @param int32_t num, Decimal value
  * 
- * @param int32_t num, Valor decimal a contar
- * 
- * @return uint8_t, el numero de digitos contados
+ * @return uint8_t, Number of digit characters 
 */
 uint8_t number_digits(int32_t num);
 
 /**
- * @brief  Realiza la configuracion de la informacion de DATE para mostrar por LCD
+ * @brief Make the configuration of the DATE information to display by LCD
  * 
- * @param char* buffer, Buffer donde se gurada la informacion
+ * @param char* buffer, *buffer,  Data storage 
  * 
- * @param RTC_DateTypeDef DateData, Estrucutra que contiene los datos que se mostraran 
+ * @param RTC_DateTypeDef DateData, Structure, which contains the data related to DATE
  * 
  * @return NONE (VOID)
 */
 void sprint_Date(char* buffer, RTC_DateTypeDef DateData);
 
 /**
- * @brief  Realiza la configuracion de la informacion de TIME para mostrar por LCD
+ * @brief  Make the configuration of the TIME information to display by LCD
  * 
- * @param char* buffer, Buffer donde se gurada la informacion
+ * @param char* buffer, *buffer,  Data storage 
  * 
- * @param RTC_TimeTypeDef TimeData, Estrucutra que contiene los datos que se mostraran 
+ * @param RTC_TimeTypeDef TimeData, Structure, which contains the data related to TIME
  * 
  * @return NONE (VOID)
 */
@@ -156,25 +166,25 @@ void sprint_Time(char* buffer,RTC_TimeTypeDef TimeData);
  * 
  * @param RTC_TimeTypeDef TimeData, Estrucutra que contiene los datos que se mostraran 
  * 
- * @param uint8_t stars, Bandera que selecciona el mostrar "*" o " "
+ * @param uint8_t stars, If stars are equal to 1, the LCD show "*" in the edges
  * 
  * @return NONE (VOID)
 */
 void sprint_TimeAlarm(char* buffer,RTC_TimeTypeDef TimeData, uint8_t stars);
 
 /**
- * @brief  Realiza la configuracion de la informacion de ALARM para mostrar por LCD
+ * @brief  Make the configuration of the ALARM information to display by LCD
  * 
- * @param char* buffer, Buffer donde se gurada la informacion
+ * @param char* buffer, *buffer,  Data storage 
  * 
- * @param RTC_AlarmTypeDef AlarmData, Estrucutra que contiene los datos que se mostraran 
+ * @param RTC_AlarmTypeDef AlarmData, Structure, which contains the data related to ALARM
  * 
  * @return NONE (VOID)
 */
 void sprint_Alarm(char* buffer, RTC_AlarmTypeDef AlarmData);
 
 /**
- * @brief  Inicializacion del modulo LCD
+ * @brief  LCD Module init
  * 
  * @param NONE (VOID)
  * 
@@ -183,7 +193,7 @@ void sprint_Alarm(char* buffer, RTC_AlarmTypeDef AlarmData);
 void lcd_init(void);
 
 /**
- * @brief  Inicializacion del modulo SPI
+ * @brief  SPI Module init
  * 
  * @param NONE (VOID)
  * 
@@ -201,15 +211,15 @@ void spi_init(void);
 void i2c_init(void);
 
 /**
- * @brief  Algoritmo de congruencia de Zeller,
+ * @brief  Zeller's congruence algorithm
  * 
- * @param uint8_t d, numero del dia de la semana
+ * @param uint8_t d, Decimal value of day (i.e 1U - 31U)
  * 
- * @param uint8_t m, numero del mes 
+ * @param uint8_t m, Decimal value of month (i.e 1U - 12U)
  * 
- * @param uint16_t y, año
+ * @param uint16_t y, Decimal value of year (i.e 0U - 9999U)
  * 
- * @return uint8_t El numero del dia de la semana acorde al d,m,y
+ * @return uint8_t day of the week (i.e 0U - 6U)
 */
 uint8_t dayOfWeek(uint8_t d, uint8_t m, uint16_t y);
 
@@ -239,6 +249,8 @@ static clockSelection clockSelectionFun[] = {clockIdle,showClock,clockShowAlarm,
 static uint16_t yearConversion  = 2000;
 static uint32_t tick            = 0;
 static Serial_MsgTypeDef    SerialSet_Data;
+extern uint16_t hearBeatTickTime;
+// extern void initialise_monitor_handles(void);
 
 __IO ITStatus AlarmRTC               = RESET;
 __IO ITStatus Alarm_Active           = RESET;
@@ -348,6 +360,11 @@ void setTemp(int8_t lower, uint8_t upper)
     Alarm_TEMP = SET;
 }
 
+void setBlink(uint16_t blinkUpdate)
+{
+    hearBeatTickTime = blinkUpdate;
+}
+
 void clockIdle(void)
 {
     if (HAL_GetTick() - tick >= TIME_TRANSITION)
@@ -363,7 +380,7 @@ void clockIdle(void)
     {
         clockState = CLOCK_ALARM_UP;
     }
-    if(HIL_QUEUE_Read(&QueueSerialTx,&SerialSet_Data) == 1)
+    if(HIL_QUEUE_Read(&QueueSerialTx,&SerialSet_Data) == READ_OK)
     {
         clockState = CLOCK_SET_DATA;
     }
@@ -499,11 +516,14 @@ void clockSetData(void)
     {
         setAlarm(SerialSet_Data.param1,SerialSet_Data.param2);
     }
+    else if (SerialSet_Data.msg == BLINK)
+    {
+        setBlink(SerialSet_Data.param3);
+    }
     else if (SerialSet_Data.msg == TEMP)
     {
         setTemp(SerialSet_Data.param1,SerialSet_Data.param2);
     }
-    
     
     clockState = CLOCK_IDLE;
 }

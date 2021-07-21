@@ -12,13 +12,16 @@
 #include "stm32f0xx_hal_i2c.h"
 #include "lcd.h"
 #include "temp.h"
+#include "stm32f0xx_hal_tim.h"
+#include "queue.h"
 
 
 #define NONE    0U
 #define TIME    1U
 #define DATE    2U
 #define ALARM   3U
-#define TEMP    4U
+#define BLINK   4U
+#define TEMP    5U
 
 #define LCD_PORT        GPIOC   //LCD PORT
 #define LCD_PINES       GPIO_PIN_0 | GPIO_PIN_1 | GPIO_PIN_2  //LCD Pines
@@ -41,6 +44,29 @@
 //PIN ALERT
 #define GPIO_PIN_ALERT  GPIO_PIN_3
 #define GPIO_PORT_ALERT GPIOC
+
+#define NVIC_PRIORITY_HIGHEST               0U
+#define NVIC_PRIORITY_HIGH                  1U
+#define NVIC_PRIORITY_LOW                   2U
+#define NVIC_PRIORITY_LOWEST                3U
+
+#define NVIC_SUBPRIORITY_HIGHEST            0U
+#define NVIC_SUBPRIORITY_HIGH               1U
+#define NVIC_SUBPRIORITY_LOW                2U
+#define NVIC_SUBPRIORITY_LOWEST             3U
+
+#define FULL                                1U
+#define FULL_EMPTY                          1U
+#define DATA_NO_AVAILABLE                   1U
+#define DATA_AVAILABLE                      0U
+#define NO_FULL                             0U
+
+#define WRITE_OK                            1U
+#define WRITE_ERROR                         0U
+
+#define READ_OK                             1U
+#define READ_ERROR                          0U
+
 #define CLEAR_BUFFER(buffer)     memset(buffer,0,sizeof(buffer))
 
 typedef struct _serial_MsgTypedef
@@ -51,6 +77,8 @@ typedef struct _serial_MsgTypedef
     uint16_t param3;    // segundos o years
 
 } Serial_MsgTypeDef;
+
+extern QUEUE_HandleTypeDef  QueueSerialTx;
 
 void USART2_IRQHandler(void);
 void RTC_IRQHandler(void);
