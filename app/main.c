@@ -47,50 +47,62 @@ void timer_Init(void);
 
 static uint32_t hearBeatTick    = 0; 
 uint32_t WWDGTick               = 0; 
-uint16_t hearBeatTickTime       = 300U;
+uint16_t hearBeatTickTime       = 100U;
 WWDG_HandleTypeDef WWDG_HandleInit  = {0};
 TIM_HandleTypeDef TimHandle;
 static uint32_t counter = 0;
 
-uint32_t task1 = 0;
-uint32_t task2 = 0;
-uint32_t task3 = 0;
-uint32_t task4 = 0;
 int main( void )
 {
     HAL_Init( );
-    task1 = counter;
     serial_init();
     heart_init();
-    task2 = counter;
     clock_init();
     timer_Init();
     dog_init();
     for (; ;)
     {
 
-        if (counter - task1 >= 10)
+        // if (counter - task1 >= 1)
+        // {
+        //     task1 = counter;
+        //     serial_Task();
+        //     clock_task();
+        // }
+
+        // if (counter - task2 >= 100)
+        // {
+        //     task2 = counter;
+        //     clock_task();
+        // }
+        
+        // if (counter - task3 >= 5)
+        // {
+        //     heart_beat();
+        // }
+        
+        // if (counter - task4 >= 4)
+        // {
+        //     peth_the_dog();
+        // }
+
+        if (counter % 1 == 0)
         {
-            task1 = counter;
             serial_Task();
         }
 
-        if (counter - task2 >= 50)
+        if (counter % 100 == 0)
         {
-            task2 = counter;
             clock_task();
         }
         
-        
-        if (counter - task3 >= 5)
+        if (counter % 5 == 0)
         {
-            task3 = counter;
             heart_beat();
         }
         
-        if (counter - task4 >= 4)
+        if (counter % 4 == 0)
         {
-            task4 = counter;
             peth_the_dog();
         }
     } 
@@ -108,7 +120,6 @@ void heart_init(void)
     GPIO_InitStructure.Speed = GPIO_SPEED_FREQ_HIGH;
     HAL_GPIO_Init(GPIO_LED_PORT_BOARD,&GPIO_InitStructure);
     hearBeatTick = HAL_GetTick();
-    task3 = counter;
 
 }
 void heart_beat(void)
@@ -128,7 +139,6 @@ void dog_init(void)
     WWDG_HandleInit.Init.Counter = 127; 
     WWDG_HandleInit.Init.EWIMode = WWDG_EWI_DISABLE;
     HAL_WWDG_Init(&WWDG_HandleInit);
-    task4 = counter;
     WWDGTick = HAL_GetTick();
 }
 
@@ -148,7 +158,7 @@ void timer_Init(void)
     prescalerValue = (uint32_t)(SystemCoreClock/100000) - 1;
 
     TimHandle.Instance = TIM3;
-    TimHandle.Init.Period = 1000;
+    TimHandle.Init.Period = 1000-1;
     TimHandle.Init.Prescaler = prescalerValue;
     TimHandle.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
     TimHandle.Init.CounterMode = TIM_COUNTERMODE_UP;
@@ -162,11 +172,6 @@ void timer_Init(void)
 
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 {
-    // if (counter == 100)
-    // {
-    //     counter=0;
-    //     HAL_GPIO_TogglePin(GPIO_LED_PORT_BOARD,GPIO_LED_PIN_BOARD);    
-    // }
     counter += 1;
     
 }

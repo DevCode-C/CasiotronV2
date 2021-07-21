@@ -11,6 +11,7 @@
 #include "stm32f0xx_hal.h"
 #include "stm32f0xx_hal_tim.h"
 #include "lcd.h"
+#include "queue.h"
 
 
 #define NONE    0U
@@ -69,6 +70,8 @@ typedef struct _serial_MsgTypedef
     uint16_t param3;    // segundos o years
 
 } Serial_MsgTypeDef;
+
+extern QUEUE_HandleTypeDef  QueueSerialTx;
 
 void USART2_IRQHandler(void);
 void RTC_IRQHandler(void);

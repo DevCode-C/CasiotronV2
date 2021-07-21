@@ -1,4 +1,6 @@
+#include "app_bsp.h"
 #include "queue.h"
+
 
 void HIL_QUEUE_Init( QUEUE_HandleTypeDef *hqueue )
 {

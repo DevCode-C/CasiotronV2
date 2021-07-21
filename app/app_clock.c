@@ -92,6 +92,14 @@ void setDate(uint8_t day, uint8_t month, uint16_t year);
 */
 void setAlarm(uint8_t hour, uint8_t minutes);
 
+/**
+ * @brief Update the time of HeartBeat
+ * 
+ * @param uint16_t blinkUpdate, New data time
+ * 
+ * @return NONE (VOID)
+*/
+void setBlink(uint16_t blinkUpdate);
 
 /**
  * @brief  Conversion of decimal values to character ASCCI and store up in buffer
@@ -196,7 +204,7 @@ SPI_HandleTypeDef              spi_Handle              = {0};
 static clockSelection clockSelectionFun[] = {clockIdle,showClock,clockShowAlarm,clockSetData,showAlarmUp};
 
 static Serial_MsgTypeDef    SerialSet_Data;
-extern QUEUE_HandleTypeDef  QueueSerialTx;
+extern uint16_t hearBeatTickTime;
 // extern void initialise_monitor_handles(void);
 
 __IO ITStatus AlarmRTC               = RESET;
@@ -288,6 +296,11 @@ void setAlarm(uint8_t hour, uint8_t minutes)
     RTC_AlarmConfig.AlarmTime.Seconds = 0;
     RTC_AlarmConfig.AlarmTime.TimeFormat = RTC_HOURFORMAT_24;
     HAL_RTC_SetAlarm_IT(&RTC_InitStructure,&RTC_AlarmConfig,RTC_FORMAT_BIN);
+}
+
+void setBlink(uint16_t blinkUpdate)
+{
+    hearBeatTickTime = blinkUpdate;
 }
 
 void clockIdle(void)
@@ -422,6 +435,10 @@ void clockSetData(void)
     else if (SerialSet_Data.msg == ALARM)
     {
         setAlarm(SerialSet_Data.param1,SerialSet_Data.param2);
+    }
+    else if (SerialSet_Data.msg == BLINK)
+    {
+        setBlink(SerialSet_Data.param3);
     }
     
     clockState = CLOCK_IDLE;

@@ -154,7 +154,6 @@ Serial_MsgTypeDef Serial_MSG_BufferQ[8];
 QUEUE_HandleTypeDef QueueSerialTx;
 
 static uint32_t serialTimeTick;
-extern uint16_t hearBeatTickTime;
 
 static serialSelection SerialStateFun[] = {serialdle,serialAT_Sel,serialTime,serialDate,serialAlarm,serialERROR,serialOK,serialHeart};
 
@@ -342,7 +341,7 @@ void serialAlarm(void)
 void serialHeart(void)
 {
     uint16_t             blinkTime            = 0;
-    // Serial_MsgTypeDef   SerialTranferData     = {NONE,0,0,0};
+    Serial_MsgTypeDef   SerialTranferData     = {NONE,0,0,0};
     char *parametro                           = NULL;
     serialState = SERIAL_ERROR;
 
@@ -350,13 +349,12 @@ void serialHeart(void)
     blinkTime = validate_StrToInt(parametro);
     if (checkDataBlinkTime(blinkTime) == HAL_OK)
     {
-        // SerialTranferData.msg       = BLINK;
-        // SerialTranferData.param1    = blinkTime;
-        // SerialTranferData.param2    = 0;
-        // SerialTranferData.param3    = 0;
-        // HIL_QUEUE_Write(&QueueSerialTx, &SerialTranferData);
-        hearBeatTickTime = blinkTime;
-        serialState = SERIAL_OK;
+        SerialTranferData.msg       = BLINK;
+        SerialTranferData.param3    = blinkTime;
+        if (HIL_QUEUE_Write(&QueueSerialTx,&SerialTranferData) == WRITE_OK)
+        {
+            serialState = SERIAL_OK;    
+        }
     }
     
 }
@@ -476,7 +474,7 @@ HAL_StatusTypeDef checkDataAlarm(uint8_t hour, uint8_t minutes)
 HAL_StatusTypeDef checkDataBlinkTime(uint16_t time)
 {
     HAL_StatusTypeDef flag = HAL_ERROR;
-    if ((time >= 50U) && ( time % 50 == 0))
+    if ((time >= 50U) && ( time % 50 == 0) && (time <= 1000U) )
     {
         flag = HAL_OK;
     }
