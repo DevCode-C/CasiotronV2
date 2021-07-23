@@ -132,7 +132,7 @@ void HAL_TIM_Base_MspInit(TIM_HandleTypeDef *htim)
 {
     __HAL_RCC_TIM3_CLK_ENABLE();
 
-    HAL_NVIC_SetPriority(TIM3_IRQn,0,0);
+    HAL_NVIC_SetPriority(TIM3_IRQn,NVIC_PRIORITY_HIGH,0);
 
     HAL_NVIC_EnableIRQ(TIM3_IRQn);
 }

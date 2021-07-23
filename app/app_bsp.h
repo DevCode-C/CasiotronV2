@@ -55,12 +55,15 @@
 #define NVIC_SUBPRIORITY_LOW                2U
 #define NVIC_SUBPRIORITY_LOWEST             3U
 
-
 #define WRITE_OK                            1U
 #define WRITE_ERROR                         0U
-
 #define READ_OK                             1U
 #define READ_ERROR                          0U
+
+#define ELEMENTS_IN_BUFFER                  0U
+
+#define USER_SET                            1U
+#define USER_RESET                          0U
 
 #define CLEAR_BUFFER(buffer)     memset(buffer,0,sizeof(buffer))
 

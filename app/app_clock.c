@@ -8,9 +8,8 @@
 #define CLOCK_SHOW_ALARM    2U
 #define CLOCK_SET_DATA      3U 
 #define CLOCK_ALARM_UP      4U
-// #define CLOCK_ALARM_TEMP_UP 5U
 
-#define TIME_TRANSITION     1000U
+#define TIME_TICK_TRANSITION     5U
 
 /**
  * @brief Verify the flags state and select the corresponding state 
@@ -238,9 +237,8 @@ TEMP_HandleTypeDef             temp_Handle             = {0};
 static clockSelection clockSelectionFun[] = {clockIdle,showClock,clockShowAlarm,clockSetData,showAlarmUp};
 
 static uint16_t yearConversion  = 2000;
-static uint32_t tick            = 0;
+static uint32_t tickTime        = 0;
 static Serial_MsgTypeDef    SerialSet_Data;
-// extern void initialise_monitor_handles(void);
 
 __IO ITStatus AlarmRTC               = RESET;
 __IO ITStatus Alarm_Active           = RESET;
@@ -251,7 +249,6 @@ __IO static uint8_t clockState       = CLOCK_IDLE;
 /*
     extern variables
 */
-extern QUEUE_HandleTypeDef  QueueSerialTx;
 // extern void initialise_monitor_handles(void);
 
 void clock_init(void)
@@ -301,8 +298,6 @@ void clock_init(void)
     RTC_AlarmConfig.AlarmTime.TimeFormat = RTC_HOURFORMAT_24;
     HAL_RTC_SetAlarm_IT(&RTC_InitStructure,&RTC_AlarmConfig,RTC_FORMAT_BIN);
     HAL_RTC_DeactivateAlarm(&RTC_InitStructure,RTC_ALARM_A);
-    
-    tick = HAL_GetTick();
 }
 
 void clock_task(void)
@@ -352,16 +347,16 @@ void setTemp(int8_t lower, uint8_t upper)
 
 void clockIdle(void)
 {
-    if (HAL_GetTick() - tick >= TIME_TRANSITION)
+    tickTime++;
+    if ((tickTime % TIME_TICK_TRANSITION) == USER_RESET)
     {
-        tick = HAL_GetTick();
         clockState = CLOCK_SHOW;
     }
-    if (HAL_GPIO_ReadPin(GPIO_BUTTON_PORT,GPIO_BUTTON_PIN) == 0)
+    if (HAL_GPIO_ReadPin(GPIO_BUTTON_PORT,GPIO_BUTTON_PIN) == USER_RESET)
     {
         clockState = CLOCK_SHOW_ALARM;
     }
-    if(AlarmRTC == SET || Alarm_TEMP_Active == SET)
+    if((AlarmRTC == SET) || (Alarm_TEMP_Active == SET))
     {
         clockState = CLOCK_ALARM_UP;
     }
@@ -373,6 +368,7 @@ void clockIdle(void)
 
 void showClock(void)
 {
+    tickTime++;
     uint8_t           buffer[17]    = {0};
     RTC_TimeTypeDef     gTime       = {0};
     RTC_DateTypeDef     gDate       = {0};
@@ -380,12 +376,6 @@ void showClock(void)
     HAL_RTC_GetTime(&RTC_InitStructure,&gTime,RTC_FORMAT_BIN);
     HAL_RTC_GetDate(&RTC_InitStructure,&gDate,RTC_FORMAT_BIN);
 
-    // sprintf((char*)buffer," %s,%02d %04d %s",months[gDate.Month],gDate.Date,gDate.Year+yearConversion,days[dayweekSel]);
-    // MOD_LCD_SetCursor(&lcd_display,1,1);
-    // MOD_LCD_String(&lcd_display,(char*)buffer);
-
-    // sprintf((char*)buffer,"%02d:%02d:%02d %02dC    ",gTime.Hours, gTime.Minutes, gTime.Seconds,temperature);
-    // MOD_LCD_SetCursor(&lcd_display,1,1); 
     sprint_Date((char*)buffer,gDate);
     MOD_LCD_String(&lcd_display,(char*)buffer);
 
@@ -416,6 +406,7 @@ void showAlarmUp(void)
     if (AlarmRTC == SET)
     {
         AlarmRTC = RESET;
+        setAlarm(0,0);
         HAL_RTC_DeactivateAlarm(&RTC_InitStructure,RTC_ALARM_A);
     }
     if (Alarm_TEMP_Active == SET)
@@ -425,47 +416,45 @@ void showAlarmUp(void)
         MOD_TEMP_DisableAlarm(&temp_Handle);
         HAL_NVIC_DisableIRQ(EXTI2_3_IRQn);
     }
-    
-
 
     MOD_LCD_SetCursor(&lcd_display,2,1);
-    if (HAL_GetTick() - tick >= TIME_TRANSITION)
+    if ((tickTime % TIME_TICK_TRANSITION) == USER_RESET)
     {
-        tick = HAL_GetTick();
         HAL_RTC_GetTime(&RTC_InitStructure,&gTime,RTC_FORMAT_BIN);
         HAL_RTC_GetDate(&RTC_InitStructure,&gDate,RTC_FORMAT_BIN);
         if (time%2)
         {
-            sprint_TimeAlarm((char*)buffer,gTime,1);
+            sprint_TimeAlarm((char*)buffer,gTime,USER_SET);
         }
         else
         {
-            sprint_TimeAlarm((char*)buffer,gTime,0);
+            sprint_TimeAlarm((char*)buffer,gTime,USER_RESET);
         }
 
         time++;
         MOD_LCD_String(&lcd_display,(char*)buffer);
     }
     
-    if (!HAL_GPIO_ReadPin(GPIO_BUTTON_PORT,GPIO_BUTTON_PIN) || time > 59)
+    if (HAL_GPIO_ReadPin(GPIO_BUTTON_PORT,GPIO_BUTTON_PIN) == USER_RESET || time > 59)
     {
         clockState = CLOCK_IDLE;
     }
+    tickTime++;
            
 }
 
 void clockShowAlarm(void)
 {
-    
+    tickTime++;
     uint8_t           buffer[17]    = {0};
     RTC_AlarmTypeDef    gAlarm      = {0};
     static uint8_t      flagButon   = 0;
 
     HAL_RTC_GetAlarm(&RTC_InitStructure,&gAlarm,RTC_ALARM_A,RTC_FORMAT_BIN);
-    if (flagButon == 0 && !HAL_GPIO_ReadPin(GPIO_BUTTON_PORT,GPIO_BUTTON_PIN))
+    if (flagButon == USER_RESET && HAL_GPIO_ReadPin(GPIO_BUTTON_PORT,GPIO_BUTTON_PIN) == USER_RESET)
     {
         MOD_LCD_SetCursor(&lcd_display,2,1);
-        if (__HAL_RTC_ALARM_GET_IT_SOURCE(&RTC_InitStructure,RTC_ALARM_A) || Alarm_TEMP == SET)
+        if (__HAL_RTC_ALARM_GET_IT_SOURCE(&RTC_InitStructure,RTC_ALARM_A) == USER_SET || Alarm_TEMP == SET)
         {
             sprint_Alarm((char*)buffer,gAlarm);
             MOD_LCD_String(&lcd_display,(char*)buffer);
@@ -474,7 +463,7 @@ void clockShowAlarm(void)
         {
             MOD_LCD_String(&lcd_display,(char*)nAlarm);
         }
-        flagButon =1;
+        flagButon = USER_SET;
     }
     else if (!HAL_GPIO_ReadPin(GPIO_BUTTON_PORT,GPIO_BUTTON_PIN))
     {
@@ -482,13 +471,14 @@ void clockShowAlarm(void)
     }
     else
     {
-        flagButon = 0;
+        flagButon = USER_RESET;
         clockState = CLOCK_IDLE;
     }
 }
 
 void clockSetData(void)
 {
+    tickTime++;
     if (SerialSet_Data.msg == TIME)
     {
         setTime(SerialSet_Data.param1,SerialSet_Data.param2,SerialSet_Data.param3);
@@ -800,7 +790,7 @@ void sprint_Alarm(char* buffer, RTC_AlarmTypeDef AlarmData)
     MOD_TEMP_ReadRegister(&temp_Handle,tempBuffer,ALERT_TEMP_UPPER_B_TRIP_REGISTER);
     upperTemp = (tempBuffer[0] << 4) | (tempBuffer[1]>>4);
 
-    strcat(bufferTemp," A ");
+    strcat(bufferTemp,"TA ");
     strcat(bufferTemp, "00");
     DecToStr((uint8_t*)buffernum,AlarmData.AlarmTime.Hours);
     if (strlen(buffernum) == 1)

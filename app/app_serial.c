@@ -12,6 +12,11 @@
 #define SERIAL_HEART    7U
 #define SERIAL_TEMP     8U
 
+#define BUFFER_COMMAD_SIZE          30U
+#define BUFFER_SERIAL_INPUT_SIZE    116U
+#define BUFFER_TRANSFERT_SIZE       160U 
+#define BUFFER_BLINK_SIZE           40U
+
 /**
  * @brief Verify the flags state and select the corresponding state 
  * 
@@ -131,6 +136,16 @@ HAL_StatusTypeDef checkDataDate(uint8_t day, uint8_t month, uint16_t year);
  * @return HAL_StatusTypeDef, HAL_OK If all parameters are correct
 */
 HAL_StatusTypeDef checkDataAlarm(uint8_t hour, uint8_t minutes);
+
+/**
+ * @brief
+ * 
+ * @param
+ * 
+ * @param
+ * 
+ * @return HAL_StatusTypeDef, HAL_OK If all parameters are correct
+*/
 HAL_StatusTypeDef checkDataTemp(int8_t lower, uint8_t uper);
 
 /**
@@ -151,18 +166,16 @@ const char *comando_AT[]    = {"AT+TIME" , "AT+DATE" , "AT+ALARM" , "AT+HEARTBEA
 UART_HandleTypeDef UartHandle           = {0};
 
 static uint8_t RxByte;
-static uint8_t BufferTemp[30];
+static uint8_t BufferTemp[BUFFER_COMMAD_SIZE];
 
-static uint8_t SerialRx_BufferQ[116];
+static uint8_t SerialRx_BufferQ[BUFFER_SERIAL_INPUT_SIZE];
 QUEUE_HandleTypeDef QueueSerialRx;
 
-Serial_MsgTypeDef Serial_MSG_BufferQ[8];
+Serial_MsgTypeDef Serial_MSG_BufferQ[BUFFER_TRANSFERT_SIZE];
 QUEUE_HandleTypeDef QueueSerialTx;
 
-uint16_t blinkTime[40];
+uint16_t blinkTime[BUFFER_BLINK_SIZE];
 QUEUE_HandleTypeDef QueueSerialBlink;
-
-static uint32_t serialTimeTick;
 
 static serialSelection SerialStateFun[] = {serialdle,serialAT_Sel,serialTime,serialDate,serialAlarm,serialERROR,serialOK,serialHeart,serialTemp};
 
@@ -187,21 +200,20 @@ void serial_init()
     uartState = SET;
 
     QueueSerialRx.Buffer = (void*) SerialRx_BufferQ;
-    QueueSerialRx.Elements = 116U;
+    QueueSerialRx.Elements = BUFFER_SERIAL_INPUT_SIZE;
     QueueSerialRx.Size = sizeof(uint8_t);
     HIL_QUEUE_Init(&QueueSerialRx);
 
     QueueSerialTx.Buffer = (void*) Serial_MSG_BufferQ;
-    QueueSerialTx.Elements = 15U;
+    QueueSerialTx.Elements = BUFFER_TRANSFERT_SIZE;
     QueueSerialTx.Size = sizeof(Serial_MsgTypeDef);
     HIL_QUEUE_Init(&QueueSerialTx);
 
     QueueSerialBlink.Buffer = (void*) blinkTime;
-    QueueSerialBlink.Elements = 8U;    
+    QueueSerialBlink.Elements = BUFFER_BLINK_SIZE;    
     QueueSerialBlink.Size = sizeof(uint16_t);
     HIL_QUEUE_Init(&QueueSerialBlink);
 
-    serialTimeTick = HAL_GetTick();
 }
 
 void serial_Task(void)
@@ -213,26 +225,23 @@ void serialdle(void)
 {
     uint8_t data = 0;
     uint8_t index = 0;
-    if ((HAL_GetTick() - serialTimeTick) > 10)
+    
+    while (HIL_QUEUE_IsEmpty(&QueueSerialRx) == ELEMENTS_IN_BUFFER)
     {
-        serialTimeTick = HAL_GetTick();
-        while (HIL_QUEUE_IsEmpty(&QueueSerialRx) == 0)
-        {
-            //Agregar modificacion para desahabilitar todas las interrupciones
-            HAL_NVIC_DisableIRQ(USART2_IRQn);
-            HIL_QUEUE_Read(&QueueSerialRx,&data);
-            HAL_NVIC_EnableIRQ(USART2_IRQn);
+        //Agregar modificacion para desahabilitar todas las interrupciones
+        HAL_NVIC_DisableIRQ(USART2_IRQn);
+        HIL_QUEUE_Read(&QueueSerialRx,&data);
+        HAL_NVIC_EnableIRQ(USART2_IRQn);
 
-            if (data == '\r')
-            {
-                serialState = SERIAL_AT;
-                break;
-            }
-            else
-            {
-                BufferTemp[index] = data;
-                index++;
-            }
+        if (data == '\r')
+        {
+            serialState = SERIAL_AT;
+            break;
+        }
+        else
+        {
+            BufferTemp[index] = data;
+            index++;
         }
     }    
     if(uartError)
