@@ -51,6 +51,7 @@ uint16_t hearBeatTickTime       = 100U;
 WWDG_HandleTypeDef WWDG_HandleInit  = {0};
 TIM_HandleTypeDef TimHandle;
 static uint32_t counter = 0;
+__IO ITStatus TimerFlag = RESET;
 
 int main( void )
 {
@@ -62,50 +63,23 @@ int main( void )
     dog_init();
     for (; ;)
     {
-
-        // if (counter - task1 >= 1)
-        // {
-        //     task1 = counter;
-        //     serial_Task();
-        //     clock_task();
-        // }
-
-        // if (counter - task2 >= 100)
-        // {
-        //     task2 = counter;
-        //     clock_task();
-        // }
-        
-        // if (counter - task3 >= 5)
-        // {
-        //     heart_beat();
-        // }
-        
-        // if (counter - task4 >= 4)
-        // {
-        //     peth_the_dog();
-        // }
-
-        if (counter % 1 == 0)
+        if (TimerFlag == SET)
         {
-            serial_Task();
-        }
-
-        if (counter % 4 == 0)
-        {
-            peth_the_dog();
-        }
-
-        if (counter % 100 == 0)
-        {
-            clock_task();
-        }
-        
-        if (counter % 5 == 0)
-        {
-            heart_beat();
-        }
-        
+            TimerFlag = RESET;
+            if (counter % 1 == 0)
+            {
+                serial_Task();
+                clock_task();
+            }
+            if (counter % 3 == 0)
+            {
+                peth_the_dog();
+            }
+            if (counter % 5 == 0)
+            {
+                heart_beat();
+            }
+        }       
     } 
     return 0u;
 }
@@ -125,6 +99,15 @@ void heart_init(void)
 }
 void heart_beat(void)
 {
+    static uint16_t blinktimeSet = 0;
+    if (HIL_QUEUE_IsEmpty(&QueueSerialBlink) == 0)
+    {
+        if (HIL_QUEUE_Read(&QueueSerialBlink,&blinktimeSet) == READ_OK)
+        {
+            hearBeatTickTime = blinktimeSet;
+        }
+    }
+
     if (HAL_GetTick() - hearBeatTick >= hearBeatTickTime)
     {
         hearBeatTick = HAL_GetTick();
@@ -136,7 +119,7 @@ void dog_init(void)
 {
     WWDG_HandleInit.Instance = WWDG;
     WWDG_HandleInit.Init.Prescaler = WWDG_PRESCALER_8;
-    WWDG_HandleInit.Init.Window = 83;
+    WWDG_HandleInit.Init.Window = 100;
     WWDG_HandleInit.Init.Counter = 127; 
     WWDG_HandleInit.Init.EWIMode = WWDG_EWI_DISABLE;
     HAL_WWDG_Init(&WWDG_HandleInit);
@@ -144,8 +127,8 @@ void dog_init(void)
 }
 
 void peth_the_dog(void)
-{
-    if ((HAL_GetTick() - WWDGTick) >= 35)
+{   
+    if ((HAL_GetTick() - WWDGTick) >= 20)
     {
         WWDGTick = HAL_GetTick();
         HAL_WWDG_Refresh(&WWDG_HandleInit);
@@ -159,7 +142,7 @@ void timer_Init(void)
     prescalerValue = (uint32_t)(SystemCoreClock/100000) - 1;
 
     TimHandle.Instance = TIM3;
-    TimHandle.Init.Period = 1000-1;
+    TimHandle.Init.Period = 1000;
     TimHandle.Init.Prescaler = prescalerValue;
     TimHandle.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
     TimHandle.Init.CounterMode = TIM_COUNTERMODE_UP;
@@ -173,6 +156,7 @@ void timer_Init(void)
 
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 {
+    TimerFlag = SET;
     counter += 1;
     
 }

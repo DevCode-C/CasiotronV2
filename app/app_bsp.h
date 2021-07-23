@@ -55,11 +55,6 @@
 #define NVIC_SUBPRIORITY_LOW                2U
 #define NVIC_SUBPRIORITY_LOWEST             3U
 
-#define FULL                                1U
-#define FULL_EMPTY                          1U
-#define DATA_NO_AVAILABLE                   1U
-#define DATA_AVAILABLE                      0U
-#define NO_FULL                             0U
 
 #define WRITE_OK                            1U
 #define WRITE_ERROR                         0U
@@ -79,6 +74,7 @@ typedef struct _serial_MsgTypedef
 } Serial_MsgTypeDef;
 
 extern QUEUE_HandleTypeDef  QueueSerialTx;
+extern QUEUE_HandleTypeDef QueueSerialBlink;
 
 void USART2_IRQHandler(void);
 void RTC_IRQHandler(void);

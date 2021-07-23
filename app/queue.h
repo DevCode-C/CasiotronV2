@@ -15,6 +15,11 @@ typedef struct
 
 }QUEUE_HandleTypeDef;
 
+#define FULL                                1U
+#define FULL_EMPTY                          1U
+#define DATA_NO_AVAILABLE                   1U
+#define DATA_AVAILABLE                      0U
+#define NO_FULL                             0U
 
 /**
  * @brief  Initialize the queue by setting values in head, tail, empty and full

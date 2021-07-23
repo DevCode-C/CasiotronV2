@@ -159,6 +159,9 @@ QUEUE_HandleTypeDef QueueSerialRx;
 Serial_MsgTypeDef Serial_MSG_BufferQ[8];
 QUEUE_HandleTypeDef QueueSerialTx;
 
+uint16_t blinkTime[40];
+QUEUE_HandleTypeDef QueueSerialBlink;
+
 static uint32_t serialTimeTick;
 
 static serialSelection SerialStateFun[] = {serialdle,serialAT_Sel,serialTime,serialDate,serialAlarm,serialERROR,serialOK,serialHeart,serialTemp};
@@ -192,6 +195,11 @@ void serial_init()
     QueueSerialTx.Elements = 15U;
     QueueSerialTx.Size = sizeof(Serial_MsgTypeDef);
     HIL_QUEUE_Init(&QueueSerialTx);
+
+    QueueSerialBlink.Buffer = (void*) blinkTime;
+    QueueSerialBlink.Elements = 8U;    
+    QueueSerialBlink.Size = sizeof(uint16_t);
+    HIL_QUEUE_Init(&QueueSerialBlink);
 
     serialTimeTick = HAL_GetTick();
 }
@@ -378,7 +386,6 @@ void serialTemp(void)
 void serialHeart(void)
 {
     uint16_t             blinkTime            = 0;
-    Serial_MsgTypeDef   SerialTranferData     = {NONE,0,0,0};
     char *parametro                           = NULL;
     serialState = SERIAL_ERROR;
 
@@ -386,9 +393,7 @@ void serialHeart(void)
     blinkTime = validate_StrToInt(parametro);
     if (checkDataBlinkTime(blinkTime) == HAL_OK)
     {
-        SerialTranferData.msg       = BLINK;
-        SerialTranferData.param3    = blinkTime;
-        if (HIL_QUEUE_Write(&QueueSerialTx,&SerialTranferData) == WRITE_OK)
+        if (HIL_QUEUE_Write(&QueueSerialBlink,&blinkTime) == WRITE_OK)
         {
             serialState = SERIAL_OK;    
         }

@@ -8,8 +8,7 @@
 #define CLOCK_SHOW_ALARM    2U
 #define CLOCK_SET_DATA      3U 
 #define CLOCK_ALARM_UP      4U
-
-#define CLOCK_ALARM_TEMP_UP 5U
+// #define CLOCK_ALARM_TEMP_UP 5U
 
 #define TIME_TRANSITION     1000U
 
@@ -107,14 +106,6 @@ void setAlarm(uint8_t hour, uint8_t minutes);
 */
 void setTemp(int8_t lower, uint8_t upper);
 
-/**
- * @brief Update the time of HeartBeat
- * 
- * @param uint16_t blinkUpdate, New data time
- * 
- * @return NONE (VOID)
-*/
-void setBlink(uint16_t blinkUpdate);
 
 /**
  * @brief  Conversion of decimal values to character ASCCI and store up in buffer
@@ -249,7 +240,6 @@ static clockSelection clockSelectionFun[] = {clockIdle,showClock,clockShowAlarm,
 static uint16_t yearConversion  = 2000;
 static uint32_t tick            = 0;
 static Serial_MsgTypeDef    SerialSet_Data;
-extern uint16_t hearBeatTickTime;
 // extern void initialise_monitor_handles(void);
 
 __IO ITStatus AlarmRTC               = RESET;
@@ -358,11 +348,6 @@ void setTemp(int8_t lower, uint8_t upper)
     HAL_NVIC_SetPriority(EXTI2_3_IRQn,1,0);
     HAL_NVIC_EnableIRQ(EXTI2_3_IRQn);
     Alarm_TEMP = SET;
-}
-
-void setBlink(uint16_t blinkUpdate)
-{
-    hearBeatTickTime = blinkUpdate;
 }
 
 void clockIdle(void)
@@ -515,10 +500,6 @@ void clockSetData(void)
     else if (SerialSet_Data.msg == ALARM)
     {
         setAlarm(SerialSet_Data.param1,SerialSet_Data.param2);
-    }
-    else if (SerialSet_Data.msg == BLINK)
-    {
-        setBlink(SerialSet_Data.param3);
     }
     else if (SerialSet_Data.msg == TEMP)
     {
