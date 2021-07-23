@@ -84,8 +84,6 @@ extern QUEUE_HandleTypeDef QueueSerialBlink;
 
 void USART2_IRQHandler(void);
 void RTC_IRQHandler(void);
-void SPI1_IRQHandler(void);
-void I2C1_IRQHandler(void);
 
 #endif
 
