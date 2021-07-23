@@ -56,8 +56,6 @@ void HAL_RTC_MspInit(RTC_HandleTypeDef *hrtc)
     __HAL_RTC_ALARMA_ENABLE(hrtc);
     HAL_NVIC_SetPriority(RTC_IRQn,NVIC_PRIORITY_LOW,0);
     HAL_NVIC_EnableIRQ(RTC_IRQn);
-    
-    
 }
 
 void HAL_WWDG_MspInit(WWDG_HandleTypeDef *hwwdg)
@@ -91,15 +89,12 @@ void HAL_I2C_MspInit(I2C_HandleTypeDef *hi2c)
 
     //PB6 -> I2C1_SCL
     //PB7 -> I2C1_SDA
-    GPIO_InitStruct.Pin = GPIO_PIN_6|GPIO_PIN_7;
+    GPIO_InitStruct.Pin = I2C_PINES;
     GPIO_InitStruct.Mode = GPIO_MODE_AF_OD;
     GPIO_InitStruct.Pull = GPIO_PULLUP;
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;
     GPIO_InitStruct.Alternate = GPIO_AF1_I2C1;
-    HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
-
-    HAL_NVIC_SetPriority(I2C1_IRQn,2,0);
-    HAL_NVIC_EnableIRQ(I2C1_IRQn);
+    HAL_GPIO_Init(I2C_PORT, &GPIO_InitStruct);
 }
 
 void MOD_TEMP_MspInit( TEMP_HandleTypeDef *htemp )

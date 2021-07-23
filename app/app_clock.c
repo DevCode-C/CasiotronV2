@@ -340,7 +340,7 @@ void setTemp(int8_t lower, uint8_t upper)
 {
     MOD_TEMP_SetAlarms(&temp_Handle,lower,upper);
     
-    HAL_NVIC_SetPriority(EXTI2_3_IRQn,1,0);
+    HAL_NVIC_SetPriority(EXTI2_3_IRQn,NVIC_PRIORITY_HIGH,0);
     HAL_NVIC_EnableIRQ(EXTI2_3_IRQn);
     Alarm_TEMP = SET;
 }

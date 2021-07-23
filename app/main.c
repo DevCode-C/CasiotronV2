@@ -83,19 +83,18 @@ int main( void )
         if (TimerFlag == SET)
         {
             TimerFlag = RESET;
-            if ((counter % TASK_10MS) == USER_RESET)
+            if (TASK_TIME_COMP(counter,TASK_10MS) == USER_RESET)
             {
                 serial_Task();
             }
-            if ((counter % TASK_30MS) == USER_RESET)
+            if (TASK_TIME_COMP(counter,TASK_30MS) == USER_RESET)
             {
                 peth_the_dog();
             }
-            if ((counter % TASK_50MS) == USER_RESET)
+            if (TASK_TIME_COMP(counter,TASK_50MS) == USER_RESET)
             {
                 heart_beat();
             }
-            // if ((counter % TASK_200MS) == USER_RESET)
             if (TASK_TIME_COMP(counter,TASK_200MS) == USER_RESET)
             {
                 clock_task();
