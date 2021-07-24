@@ -14,7 +14,7 @@
 
 #define BUFFER_COMMAD_SIZE          30U
 #define BUFFER_SERIAL_INPUT_SIZE    116U
-#define BUFFER_TRANSFERT_SIZE       160U 
+#define BUFFER_TRANSFERT_SIZE       40U 
 #define BUFFER_BLINK_SIZE           40U
 
 /**

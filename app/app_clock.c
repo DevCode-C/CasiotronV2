@@ -9,7 +9,7 @@
 #define CLOCK_SET_DATA      3U 
 #define CLOCK_ALARM_UP      4U
 
-#define TIME_TICK_TRANSITION     5U
+#define TIME_TICK_TRANSITION     20U
 
 /**
  * @brief Verify the flags state and select the corresponding state 

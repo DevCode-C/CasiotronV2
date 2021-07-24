@@ -94,11 +94,12 @@ int main( void )
             if (TASK_TIME_COMP(counter,TASK_50MS) == USER_RESET)
             {
                 heart_beat();
-            }
-            if (TASK_TIME_COMP(counter,TASK_200MS) == USER_RESET)
-            {
                 clock_task();
             }
+            // if (TASK_TIME_COMP(counter,TASK_200MS) == USER_RESET)
+            // {
+            //     clock_task();
+            // }
             
             // switch (counter)
             // {
