@@ -138,11 +138,11 @@ HAL_StatusTypeDef checkDataDate(uint8_t day, uint8_t month, uint16_t year);
 HAL_StatusTypeDef checkDataAlarm(uint8_t hour, uint8_t minutes);
 
 /**
- * @brief
+ * @brief Verifying related parameters of Limits of Temperature ALARM
  * 
- * @param
+ * @param int8_t lower,
  * 
- * @param
+ * @param uint8_t uper,
  * 
  * @return HAL_StatusTypeDef, HAL_OK If all parameters are correct
 */
@@ -156,6 +156,24 @@ HAL_StatusTypeDef checkDataTemp(int8_t lower, uint8_t uper);
  * @return HAL_StatusTypeDef, HAL_OK If all parameters are correct
 */
 HAL_StatusTypeDef checkDataBlinkTime(uint16_t time);
+
+/**
+ * @brief Set disable all the interrupt used 
+ * 
+ * @param NONE (VOID)
+ * 
+ * @return NONE (VOID)
+*/
+void disable_Interrupt(void);
+
+/**
+ * @brief Set Enable all the interrupt used 
+ * 
+ * @param NONE (VOID)
+ * 
+ * @return NONE (VOID)
+*/
+void enable_Interrupt(void);
 
 typedef void (*serialSelection)(void);
 
@@ -228,11 +246,9 @@ void serialdle(void)
     
     while (HIL_QUEUE_IsEmpty(&QueueSerialRx) == ELEMENTS_IN_BUFFER)
     {
-        //Agregar modificacion para desahabilitar todas las interrupciones
-        HAL_NVIC_DisableIRQ(USART2_IRQn);
+        disable_Interrupt();
         HIL_QUEUE_Read(&QueueSerialRx,&data);
-        HAL_NVIC_EnableIRQ(USART2_IRQn);
-
+        enable_Interrupt();
         if (data == '\r')
         {
             serialState = SERIAL_AT;
@@ -244,7 +260,7 @@ void serialdle(void)
             index++;
         }
     }    
-    if(uartError)
+    if(uartError  == SET)
     {
         uartError = RESET;   
         serialState = SERIAL_ERROR;
@@ -547,6 +563,21 @@ HAL_StatusTypeDef checkDataBlinkTime(uint16_t time)
     return flag;
 }
 
+void disable_Interrupt(void)
+{
+    HAL_NVIC_DisableIRQ(RTC_IRQn);
+    HAL_NVIC_DisableIRQ(TIM3_IRQn);
+    HAL_NVIC_DisableIRQ(EXTI2_3_IRQn);
+    HAL_NVIC_DisableIRQ(USART2_IRQn);
+}
+
+void enable_Interrupt(void)
+{
+    HAL_NVIC_EnableIRQ(RTC_IRQn);
+    HAL_NVIC_EnableIRQ(TIM3_IRQn);
+    HAL_NVIC_EnableIRQ(EXTI2_3_IRQn);
+    HAL_NVIC_EnableIRQ(USART2_IRQn);
+}
 
 void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart)
 {

@@ -16,8 +16,24 @@ Brief.- Punto de entrada del programa
 #define TASK_30MS           3U
 #define TASK_50MS           5U
 #define TASK_200MS          20U
+#define MCM                 15U
 
-#define TASK_TIME_COMP(counter,baseTime)       (counter % baseTime) 
+#define TASK_TIME_COMP(counter,baseTime)                (counter % baseTime) 
+
+/**
+ * @brief Incremente var_Counter in one, and check the module of var_Condition, if the module is equal to 0
+ *        var_Counter goint to set in 1;
+ * 
+ * @param var_Counter Variable to increment and use it in another process
+ * 
+ * @param var_Condition Variable use it in condition
+ * 
+ * @return NONE
+*/
+#define TIMER_COUNTER_UP(var_Counter,var_Condition)     var_Counter++,\
+    var_Counter = var_Counter % (var_Condition+1) == 0 ? 1 : var_Counter
+                                                        
+                                                        
 /**
  * @brief HEART_BEAT Init 
  * 
@@ -83,48 +99,58 @@ int main( void )
         if (TimerFlag == SET)
         {
             TimerFlag = RESET;
-            if (TASK_TIME_COMP(counter,TASK_10MS) == USER_RESET)
-            {
-                serial_Task();
-            }
-            if (TASK_TIME_COMP(counter,TASK_30MS) == USER_RESET)
-            {
-                peth_the_dog();
-            }
-            if (TASK_TIME_COMP(counter,TASK_50MS) == USER_RESET)
-            {
-                heart_beat();
-                clock_task();
-            }
+            // if (TASK_TIME_COMP(counter,TASK_10MS) == USER_RESET)
+            // {
+            //     serial_Task();
+            // }
+            // if (TASK_TIME_COMP(counter,TASK_30MS) == USER_RESET)
+            // {
+            //     peth_the_dog();
+            // }
+            // if (TASK_TIME_COMP(counter,TASK_50MS) == USER_RESET)
+            // {
+            //     heart_beat();
+            //     clock_task();
+            // }
             // if (TASK_TIME_COMP(counter,TASK_200MS) == USER_RESET)
             // {
             //     clock_task();
             // }
             
-            // switch (counter)
-            // {
-            // case 0:
-            // case 1:
-            // case 2:
-            // case 4:
-            //     serial_Task();
-            //     clock_task();
-            //     heart_beat();
-            //     break;
-            // case 3:
-            // case 6:
-            //     serial_Task();
-            //     clock_task();
-            //     peth_the_dog();
-            //     break;
-            // case 5: 
-            //     serial_Task();
-            //     clock_task();
-            //     // heart_beat();
-            //     break;
-            // default:
-            //     break;
-            // }
+            switch (counter)
+            {
+            case 1:
+            case 2:
+            case 4:
+            case 7: 
+            case 8:
+            case 11:
+            case 13:
+            case 14:
+                serial_Task();
+                break;
+            case 3:
+            case 6:
+            case 9:
+            case 12:
+                peth_the_dog();
+                serial_Task();
+                break;
+            case 5:
+            case 10:
+                serial_Task();
+                clock_task();
+                heart_beat();
+                break;
+            case 15:
+                peth_the_dog();
+                serial_Task();
+                clock_task();
+                heart_beat();
+                break;
+            default:
+                break;
+            }
         }       
     } 
     return 0u;
@@ -198,8 +224,8 @@ void timer_Init(void)
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 {
     TimerFlag = SET;
-    // counter = (counter + 1) % 15;
-    counter += 1;
+    TIMER_COUNTER_UP(counter,MCM);
+    // counter += 1;
 
    
 }
