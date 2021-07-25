@@ -22,10 +22,10 @@
 
 //RESOLUTION BITS
 
-#define  _0_5C          0x00U   //Time conversion = 30 ms typical
-#define  _0_25C         0x01U   //Time conversion = 65 ms typical
-#define  _0_125C        0x02U   //Time conversion = 130 ms typical
-#define  _0_0625C       0x03U   //Time conversion = 250 ms typical (Power-up default)
+#define  RESOLUTION_0_5C          0x00U   //Time conversion = 30 ms typical
+#define  RESOLUTION_0_25C         0x01U   //Time conversion = 65 ms typical
+#define  RESOLUTION_0_125C        0x02U   //Time conversion = 130 ms typical
+#define  RESOLUTION_0_0625C       0x03U   //Time conversion = 250 ms typical (Power-up default)
 
 
 

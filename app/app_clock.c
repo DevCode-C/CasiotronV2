@@ -292,9 +292,9 @@ void clock_init(void)
 
     RTC_AlarmConfig.Alarm = RTC_ALARM_A;
     RTC_AlarmConfig.AlarmDateWeekDaySel = RTC_ALARMDATEWEEKDAYSEL_WEEKDAY;
-    RTC_AlarmConfig.AlarmTime.Hours = 00;
-    RTC_AlarmConfig.AlarmTime.Minutes = 00;
-    RTC_AlarmConfig.AlarmTime.Seconds = 00;
+    RTC_AlarmConfig.AlarmTime.Hours = USER_RESET;
+    RTC_AlarmConfig.AlarmTime.Minutes = USER_RESET;
+    RTC_AlarmConfig.AlarmTime.Seconds = USER_RESET;
     RTC_AlarmConfig.AlarmTime.TimeFormat = RTC_HOURFORMAT_24;
     HAL_RTC_SetAlarm_IT(&RTC_InitStructure,&RTC_AlarmConfig,RTC_FORMAT_BIN);
     HAL_RTC_DeactivateAlarm(&RTC_InitStructure,RTC_ALARM_A);
@@ -331,7 +331,7 @@ void setAlarm(uint8_t hour, uint8_t minutes)
     RTC_AlarmConfig.Alarm = RTC_ALARM_A;
     RTC_AlarmConfig.AlarmTime.Hours = hour;
     RTC_AlarmConfig.AlarmTime.Minutes = minutes;
-    RTC_AlarmConfig.AlarmTime.Seconds = 0;
+    RTC_AlarmConfig.AlarmTime.Seconds = USER_RESET;
     RTC_AlarmConfig.AlarmTime.TimeFormat = RTC_HOURFORMAT_24;
     HAL_RTC_SetAlarm_IT(&RTC_InitStructure,&RTC_AlarmConfig,RTC_FORMAT_BIN);
 }

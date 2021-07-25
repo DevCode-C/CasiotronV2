@@ -12,10 +12,15 @@
 #define SERIAL_HEART    7U
 #define SERIAL_TEMP     8U
 
+#define BAUDRATE_SPEED              115200U
+#define CORRECT_COMMAND_COMP        0U
+
 #define BUFFER_COMMAD_SIZE          30U
 #define BUFFER_SERIAL_INPUT_SIZE    116U
 #define BUFFER_TRANSFERT_SIZE       40U 
 #define BUFFER_BLINK_SIZE           40U
+
+
 
 /**
  * @brief Verify the flags state and select the corresponding state 
@@ -204,7 +209,7 @@ __IO static uint8_t serialState            = SERIAL_IDLE;
 void serial_init()
 {
     UartHandle.Instance             = USART2;
-    UartHandle.Init.BaudRate        = 115200;
+    UartHandle.Init.BaudRate        = BAUDRATE_SPEED;
     UartHandle.Init.WordLength      = UART_WORDLENGTH_8B;
     UartHandle.Init.StopBits        = UART_STOPBITS_1;
     UartHandle.Init.Parity          = UART_PARITY_NONE;
@@ -270,23 +275,23 @@ void serialdle(void)
 void serialAT_Sel(void)
 {
     char* InpuyComand = strtok((char*)BufferTemp, "=" );
-    if (strcmp(InpuyComand,comando_AT[0]) == 0)
+    if (strcmp(InpuyComand,comando_AT[0]) == CORRECT_COMMAND_COMP)
     {
         serialState = SERIAL_TIME;
     }
-    else if (strcmp(InpuyComand,comando_AT[1]) == 0)
+    else if (strcmp(InpuyComand,comando_AT[1]) == CORRECT_COMMAND_COMP)
     {
         serialState = SERIAL_DATE;
     }
-    else if (strcmp(InpuyComand,comando_AT[2]) == 0)
+    else if (strcmp(InpuyComand,comando_AT[2]) == CORRECT_COMMAND_COMP)
     {
         serialState = SERIAL_ALARM;
     }
-    else if (strcmp(InpuyComand,comando_AT[3]) == 0)
+    else if (strcmp(InpuyComand,comando_AT[3]) == CORRECT_COMMAND_COMP)
     {
         serialState = SERIAL_HEART;
     }
-    else if (strcmp(InpuyComand,comando_AT[4]) == 0)
+    else if (strcmp(InpuyComand,comando_AT[4]) == CORRECT_COMMAND_COMP)
     {
         serialState = SERIAL_TEMP;
     }
