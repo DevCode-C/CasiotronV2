@@ -27,8 +27,26 @@
 #define  RESOLUTION_0_125C        0x02U   //Time conversion = 130 ms typical
 #define  RESOLUTION_0_0625C       0x03U   //Time conversion = 250 ms typical (Power-up default)
 
+#define TEMP_GREATHER_THAN_0      0U
+#define TEMP_LESS_THAN_0          1U
 
+/**
+ * @brief Performs the conversion of the register value to decimal temperature
+ * 
+ * @param uint16_t temperature, Temperature register
+ * 
+ * @return Temperature in degrees centigrade (decimal)
+*/
+#define TEMP_CONVERTION_DEC(temperature)    (((0x0FU &(temperature>>8))*16)+((0x00FFU & temperature)/16))
 
+/**
+ * @brief Check the flag temperature, this flag say if the temperature is " >= 0" or " 0 <="  
+ * 
+ * @param uint16_t temperature_R , Temperature register
+ * 
+ * @return '1' if less than or equal to zero, '0' if greater than or equal to zero
+*/
+#define TEMP_GREATHER_OR_LESS_THAN_0(temperature_R)         ((0x01U&(temperature>>12U)) == 0 ? 0: 1)
 
 /**
  * @defgroup   POWER-ON RESET DEFAULTS

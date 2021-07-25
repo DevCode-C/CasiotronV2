@@ -762,7 +762,7 @@ void sprint_Time(char* buffer,RTC_TimeTypeDef TimeData)
     }
     strcat(bufferTemp," ");
     CLEAR_BUFFER(buffernum);
-    DecToStr((uint8_t*)buffernum,temperature);
+    DecToStr((uint8_t*)buffernum,TEMP_CONVERTION_DEC(temperature));
     strcat(bufferTemp, "00");
     if (strlen(buffernum) == 1)
     {

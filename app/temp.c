@@ -46,7 +46,8 @@ uint16_t MOD_TEMP_Read( TEMP_HandleTypeDef *htemp )
 
     if (buffer[0] != 0 || buffer[1] != 0)
     {
-        temperature = (( LOW_PART_SELECT & buffer[0]) * TEMP_CONVERTION_DIV) + (buffer[1] / TEMP_CONVERTION_DIV);
+        // temperature = (( LOW_PART_SELECT & buffer[0]) * TEMP_CONVERTION_DIV) + (buffer[1] / TEMP_CONVERTION_DIV);
+        temperature = (buffer[0]<<8) | buffer[1];
     }
 
     return temperature;
