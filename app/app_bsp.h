@@ -68,7 +68,13 @@
 #define USER_SET                            1U
 #define USER_RESET                          0U
 
+#define NEXT_BYTE                           8U
+
 #define CLEAR_BUFFER(buffer)     memset(buffer,0,sizeof(buffer))
+
+#define COMPLEMENT_2s_To_UINT8(value) (0xFF & (256 - value))   
+#define UINT8_To_COMPLEMENT_2s(value) (0xFF & ((~value) + 1))  
+
 
 typedef struct _serial_MsgTypedef
 {

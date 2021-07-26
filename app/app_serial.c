@@ -151,7 +151,7 @@ HAL_StatusTypeDef checkDataAlarm(uint8_t hour, uint8_t minutes);
  * 
  * @return HAL_StatusTypeDef, HAL_OK If all parameters are correct
 */
-HAL_StatusTypeDef checkDataTemp(int8_t lower, uint8_t uper);
+HAL_StatusTypeDef checkDataTemp(int8_t lower, int8_t upper);
 
 /**
  * @brief Verifying related parameters of BLINK TIME
@@ -389,7 +389,7 @@ void serialAlarm(void)
 void serialTemp(void)
 {
     int8_t              lowerTemp               = 0;
-    uint8_t             uperTemp                = 0;
+    int8_t              uperTemp                = 0;
     Serial_MsgTypeDef   SerialTranferData       = {NONE,0,0,0};
     char *parametro         = NULL;
     serialState = SERIAL_ERROR;
@@ -547,10 +547,10 @@ HAL_StatusTypeDef checkDataAlarm(uint8_t hour, uint8_t minutes)
     }
     return flag;
 }
-HAL_StatusTypeDef checkDataTemp(int8_t lower, uint8_t uper)
+HAL_StatusTypeDef checkDataTemp(int8_t lower, int8_t upper)
 {
     HAL_StatusTypeDef flag = HAL_ERROR;
-    if (lower < uper)
+    if (lower < upper)
     {
         flag = HAL_OK;
     }

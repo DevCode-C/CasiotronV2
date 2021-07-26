@@ -109,6 +109,7 @@ void MOD_TEMP_MspInit( TEMP_HandleTypeDef *htemp )
 
     htemp->AlertPort = GPIO_PORT_ALERT;
     htemp->AlertPin = GPIO_PIN_ALERT;
+    HAL_NVIC_SetPriority(EXTI2_3_IRQn,NVIC_PRIORITY_HIGH,0);
 }
 
 void MOD_LCD_MspInit( LCD_HandleTypeDef *hlcd )

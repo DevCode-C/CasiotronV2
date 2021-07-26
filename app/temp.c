@@ -1,6 +1,6 @@
 #include "temp.h"
 
-#define LOW_PART_SELECT     0x0FU
+#define LOW_PART_SELECT     0x1FU
 #define HIGH_PART_SELECT    0xF0U
 
 #define SET_CLEAN           0x00U
@@ -8,7 +8,7 @@
 #define TIMEOUT_I2C_USER    0x64U
 #define TEMP_CONVERTION_DIV 0x10U
 #define ENABLE_ALARM_TEMP   0x08U
-#define DISABLE_ALARM_TEMP  0x00U
+#define DISABLE_ALARM_TEMP  0x00U 
 
 #define SET_TEMPERATURE_H(Temperature, Shitf)       (LOW_PART_SELECT & (Temperature >> Shitf))
 #define SET_TEMPERATURE_L(Temperature, Shitf)       (HIGH_PART_SELECT & (Temperature << Shitf))
@@ -46,8 +46,7 @@ uint16_t MOD_TEMP_Read( TEMP_HandleTypeDef *htemp )
 
     if (buffer[0] != 0 || buffer[1] != 0)
     {
-        // temperature = (( LOW_PART_SELECT & buffer[0]) * TEMP_CONVERTION_DIV) + (buffer[1] / TEMP_CONVERTION_DIV);
-        temperature = (buffer[0]<<8) | buffer[1];
+        temperature = (buffer[0]<<NEXT_BYTE) | buffer[1];
     }
 
     return temperature;
@@ -57,7 +56,6 @@ void MOD_TEMP_SetAlarms( TEMP_HandleTypeDef *htemp, uint16_t lower, uint16_t upp
 {
     uint8_t buffer[3] = {0};
     
-
     buffer[0] = ALERT_TEMP_UPPER_B_TRIP_REGISTER;
     buffer[1] = SET_TEMPERATURE_H(upper,SHIFT_LEFT_NUMBER);
     buffer[2] = SET_TEMPERATURE_L(upper,SHIFT_LEFT_NUMBER);

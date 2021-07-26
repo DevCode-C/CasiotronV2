@@ -103,7 +103,7 @@ void setAlarm(uint8_t hour, uint8_t minutes);
  * 
  * @return NONE (VOID)
 */
-void setTemp(int8_t lower, uint8_t upper);
+void setTemp(uint8_t lower, uint8_t upper);
 
 
 /**
@@ -336,11 +336,9 @@ void setAlarm(uint8_t hour, uint8_t minutes)
     HAL_RTC_SetAlarm_IT(&RTC_InitStructure,&RTC_AlarmConfig,RTC_FORMAT_BIN);
 }
 
-void setTemp(int8_t lower, uint8_t upper)
+void setTemp(uint8_t lower, uint8_t upper)
 {
-    MOD_TEMP_SetAlarms(&temp_Handle,lower,upper);
-    
-    HAL_NVIC_SetPriority(EXTI2_3_IRQn,NVIC_PRIORITY_HIGH,0);
+    MOD_TEMP_SetAlarms(&temp_Handle,CONVERTION_TEMP_REG(lower),CONVERTION_TEMP_REG(upper));
     HAL_NVIC_EnableIRQ(EXTI2_3_IRQn);
     Alarm_TEMP = SET;
 }
@@ -403,13 +401,14 @@ void showAlarmUp(void)
     RTC_DateTypeDef     gDate       = {0};
     uint8_t           buffer[17]    = {0};
 
-    if (AlarmRTC == SET)
+    if ((AlarmRTC == SET) && (Alarm_Active == SET))
     {
+        Alarm_Active = RESET;
         AlarmRTC = RESET;
         setAlarm(0,0);
         HAL_RTC_DeactivateAlarm(&RTC_InitStructure,RTC_ALARM_A);
     }
-    if (Alarm_TEMP_Active == SET)
+    if ((Alarm_TEMP_Active == SET) && (Alarm_TEMP == SET)) 
     {
         Alarm_TEMP_Active = RESET;
         Alarm_TEMP = RESET;
@@ -656,7 +655,7 @@ void sprint_TimeAlarm(char* buffer,RTC_TimeTypeDef TimeData, uint8_t stars)
 {
     char bufferTemp[17] = {0};
     char buffernum[3] = {0};
-    uint16_t            temperature = 0;
+    uint16_t temperature = 0;
 
     temperature = MOD_TEMP_Read(&temp_Handle);
 
@@ -697,7 +696,7 @@ void sprint_TimeAlarm(char* buffer,RTC_TimeTypeDef TimeData, uint8_t stars)
     //Temperatura
     strcat(bufferTemp," ");
     strcat(bufferTemp, "00");
-    DecToStr((uint8_t*)buffernum,temperature);
+    DecToStr((uint8_t*)buffernum,TEMP_CONVERTION_DEC(temperature));
     if (strlen(buffernum) == 1)
     {
         strcpy(&bufferTemp[11],buffernum);
@@ -762,18 +761,28 @@ void sprint_Time(char* buffer,RTC_TimeTypeDef TimeData)
     }
     strcat(bufferTemp," ");
     CLEAR_BUFFER(buffernum);
-    DecToStr((uint8_t*)buffernum,TEMP_CONVERTION_DEC(temperature));
-    strcat(bufferTemp, "00");
-    if (strlen(buffernum) == 1)
+    strcat(bufferTemp, " 00");
+    if (TEMP_GREATHER_OR_LESS_THAN_0(temperature) == TEMP_LESS_THAN_0)
     {
-        strcpy(&bufferTemp[10],buffernum);
+        strcpy(&bufferTemp[9],"-");
+        DecToStr((uint8_t*)buffernum, (256-(TEMP_CONVERTION_DEC(temperature))));
     }
     else
     {
-        strcpy(&bufferTemp[9],buffernum);
+        DecToStr((uint8_t*)buffernum,TEMP_CONVERTION_DEC(temperature));
+    }
+    
+    
+    if (strlen(buffernum) == 1)
+    {
+        strcpy(&bufferTemp[11],buffernum);
+    }
+    else
+    {
+        strcpy(&bufferTemp[10],buffernum);
     }
     strcat(bufferTemp, "C");
-    strcat(bufferTemp, "    ");
+    strcat(bufferTemp, "   ");
     strcpy(buffer,bufferTemp);
 }
 
@@ -786,9 +795,9 @@ void sprint_Alarm(char* buffer, RTC_AlarmTypeDef AlarmData)
     uint8_t             upperTemp  = 0;
 
     MOD_TEMP_ReadRegister(&temp_Handle,tempBuffer,ALERT_TEMP_LOWER_B_TRIP_REGISTER);
-    lowerTemp = (tempBuffer[0] << 4) | (tempBuffer[1]>>4);
+    lowerTemp = READ_REGISTERS_AND_CONVERTION_TEMP_LIMITS(tempBuffer[0],tempBuffer[1]);
     MOD_TEMP_ReadRegister(&temp_Handle,tempBuffer,ALERT_TEMP_UPPER_B_TRIP_REGISTER);
-    upperTemp = (tempBuffer[0] << 4) | (tempBuffer[1]>>4);
+    upperTemp = READ_REGISTERS_AND_CONVERTION_TEMP_LIMITS(tempBuffer[0],tempBuffer[1]);
 
     strcat(bufferTemp,"TA ");
     strcat(bufferTemp, "00");

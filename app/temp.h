@@ -30,6 +30,29 @@
 #define TEMP_GREATHER_THAN_0      0U
 #define TEMP_LESS_THAN_0          1U
 
+#define BIT_SIGN_LESS            0X01000U
+#define BIT_SIGN_GREATHER        0X00000U
+
+/**
+ * @brief Performs the fit of two TEMP_LIMITS registers
+ * 
+ * @param REGISTER1, Upper register, (Bits 8 - 15)
+ * 
+ * @param REGISTER2, Lower register (Bits 0 - 7)
+ * 
+ * @return uint8_t, Value of Registers in just one variable
+*/
+#define READ_REGISTERS_AND_CONVERTION_TEMP_LIMITS(REGISTER1,REGISTER2)  ((REGISTER1 << 4)|(REGISTER2 >> 4))
+
+/**
+ * @brief Performs the conditional selection of limits od temperature, if less o greather than zero
+ * 
+ * @param uint16_t Temp_value_limit, 
+ * 
+ * @return The value of Temperature limit value with BIT_SIGN "LESS or GREATHER"
+*/
+#define CONVERTION_TEMP_REG(Temp_value_limit)   (Temp_value_limit > 200 ? (BIT_SIGN_LESS|Temp_value_limit) : (BIT_SIGN_GREATHER|Temp_value_limit))
+
 /**
  * @brief Performs the conversion of the register value to decimal temperature
  * 
@@ -118,8 +141,8 @@ uint16_t MOD_TEMP_Read( TEMP_HandleTypeDef *htemp );
  *        sensor supere o baje de esos valores el pin de alarma deberá activarse 
  * 
  * @param TEMP_HandleTypeDef, *htemp Pointer struct 
- * @param uint16_t lower,    Temperature limit
- * @param uint16_t upper,    Temperature limit 
+ * @param uint16_t lower,    Temperature limit in degrees centigrade (decimal)
+ * @param uint16_t upper,    Temperature limit in degrees centigrade (decimal)
  * 
  * @return None (void)
 */
