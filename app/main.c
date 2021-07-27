@@ -98,25 +98,7 @@ int main( void )
     {
         if (TimerFlag == SET)
         {
-            TimerFlag = RESET;
-            // if (TASK_TIME_COMP(counter,TASK_10MS) == USER_RESET)
-            // {
-            //     serial_Task();
-            // }
-            // if (TASK_TIME_COMP(counter,TASK_30MS) == USER_RESET)
-            // {
-            //     peth_the_dog();
-            // }
-            // if (TASK_TIME_COMP(counter,TASK_50MS) == USER_RESET)
-            // {
-            //     heart_beat();
-            //     clock_task();
-            // }
-            // if (TASK_TIME_COMP(counter,TASK_200MS) == USER_RESET)
-            // {
-            //     clock_task();
-            // }
-            
+            TimerFlag = RESET;      
             switch (counter)
             {
             case 1:

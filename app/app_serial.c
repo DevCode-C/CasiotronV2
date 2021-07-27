@@ -17,7 +17,7 @@
 
 #define BUFFER_COMMAD_SIZE          30U
 #define BUFFER_SERIAL_INPUT_SIZE    232U
-#define BUFFER_TRANSFERT_SIZE       40U 
+#define BUFFER_TRANSFERT_SIZE       80U 
 #define BUFFER_BLINK_SIZE           40U
 
 
@@ -570,6 +570,7 @@ HAL_StatusTypeDef checkDataBlinkTime(uint16_t time)
 
 void disable_Interrupt(void)
 {
+    HAL_SuspendTick();
     HAL_NVIC_DisableIRQ(RTC_IRQn);
     HAL_NVIC_DisableIRQ(TIM3_IRQn);
     HAL_NVIC_DisableIRQ(EXTI2_3_IRQn);
@@ -578,6 +579,7 @@ void disable_Interrupt(void)
 
 void enable_Interrupt(void)
 {
+    HAL_ResumeTick();
     HAL_NVIC_EnableIRQ(RTC_IRQn);
     HAL_NVIC_EnableIRQ(TIM3_IRQn);
     HAL_NVIC_EnableIRQ(EXTI2_3_IRQn);

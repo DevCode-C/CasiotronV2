@@ -10,6 +10,7 @@
 #define CLOCK_ALARM_UP      4U
 
 #define TIME_TICK_TRANSITION     20U
+#define I2C_TEMP_SENSOR_TIMMING  0x10815E89
 
 /**
  * @brief Verify the flags state and select the corresponding state 
@@ -240,10 +241,10 @@ static uint16_t yearConversion  = 2000;
 static uint32_t tickTime        = 0;
 static Serial_MsgTypeDef    SerialSet_Data;
 
-__IO ITStatus AlarmRTC               = RESET;
+__IO ITStatus AlarmRTC               = RESET; // Flag interrupt RTC
 __IO ITStatus Alarm_Active           = RESET;
 __IO ITStatus Alarm_TEMP             = RESET;
-__IO ITStatus Alarm_TEMP_Active      = RESET;
+__IO ITStatus Alarm_TEMP_Active      = RESET; // Flag interrupt TEMP
 __IO static uint8_t clockState       = CLOCK_IDLE;
 
 /*
@@ -531,7 +532,7 @@ void lcd_init(void)
 void i2c_init(void)
 {
     i2c_Handle.Instance = I2C1;
-    i2c_Handle.Init.Timing = 0x10815E89;
+    i2c_Handle.Init.Timing = I2C_TEMP_SENSOR_TIMMING;
     i2c_Handle.Init.AddressingMode = I2C_ADDRESSINGMODE_7BIT;
     i2c_Handle.Init.DualAddressMode = I2C_DUALADDRESS_DISABLE;
     i2c_Handle.Init.OwnAddress2 = 0;
@@ -855,7 +856,7 @@ void sprint_Alarm(char* buffer, RTC_AlarmTypeDef AlarmData)
 
 void HAL_RTC_AlarmAEventCallback(RTC_HandleTypeDef *hrtc)
 {
-    AlarmRTC = SET;
+    AlarmRTC = SET; 
 }
 
 void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)

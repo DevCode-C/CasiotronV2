@@ -94,11 +94,6 @@
  *              0°C Hysteresis
  *          }
  * 
- * @ref     RESOLUTION REGISTER
- *          Default Register Data -> 0x03;
- *          {
- *              Resolution bits 
- *          }
 */
 
 typedef struct
@@ -106,7 +101,6 @@ typedef struct
     I2C_HandleTypeDef  	*I2cHandler;
     GPIO_TypeDef		*AlertPort;
     uint32_t			 AlertPin;
-    //agregar más elementos si se requieren
 }TEMP_HandleTypeDef;
 
 /**
@@ -119,11 +113,12 @@ typedef struct
 */
 void MOD_TEMP_Init( TEMP_HandleTypeDef *htemp );
 
-/*
-Función de extra inicialización para agregar código exclusivo dentro de la aplicación. Esta
-función se debe mandar llamar dentro de la función MOD_TEMP_Init y deberá definirse 
-como weak para que se pueda redefinir dentro de la aplicación, esta función es un buen 
-lugar para inicializar el pin que leerá la señal de alarma.
+/**
+ * @brief Extra function for add extra code only related with the application
+ * 
+ * @param TEMP_HandleTypeDef *htemp, *htemp Pointer struct 
+ * 
+ * @return NONE (void)
 */
 void MOD_TEMP_MspInit( TEMP_HandleTypeDef *htemp );
 
@@ -149,7 +144,7 @@ uint16_t MOD_TEMP_Read( TEMP_HandleTypeDef *htemp );
 void MOD_TEMP_SetAlarms( TEMP_HandleTypeDef *htemp, uint16_t lower, uint16_t upper  );
 
 /**
- * @brief Deshabilita la ventana de alarma establecida.
+ * @brief Disable the window alarm of temperature
  * 
  * @param TEMP_HandleTypeDef, *htemp Pointer struct 
  * 
@@ -158,7 +153,7 @@ void MOD_TEMP_SetAlarms( TEMP_HandleTypeDef *htemp, uint16_t lower, uint16_t upp
 void MOD_TEMP_DisableAlarm ( TEMP_HandleTypeDef *htemp );
 
 /**
- * @brief Lectura de registros.
+ * @brief Read the registers
  * 
  * @param TEMP_HandleTypeDef, *htemp Pointer struct 
  * @param uint8_t, *buffer Array de minimo dos elementos (array[2])  

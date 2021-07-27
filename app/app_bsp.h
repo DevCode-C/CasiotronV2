@@ -41,7 +41,7 @@
 #define SPI_PINES       GPIO_PIN_3 | GPIO_PIN_5  //SPI Pines
 #define SPI_PORT        GPIOB
 
-#define I2C_PINES       GPIO_PIN_6 | GPIO_PIN_7
+#define I2C_PINES       GPIO_PIN_6 | GPIO_PIN_7 //I2C Pines
 #define I2C_PORT        GPIOB
 
 //PIN ALERT

@@ -4,7 +4,7 @@
 #define HIGH_PART_SELECT    0xF0U
 
 #define SET_CLEAN           0x00U
-#define SHIFT_LEFT_NUMBER   0x04U
+#define SHIFT_NUMBER        0x04U
 #define TIMEOUT_I2C_USER    0x64U
 #define TEMP_CONVERTION_DIV 0x10U
 #define ENABLE_ALARM_TEMP   0x08U
@@ -57,19 +57,19 @@ void MOD_TEMP_SetAlarms( TEMP_HandleTypeDef *htemp, uint16_t lower, uint16_t upp
     uint8_t buffer[3] = {0};
     
     buffer[0] = ALERT_TEMP_UPPER_B_TRIP_REGISTER;
-    buffer[1] = SET_TEMPERATURE_H(upper,SHIFT_LEFT_NUMBER);
-    buffer[2] = SET_TEMPERATURE_L(upper,SHIFT_LEFT_NUMBER);
+    buffer[1] = SET_TEMPERATURE_H(upper,SHIFT_NUMBER);
+    buffer[2] = SET_TEMPERATURE_L(upper,SHIFT_NUMBER);
     HAL_I2C_Master_Transmit(htemp->I2cHandler,MCP9808_ADDRES_W,buffer,3U,TIMEOUT_I2C_USER);
 
     buffer[0] = ALERT_TEMP_LOWER_B_TRIP_REGISTER;
-    buffer[1] = SET_TEMPERATURE_H(lower,SHIFT_LEFT_NUMBER);
-    buffer[2] = SET_TEMPERATURE_L(lower,SHIFT_LEFT_NUMBER);
+    buffer[1] = SET_TEMPERATURE_H(lower,SHIFT_NUMBER);
+    buffer[2] = SET_TEMPERATURE_L(lower,SHIFT_NUMBER);
     HAL_I2C_Master_Transmit(htemp->I2cHandler,MCP9808_ADDRES_W,buffer,3U,TIMEOUT_I2C_USER);
 
     buffer[0] = CRITICAL_TEMP_TRIP_REGISTER;
     upper += 5;
-    buffer[1] = SET_TEMPERATURE_H(upper,SHIFT_LEFT_NUMBER);
-    buffer[2] = SET_TEMPERATURE_L(upper,SHIFT_LEFT_NUMBER);
+    buffer[1] = SET_TEMPERATURE_H(upper,SHIFT_NUMBER);
+    buffer[2] = SET_TEMPERATURE_L(upper,SHIFT_NUMBER);
     HAL_I2C_Master_Transmit(htemp->I2cHandler,MCP9808_ADDRES_W,buffer,3U,TIMEOUT_I2C_USER);
 
     buffer[0] = CONFIGURATION_REGISTER;
@@ -88,13 +88,13 @@ void MOD_TEMP_DisableAlarm ( TEMP_HandleTypeDef *htemp )
     HAL_I2C_Master_Transmit(htemp->I2cHandler,MCP9808_ADDRES_W,buffer,3U,TIMEOUT_I2C_USER);
 
     buffer[0] = ALERT_TEMP_UPPER_B_TRIP_REGISTER;
-    buffer[1] = SET_TEMPERATURE_H(SET_CLEAN,SHIFT_LEFT_NUMBER);
-    buffer[2] = SET_TEMPERATURE_L(SET_CLEAN,SHIFT_LEFT_NUMBER);
+    buffer[1] = SET_TEMPERATURE_H(SET_CLEAN,SHIFT_NUMBER);
+    buffer[2] = SET_TEMPERATURE_L(SET_CLEAN,SHIFT_NUMBER);
     HAL_I2C_Master_Transmit(htemp->I2cHandler,MCP9808_ADDRES_W,buffer,3U,TIMEOUT_I2C_USER);
 
     buffer[0] = ALERT_TEMP_LOWER_B_TRIP_REGISTER;
-    buffer[1] = SET_TEMPERATURE_H(SET_CLEAN,SHIFT_LEFT_NUMBER);
-    buffer[2] = SET_TEMPERATURE_L(SET_CLEAN,SHIFT_LEFT_NUMBER);
+    buffer[1] = SET_TEMPERATURE_H(SET_CLEAN,SHIFT_NUMBER);
+    buffer[2] = SET_TEMPERATURE_L(SET_CLEAN,SHIFT_NUMBER);
     HAL_I2C_Master_Transmit(htemp->I2cHandler,MCP9808_ADDRES_W,buffer,3U,TIMEOUT_I2C_USER);
 
 }
