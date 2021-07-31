@@ -183,6 +183,7 @@ void dog_init(void)
 void peth_the_dog(void)
 {   
     HAL_WWDG_Refresh(&WWDG_HandleInit);
+    //comment
 }
 
 void timer_Init(void)
