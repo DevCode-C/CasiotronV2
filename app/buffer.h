@@ -1,5 +1,5 @@
-#ifndef __BUFFER__H
-#define __BUFFER__H
+#ifndef BUFFER__H
+#define BUFFER__H
 #include "app_bsp.h"
 
 #define INVALID_CHARACTER '~'

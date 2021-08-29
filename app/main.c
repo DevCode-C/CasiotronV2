@@ -18,7 +18,7 @@ Brief.- Punto de entrada del programa
 #define TASK_200MS          20U
 #define MCM                 15U
 
-#define TASK_TIME_COMP(counter,baseTime)                (counter % baseTime) 
+#define TASK_TIME_COMP(counter,baseTime)                ((counter) % (baseTime)) 
 
 /**
  * @brief Incremente var_Counter in one, and check the module of var_Condition, if the module is equal to 0
@@ -30,8 +30,7 @@ Brief.- Punto de entrada del programa
  * 
  * @return NONE
 */
-#define TIMER_COUNTER_UP(var_Counter,var_Condition)     var_Counter++,\
-    var_Counter = var_Counter % (var_Condition+1) == 0 ? 1 : var_Counter
+// #define TIMER_COUNTER_UP(var_Counter,var_Condition)     (var_Counter) = (var_Counter) % ((var_Condition)+1UL) == 0U ? 1U : (var_Counter)
                                                         
                                                         
 /**
@@ -188,7 +187,7 @@ void peth_the_dog(void)
 void timer_Init(void)
 {
     uint32_t prescalerValue = 0;
-    prescalerValue = (uint32_t)(SystemCoreClock/TIM3_COUNTER_CLK) - 1; //Prescaler = (TIMx_ClOCK/CNT_CLK) - 1;
+    prescalerValue = (uint32_t)(SystemCoreClock/TIM3_COUNTER_CLK) - 1UL; //Prescaler = (TIMx_ClOCK/CNT_CLK) - 1;
 
     TimHandle.Instance = TIM3;
     TimHandle.Init.Period = TIM3_PERIOD; 
@@ -203,8 +202,21 @@ void timer_Init(void)
     
 }
 
-void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
+void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) 
 {
+    (void) htim;
+
     TimerFlag = SET;
-    TIMER_COUNTER_UP(counter,MCM);
+    counter++;
+    // TIMER_COUNTER_UP(counter,MCM);
+
+    if (counter % (MCM+1UL) == 0UL)
+    {
+        counter = 1UL;
+    }
+    else
+    {
+        /* code */
+    }
+
 }

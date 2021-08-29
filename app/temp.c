@@ -10,8 +10,8 @@
 #define ENABLE_ALARM_TEMP   0x08U
 #define DISABLE_ALARM_TEMP  0x00U 
 
-#define SET_TEMPERATURE_H(Temperature, Shitf)       (LOW_PART_SELECT & (Temperature >> Shitf))
-#define SET_TEMPERATURE_L(Temperature, Shitf)       (HIGH_PART_SELECT & (Temperature << Shitf))
+#define SET_TEMPERATURE_H(Temperature, Shitf)       (LOW_PART_SELECT & ((Temperature) >> (Shitf)))
+#define SET_TEMPERATURE_L(Temperature, Shitf)       (HIGH_PART_SELECT & ((Temperature) << (Shitf)))
 
 void MOD_TEMP_Init( TEMP_HandleTypeDef *htemp )
 {
@@ -28,7 +28,7 @@ void MOD_TEMP_Init( TEMP_HandleTypeDef *htemp )
     HAL_I2C_Master_Transmit(htemp->I2cHandler,MCP9808_ADDRES_W,buffer,3U,TIMEOUT_I2C_USER);
 }
 
-__weak void MOD_TEMP_MspInit( TEMP_HandleTypeDef *htemp )
+__weak void MOD_TEMP_MspInit( TEMP_HandleTypeDef *htemp ) /* cppcheck-suppress misra-c2012-2.7 */
 {
 
 }
@@ -44,7 +44,7 @@ uint16_t MOD_TEMP_Read( TEMP_HandleTypeDef *htemp )
 
     HAL_I2C_Master_Receive(htemp->I2cHandler,MCP9808_ADDRES_R,buffer,2,TIMEOUT_I2C_USER);
 
-    if (buffer[0] != 0 || buffer[1] != 0)
+    if ((buffer[0] != 0) || (buffer[1] != 0)) /* cppcheck-suppress misra-c2012-10.4 */
     {
         temperature = (buffer[0]<<NEXT_BYTE) | buffer[1];
     }
@@ -67,9 +67,9 @@ void MOD_TEMP_SetAlarms( TEMP_HandleTypeDef *htemp, uint16_t lower, uint16_t upp
     HAL_I2C_Master_Transmit(htemp->I2cHandler,MCP9808_ADDRES_W,buffer,3U,TIMEOUT_I2C_USER);
 
     buffer[0] = CRITICAL_TEMP_TRIP_REGISTER;
-    upper += 5;
-    buffer[1] = SET_TEMPERATURE_H(upper,SHIFT_NUMBER);
-    buffer[2] = SET_TEMPERATURE_L(upper,SHIFT_NUMBER);
+    uint16_t upper_Critical = upper + 5U;
+    buffer[1] = SET_TEMPERATURE_H(upper_Critical,SHIFT_NUMBER);
+    buffer[2] = SET_TEMPERATURE_L(upper_Critical,SHIFT_NUMBER);
     HAL_I2C_Master_Transmit(htemp->I2cHandler,MCP9808_ADDRES_W,buffer,3U,TIMEOUT_I2C_USER);
 
     buffer[0] = CONFIGURATION_REGISTER;

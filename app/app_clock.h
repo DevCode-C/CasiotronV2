@@ -1,5 +1,5 @@
-#ifndef __APP_CLOCK__H
-#define __APP_CLOCK__H
+#ifndef APP_CLOCK__H
+#define APP_CLOCK__H
 #include "app_bsp.h"
 #include "lcd.h"
 #include "queue.h"

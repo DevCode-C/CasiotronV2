@@ -57,6 +57,10 @@ build :
 
 -include $(DEPS)
 
+
+misra_test:
+	@cppcheck --addon=misra.json --inline-suppr --std=c99 --template=gcc --force app/ -Iapp/
+
 #borrar archivos generados
 clean :
 	@rm -rf Build

@@ -1,5 +1,5 @@
-#ifndef __TEMP__H
-#define __TEMP__H
+#ifndef TEMP__H
+#define TEMP__H
 #include "app_bsp.h"
 
 #define DEFAULT_ADDRES                      0x07U   //Default addres without left shitf
@@ -42,7 +42,7 @@
  * 
  * @return uint8_t, Value of Registers in just one variable
 */
-#define READ_REGISTERS_AND_CONVERTION_TEMP_LIMITS(REGISTER1,REGISTER2)  ((REGISTER1 << 4)|(REGISTER2 >> 4))
+#define READ_REGISTERS_AND_CONVERTION_TEMP_LIMITS(REGISTER1,REGISTER2)  (((REGISTER1) << 4U)|((REGISTER2) >> 4U))
 
 /**
  * @brief Performs the conditional selection of limits od temperature, if less o greather than zero
@@ -51,7 +51,7 @@
  * 
  * @return The value of Temperature limit value with BIT_SIGN "LESS or GREATHER"
 */
-#define CONVERTION_TEMP_REG(Temp_value_limit)   (Temp_value_limit > 200 ? (BIT_SIGN_LESS|Temp_value_limit) : (BIT_SIGN_GREATHER|Temp_value_limit))
+#define CONVERTION_TEMP_REG(Temp_value_limit)   (( (Temp_value_limit) > 200U ) ? (BIT_SIGN_LESS|(Temp_value_limit)) :  (BIT_SIGN_GREATHER|(Temp_value_limit)) )
 
 /**
  * @brief Performs the conversion of the register value to decimal temperature
@@ -60,7 +60,7 @@
  * 
  * @return Temperature in degrees centigrade (decimal)
 */
-#define TEMP_CONVERTION_DEC(temperature)    (((0x0FU &(temperature>>8))*16)+((0x00FFU & temperature)/16))
+#define TEMP_CONVERTION_DEC(temperature)    (((0x0FU &((temperature)>>8U))*16U)+((0x00FFU & (temperature))/16U))
 
 /**
  * @brief Check the flag temperature, this flag say if the temperature is " >= 0" or " 0 <="  
@@ -69,7 +69,7 @@
  * 
  * @return '1' if less than or equal to zero, '0' if greater than or equal to zero
 */
-#define TEMP_GREATHER_OR_LESS_THAN_0(temperature_R)         ((0x01U&(temperature>>12U)) == 0 ? 0: 1)
+#define TEMP_GREATHER_OR_LESS_THAN_0(temperature_R)         ((0x01U&((temperature)>>12U)) == 0U ? 0U: 1U)
 
 /**
  * @defgroup   POWER-ON RESET DEFAULTS

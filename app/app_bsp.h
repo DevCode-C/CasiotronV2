@@ -1,9 +1,9 @@
-#ifndef _BSP_H_
-#define _BSP_H_
+#ifndef BSP_H_
+#define BSP_H_
 #include "stm32f0xx.h"
 #include "stm32f0xx_hal_conf.h"
 #include <stdint.h>
-#include <stdio.h>
+#include "stdio.h"
 #include <stdlib.h>
 #include "stm32f070xb.h"
 #include "string.h"
@@ -70,10 +70,10 @@
 
 #define NEXT_BYTE                           8U
 
-#define CLEAR_BUFFER(buffer)     memset(buffer,0,sizeof(buffer))
+#define CLEAR_BUFFER(buffer)     memset((buffer),0,sizeof((buffer)))
 
-#define COMPLEMENT_2s_To_UINT8(value) (0xFF & (256 - value))   
-#define UINT8_To_COMPLEMENT_2s(value) (0xFF & ((~value) + 1))  
+#define COMPLEMENT_2s_To_UINT8(value) (0xFFU & (256U - (value)))   
+#define UINT8_To_COMPLEMENT_2s(value) (0xFFU & ((~(value)) + 1U))  
 
 
 typedef struct _serial_MsgTypedef

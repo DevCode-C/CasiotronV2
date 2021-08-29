@@ -13,7 +13,7 @@
 #define SERIAL_TEMP     8U
 
 #define BAUDRATE_SPEED              115200U
-#define CORRECT_COMMAND_COMP        0U
+#define CORRECT_COMMAND_COMP        0UL
 
 #define BUFFER_COMMAD_SIZE          30U
 #define BUFFER_SERIAL_INPUT_SIZE    232U
@@ -180,11 +180,13 @@ void disable_Interrupt(void);
 */
 void enable_Interrupt(void);
 
+uint32_t charToDigit(uint8_t* charDigit);
+
 typedef void (*serialSelection)(void);
 
 const char* msgOK           = {"OK\r\n"};
 const char* msgError        = {"ERROR\r\n"};
-const char *comando_AT[]    = {"AT+TIME" , "AT+DATE" , "AT+ALARM" , "AT+HEARTBEAT", "AT+TEMP"};
+const char* comando_AT[]    = {"AT+TIME" , "AT+DATE" , "AT+ALARM" , "AT+HEARTBEAT", "AT+TEMP"};
 
 UART_HandleTypeDef UartHandle           = {0};
 
@@ -252,9 +254,9 @@ void serialdle(void)
     while (HIL_QUEUE_IsEmpty(&QueueSerialRx) == ELEMENTS_IN_BUFFER)
     {
         disable_Interrupt();
-        HIL_QUEUE_Read(&QueueSerialRx,&data);
+        (void) HIL_QUEUE_Read(&QueueSerialRx,&data);
         enable_Interrupt();
-        if (data == '\r')
+        if (data == (uint8_t)'\r')
         {
             serialState = SERIAL_AT;
             break;
@@ -275,23 +277,23 @@ void serialdle(void)
 void serialAT_Sel(void)
 {
     char* InpuyComand = strtok((char*)BufferTemp, "=" );
-    if (strcmp(InpuyComand,comando_AT[0]) == CORRECT_COMMAND_COMP)
+    if (strcmp(InpuyComand,comando_AT[0]) == (int)CORRECT_COMMAND_COMP)
     {
         serialState = SERIAL_TIME;
     }
-    else if (strcmp(InpuyComand,comando_AT[1]) == CORRECT_COMMAND_COMP)
+    else if (strcmp(InpuyComand,comando_AT[1]) == (int)CORRECT_COMMAND_COMP)
     {
         serialState = SERIAL_DATE;
     }
-    else if (strcmp(InpuyComand,comando_AT[2]) == CORRECT_COMMAND_COMP)
+    else if (strcmp(InpuyComand,comando_AT[2]) == (int)CORRECT_COMMAND_COMP)
     {
         serialState = SERIAL_ALARM;
     }
-    else if (strcmp(InpuyComand,comando_AT[3]) == CORRECT_COMMAND_COMP)
+    else if (strcmp(InpuyComand,comando_AT[3]) == (int)CORRECT_COMMAND_COMP)
     {
         serialState = SERIAL_HEART;
     }
-    else if (strcmp(InpuyComand,comando_AT[4]) == CORRECT_COMMAND_COMP)
+    else if (strcmp(InpuyComand,comando_AT[4]) == (int)CORRECT_COMMAND_COMP)
     {
         serialState = SERIAL_TEMP;
     }
@@ -433,22 +435,45 @@ void serialHeart(void)
 
 void serialOK(void)
 {
-    memset(BufferTemp,0,sizeof(BufferTemp));
+    (void) memset(BufferTemp,0,sizeof(BufferTemp));
+    uint8_t * msgOkTemp = msgOK;
     if (uartState == SET)
     {
-        HAL_UART_Transmit_IT(&UartHandle,(uint8_t*)msgOK,strlen(msgOK));   
+        HAL_UART_Transmit_IT(&UartHandle,msgOkTemp,strlen(msgOK));   
     }
     serialState = SERIAL_IDLE;
 }
 
 void serialERROR(void)
 {
-    memset(BufferTemp,0,sizeof(BufferTemp));
+    (void) memset(BufferTemp,0,sizeof(BufferTemp));
+    uint8_t * msgErrorTemp = msgError;
     if (uartState == SET)
     {
-        HAL_UART_Transmit_IT(&UartHandle,(uint8_t*)msgError,strlen(msgError));
+        HAL_UART_Transmit_IT(&UartHandle,msgErrorTemp,strlen(msgError));
     }
     serialState = SERIAL_IDLE;
+}
+
+uint32_t charToDigit(uint8_t* charDigit)
+{
+    uint32_t temp = 0;
+    uint8_t i = 0;
+
+    if (charDigit[0] == ((uint8_t)'-'))
+    {
+        i++;
+    }
+    while (charDigit[i] != ((uint8_t)'\0'))
+    {
+        temp = (temp * 10UL) + (charDigit[i] - ((uint8_t)'0'));
+        i++;
+    }
+    if (charDigit[0] == ((uint8_t)'-'))
+    {
+        temp = temp * (-1UL);
+    }
+    return temp;
 }
 
 int32_t validate_StrToInt(char * buffer)
@@ -463,14 +488,14 @@ int32_t validate_StrToInt(char * buffer)
             sizeStr++;
         }
         
-        while (isdigit((int8_t)buffer[sizeStr]))
+        while (isdigit((int8_t)buffer[sizeStr]) != (int)0U )
         {
             sizeStr++;
         }
 
         if (sizeStr == strlen(buffer))
         {
-            temp = atoi(buffer);
+            temp = charToDigit((uint8_t*)buffer); 
         }
     }
     return temp;
@@ -479,7 +504,7 @@ int32_t validate_StrToInt(char * buffer)
 HAL_StatusTypeDef checkDataTime(uint8_t hour, uint8_t minutes, uint16_t seconds)
 {
     HAL_StatusTypeDef flag = HAL_ERROR;
-    if ((hour < 24) && (minutes < 60) && (seconds < 60))
+    if ((hour < 24U) && (minutes < 60U) && (seconds < 60U))
     {
         flag = HAL_OK;    
     }
@@ -489,7 +514,7 @@ HAL_StatusTypeDef checkDataTime(uint8_t hour, uint8_t minutes, uint16_t seconds)
 HAL_StatusTypeDef checkDataDate(uint8_t day, uint8_t month, uint16_t year)
 {
     HAL_StatusTypeDef flag = HAL_ERROR;
-    if ((day <= 31) && (month <= 12) && (year <= 9999) && (month >= 1) && (day >= 1))
+    if ((day <= 31U) && (month <= 12U) && (year <= 9999U) && (month >= 1U) && (day >= 1U))
     {
         switch (month)
         {
@@ -501,7 +526,7 @@ HAL_StatusTypeDef checkDataDate(uint8_t day, uint8_t month, uint16_t year)
             case 10:
             case 12:
                 flag = HAL_ERROR;
-                if (day <= 31)
+                if (day <= 31U)
                 {
                     flag = HAL_OK;
                 }
@@ -511,24 +536,27 @@ HAL_StatusTypeDef checkDataDate(uint8_t day, uint8_t month, uint16_t year)
             case 9:
             case 11:
                 flag = HAL_ERROR;
-                if (day <= 30)
+                if (day <= 30U)
                 {
                     flag = HAL_OK;
                 }
                 break;
             case 2:
                 flag = HAL_ERROR;
-                if ((year % 4 == 0) && (year % 100 != 0))
+                if (((year % 4U) == 0U) && ((year % 100U) != 0U))
                 {
-                    if (day <= 29)
+                    if (day <= 29U)
                     {
                         flag = HAL_OK;
                     }
                 }
-                if (day<= 28)
+                if (day<= 28U)
                 {
                     flag = HAL_OK;
-                }                
+                }
+                break; 
+            default:
+                break;
         }
         if (flag == HAL_OK)
         {
@@ -541,7 +569,7 @@ HAL_StatusTypeDef checkDataDate(uint8_t day, uint8_t month, uint16_t year)
 HAL_StatusTypeDef checkDataAlarm(uint8_t hour, uint8_t minutes)
 {
     HAL_StatusTypeDef flag = HAL_ERROR;
-    if (hour < 24 && minutes < 60)
+    if ((hour < 24U) && (minutes < 60U))
     {
         flag = HAL_OK;
     }
@@ -560,7 +588,7 @@ HAL_StatusTypeDef checkDataTemp(int8_t lower, int8_t upper)
 HAL_StatusTypeDef checkDataBlinkTime(uint16_t time)
 {
     HAL_StatusTypeDef flag = HAL_ERROR;
-    if ((time >= 50U) && ( time % 50 == 0) && (time <= 1000U) )
+    if ((time >= 50U) && ( (time % 50U) == 0U) && (time <= 1000U) )
     {
         flag = HAL_OK;
     }
@@ -586,18 +614,19 @@ void enable_Interrupt(void)
     HAL_NVIC_EnableIRQ(USART2_IRQn);
 }
 
-void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart)
+void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart) /* cppcheck-suppress misra-c2012-2.7 */
 {
     uartState = SET;
 }
 
-void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
+void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart) /* cppcheck-suppress misra-c2012-2.7 */
 {
-    HIL_QUEUE_Write(&QueueSerialRx,(void*)&RxByte);
-    HAL_UART_Receive_IT(&UartHandle,&RxByte,1);
+    (void) huart;
+    (void) HIL_QUEUE_Write(&QueueSerialRx,(void*)&RxByte);
+    HAL_UART_Receive_IT(&UartHandle,&RxByte,1U);
 }
 
-void HAL_UART_ErrorCallback(UART_HandleTypeDef *huart)
+void HAL_UART_ErrorCallback(UART_HandleTypeDef *huart) /* cppcheck-suppress misra-c2012-2.7 */
 {
     uartError = SET;
     statusRx = RESET;

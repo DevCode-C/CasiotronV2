@@ -17,8 +17,8 @@ uint8_t HIL_QUEUE_Write( QUEUE_HandleTypeDef *hqueue, void *data )
     {
         flag = 1;
         hqueue->Empty = DATA_AVAILABLE;
-        memcpy(hqueue->Buffer + (hqueue->Head * hqueue->Size),data,hqueue->Size);
-        hqueue->Head = (hqueue->Head + 1) % hqueue->Elements;
+        (void) memcpy(hqueue->Buffer + (hqueue->Head * hqueue->Size),data,hqueue->Size); /* cppcheck-suppress misra-c2012-18.4 */
+        hqueue->Head = (hqueue->Head + 1UL) % hqueue->Elements;
 
         if (hqueue->Head == hqueue->Tail)
         {
@@ -35,9 +35,9 @@ uint8_t HIL_QUEUE_Read( QUEUE_HandleTypeDef *hqueue, void *data )
     {
         flag = 1;
         hqueue->Full = NO_FULL;
-        memcpy(data,hqueue->Buffer + (hqueue->Tail * hqueue->Size),hqueue->Size);
+        (void) memcpy(data,hqueue->Buffer + (hqueue->Tail * hqueue->Size),hqueue->Size); /* cppcheck-suppress misra-c2012-18.4 */
 
-        hqueue->Tail = (hqueue->Tail + 1) % hqueue->Elements;
+        hqueue->Tail = (hqueue->Tail + 1UL) % hqueue->Elements;
 
         if (hqueue->Tail == hqueue->Head)
         {

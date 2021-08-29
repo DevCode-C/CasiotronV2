@@ -26,7 +26,7 @@ void HAL_MspInit( void )
 
 }
 
-void HAL_UART_MspInit(UART_HandleTypeDef *huart)
+void HAL_UART_MspInit(UART_HandleTypeDef *huart) /* cppcheck-suppress misra-c2012-2.7 */
 {
     GPIO_InitTypeDef GPIO_InitStructure;
     __HAL_RCC_USART2_CLK_ENABLE();
@@ -58,13 +58,13 @@ void HAL_RTC_MspInit(RTC_HandleTypeDef *hrtc)
     HAL_NVIC_EnableIRQ(RTC_IRQn);
 }
 
-void HAL_WWDG_MspInit(WWDG_HandleTypeDef *hwwdg)
+void HAL_WWDG_MspInit(WWDG_HandleTypeDef *hwwdg) /* cppcheck-suppress misra-c2012-2.7 */
 {
     __HAL_RCC_CLEAR_RESET_FLAGS();
     __HAL_RCC_WWDG_CLK_ENABLE();
 }
 
-void HAL_SPI_MspInit(SPI_HandleTypeDef *hspi)
+void HAL_SPI_MspInit(SPI_HandleTypeDef *hspi) /* cppcheck-suppress misra-c2012-2.7 */
 {
     GPIO_InitTypeDef GPIO_InitStructure;
     __HAL_RCC_GPIOB_CLK_ENABLE();
@@ -78,7 +78,7 @@ void HAL_SPI_MspInit(SPI_HandleTypeDef *hspi)
     HAL_GPIO_Init(SPI_PORT, &GPIO_InitStructure);
 }
 
-void HAL_I2C_MspInit(I2C_HandleTypeDef *hi2c)
+void HAL_I2C_MspInit(I2C_HandleTypeDef *hi2c) /* cppcheck-suppress misra-c2012-2.7 */
 {
 
     __HAL_RCC_I2C1_CONFIG(RCC_I2C1CLKSOURCE_SYSCLK);
@@ -97,7 +97,7 @@ void HAL_I2C_MspInit(I2C_HandleTypeDef *hi2c)
     HAL_GPIO_Init(I2C_PORT, &GPIO_InitStruct);
 }
 
-void MOD_TEMP_MspInit( TEMP_HandleTypeDef *htemp )
+void MOD_TEMP_MspInit( TEMP_HandleTypeDef *htemp ) 
 {
     GPIO_InitTypeDef GPIO_InitStructure;
     __HAL_RCC_GPIOC_CLK_ENABLE();
@@ -112,7 +112,7 @@ void MOD_TEMP_MspInit( TEMP_HandleTypeDef *htemp )
     HAL_NVIC_SetPriority(EXTI2_3_IRQn,NVIC_PRIORITY_HIGH,0);
 }
 
-void MOD_LCD_MspInit( LCD_HandleTypeDef *hlcd )
+void MOD_LCD_MspInit( LCD_HandleTypeDef *hlcd ) /* cppcheck-suppress misra-c2012-2.7 */
 {
     GPIO_InitTypeDef GPIO_InitStructure;
     __HAL_RCC_GPIOC_CLK_ENABLE();
@@ -124,7 +124,7 @@ void MOD_LCD_MspInit( LCD_HandleTypeDef *hlcd )
     HAL_GPIO_WritePin(LCD_PORT,LCD_CS,SET);
 }
 
-void HAL_TIM_Base_MspInit(TIM_HandleTypeDef *htim)
+void HAL_TIM_Base_MspInit(TIM_HandleTypeDef *htim) /* cppcheck-suppress misra-c2012-2.7 */
 {
     __HAL_RCC_TIM3_CLK_ENABLE();
 

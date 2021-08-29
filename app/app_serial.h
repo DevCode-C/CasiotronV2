@@ -1,5 +1,5 @@
-#ifndef __APP_SERIAL__H
-#define __APP_SERIAL__H
+#ifndef APP_SERIAL__H
+#define APP_SERIAL__H
 #include "app_bsp.h"
 
 /**

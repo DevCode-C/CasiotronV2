@@ -1,5 +1,5 @@
-#ifndef __QUEUE__H
-#define __QUEUE__H
+#ifndef QUEUE__H
+#define QUEUE__H
 // #include "app_bsp.h"
 
 

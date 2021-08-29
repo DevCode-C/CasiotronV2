@@ -27,7 +27,7 @@ void MOD_LCD_Init( LCD_HandleTypeDef *hlcd )
 
 }
 
-__weak void MOD_LCD_MspInit( LCD_HandleTypeDef *hlcd )
+__weak void MOD_LCD_MspInit( LCD_HandleTypeDef *hlcd ) /* cppcheck-suppress misra-c2012-2.7 */
 {
     
 }
@@ -61,23 +61,31 @@ void MOD_LCD_String( LCD_HandleTypeDef *hlcd, char *str )
 
 void MOD_LCD_SetCursor( LCD_HandleTypeDef *hlcd, uint8_t row, uint8_t col )
 {
-    row -= 1;
-    col -= 1;
-    if (row < 2U && col < 16U)
+    uint8_t row_temp = row;
+    uint8_t col_temp = col;
+
+    row_temp -= 1U;
+    col_temp -= 1U;
+    if ((row_temp < 2U) && (col_temp < 16U))
     {
-        if (row == 0)
+        if (row_temp == 0U)
         {
-            MOD_LCD_Command(hlcd,CURSOR | col);
+            MOD_LCD_Command(hlcd,CURSOR | col_temp);
         }
-        else if (row == 1)
+        else if (row_temp == 1U)
         {
-            MOD_LCD_Command(hlcd,CURSOR |(0x40|col));
+            MOD_LCD_Command(hlcd,CURSOR |(0x40U|col_temp));
         }
+        else
+        {
+            
+        }
+        
     }
     else
     {
-        row = 0;
-        col = 0;
-        MOD_LCD_Command(hlcd,CURSOR | col);
+        row_temp = 0U;
+        col_temp = 0U;
+        MOD_LCD_Command(hlcd,CURSOR | col_temp);
     }
 }

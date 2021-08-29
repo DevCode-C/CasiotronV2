@@ -1,5 +1,5 @@
-#ifndef __LCD__H
-#define __LCD__H
+#ifndef LCD__H
+#define LCD__H
 #include "app_bsp.h"
 
 #define CLEAR_DISPLAY       0x01U    //Limpia la pantalla

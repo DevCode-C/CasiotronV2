@@ -19,7 +19,7 @@
 
 /* Define to prevent recursive inclusion -------------------------------------*/
 #ifndef __STM32F0xx_HAL_CONF_H
-#define __STM32F0xx_HAL_CONF_H
+#define __STM32F0xx_HAL_CONF_H /* cppcheck-suppress misra-c2012-21.1 */
 
 #ifdef __cplusplus
  extern "C" {
