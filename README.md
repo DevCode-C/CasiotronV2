@@ -3,6 +3,7 @@
 
 ### REQUIREMENTS
 - **Board: Nucleo board F070RB**
+- **openocd version 0.11.0 <=**
 ___
 ### TESTING
 - **Misra-C 2012 Standar**
