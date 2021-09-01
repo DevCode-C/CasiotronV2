@@ -10,7 +10,7 @@ void HIL_BUFFER_Init( BUFFER_HandleTypeDef *hbuffer )
 
 void HIL_BUFFER_Write( BUFFER_HandleTypeDef *hbuffer, uint8_t data )
 {
-    if (hbuffer->Full == 0UL) //
+    if (hbuffer->Full == 0UL) 
     {
         hbuffer->Empty = 0;
         hbuffer->Buffer[hbuffer->Head] = data;

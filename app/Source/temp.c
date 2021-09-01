@@ -28,9 +28,9 @@ void MOD_TEMP_Init( TEMP_HandleTypeDef *htemp )
     HAL_I2C_Master_Transmit(htemp->I2cHandler,MCP9808_ADDRES_W,buffer,3U,TIMEOUT_I2C_USER);
 }
 
-__weak void MOD_TEMP_MspInit( TEMP_HandleTypeDef *htemp ) /* cppcheck-suppress misra-c2012-2.7 */
+__weak void MOD_TEMP_MspInit( TEMP_HandleTypeDef *htemp ) 
 {
-
+    (void) htemp;
 }
 
 uint16_t MOD_TEMP_Read( TEMP_HandleTypeDef *htemp )
@@ -44,7 +44,7 @@ uint16_t MOD_TEMP_Read( TEMP_HandleTypeDef *htemp )
 
     HAL_I2C_Master_Receive(htemp->I2cHandler,MCP9808_ADDRES_R,buffer,2,TIMEOUT_I2C_USER);
 
-    if ((buffer[0] != 0) || (buffer[1] != 0)) /* cppcheck-suppress misra-c2012-10.4 */
+    if ((buffer[0] != 0U) || (buffer[1] != 0U)) 
     {
         temperature = (buffer[0]<<NEXT_BYTE) | buffer[1];
     }

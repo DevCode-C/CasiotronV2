@@ -461,6 +461,7 @@ void clockShowAlarm(void)
         }
         else
         {
+            //The variable NAlarm is const but it value no is nedded tho modify 
             MOD_LCD_String(&lcd_display,(char*)nAlarm); /* cppcheck-suppress misra-c2012-11.8 */
         }
         flagButon = USER_SET;
@@ -565,18 +566,19 @@ void DecToStr(uint8_t *buffer, int32_t val)
     uint8_t nElements = number_digits(val)+1U;
     uint8_t bufferTemp[nElements]; /* cppcheck-suppress misra-c2012-18.8 */
     uint8_t i;
-    if (val < (int32_t)0U)
-    {   val *= (-1U); /* cppcheck-suppress misra-c2012-17.8 */
+    int32_t valM = val;
+    if (valM < (int32_t)0U)
+    {   valM *= (-1L); 
         for (i = 1U; i <= nElements; i++)
         {
-            bufferTemp[nElements - i] = ((val % (int32_t)10UL) + '0');
-            val/=10U; /* cppcheck-suppress misra-c2012-17.8 */
+            bufferTemp[nElements - i] = ((valM % (int32_t)10UL) + '0');
+            valM/=10L; 
         }
         bufferTemp[i - 1U] = '\0';
         bufferTemp[0U] = '-';
         (void) strcpy((char *)buffer,(const char*)bufferTemp);
     }
-    else if(val == (int32_t)0U)
+    else if(valM == (int32_t)0U)
     {
         (void) strcpy((char *)buffer,"0\0");
     }
@@ -584,8 +586,8 @@ void DecToStr(uint8_t *buffer, int32_t val)
     {
         for (i = 1U; i <= nElements; i++)
         {
-            bufferTemp[nElements - i] = ((val % (int32_t)10UL) + '0');
-            val/=10U; /* cppcheck-suppress misra-c2012-17.8 */
+            bufferTemp[nElements - i] = ((valM % (int32_t)10UL) + '0');
+            valM/=10L; 
         }
         bufferTemp[i - 1U] = '\0';
         (void) strcpy((char *)buffer,(const char*)&bufferTemp[1U]);
@@ -597,15 +599,16 @@ void DecToStr(uint8_t *buffer, int32_t val)
 uint8_t number_digits(int32_t num)
 {
     uint8_t count = 0U;
+    int numM = num;
 
-    if (num < (int32_t)0U)
+    if (numM < (int32_t)0U)
     {
-        num *= (-1U); /* cppcheck-suppress misra-c2012-17.8 */
+        numM *= (-1L); 
     }
-    while(num > (int32_t)0)
+    while(numM > (int32_t)0)
     {
         count++;
-        num /= 10U; /* cppcheck-suppress misra-c2012-17.8 */
+        numM /= 10L; 
     }
     return count;
 }
@@ -769,7 +772,7 @@ void sprint_Time(char* buffer,RTC_TimeTypeDef TimeData)
     (void) strcat(bufferTemp," ");
     (void) CLEAR_BUFFER(buffernum);
     (void) strcat(bufferTemp, " 00");
-    if (TEMP_GREATHER_OR_LESS_THAN_0(temperature) == TEMP_LESS_THAN_0) /* cppcheck-suppress misra-c2012-12.1 */
+    if (TEMP_GREATHER_OR_LESS_THAN_0(temperature) == TEMP_LESS_THAN_0) 
     {
         (void) strcpy(&bufferTemp[9],"-");
         DecToStr((uint8_t*)buffernum, (256U-(TEMP_CONVERTION_DEC(temperature))));
@@ -860,12 +863,14 @@ void sprint_Alarm(char* buffer, RTC_AlarmTypeDef AlarmData)
     (void) strcpy(buffer,bufferTemp);
 }
 
-void HAL_RTC_AlarmAEventCallback(RTC_HandleTypeDef *hrtc) /* cppcheck-suppress misra-c2012-2.7 */
+void HAL_RTC_AlarmAEventCallback(RTC_HandleTypeDef *hrtc) 
 {
+    (void) hrtc;
     AlarmRTC = SET; 
 }
 
-void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) /* cppcheck-suppress misra-c2012-2.7 */
+void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) 
 {
+    (void) GPIO_Pin;
     Alarm_TEMP_Active = SET;
 }

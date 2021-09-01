@@ -69,7 +69,7 @@
  * 
  * @return '1' if less than or equal to zero, '0' if greater than or equal to zero
 */
-#define TEMP_GREATHER_OR_LESS_THAN_0(temperature_R)         ((0x01U&((temperature)>>12U)) == 0U ? 0U: 1U)
+#define TEMP_GREATHER_OR_LESS_THAN_0(temperature_R)         (((0x01U&((temperature)>>12U)) == 0U) ? 0U: 1U)
 
 /**
  * @defgroup   POWER-ON RESET DEFAULTS

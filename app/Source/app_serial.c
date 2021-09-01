@@ -614,20 +614,22 @@ void enable_Interrupt(void)
     HAL_NVIC_EnableIRQ(USART2_IRQn);
 }
 
-void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart) /* cppcheck-suppress misra-c2012-2.7 */
+void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart) 
 {
+    (void) huart;
     uartState = SET;
 }
 
-void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart) /* cppcheck-suppress misra-c2012-2.7 */
+void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart) 
 {
     (void) huart;
     (void) HIL_QUEUE_Write(&QueueSerialRx,(void*)&RxByte);
     HAL_UART_Receive_IT(&UartHandle,&RxByte,1U);
 }
 
-void HAL_UART_ErrorCallback(UART_HandleTypeDef *huart) /* cppcheck-suppress misra-c2012-2.7 */
+void HAL_UART_ErrorCallback(UART_HandleTypeDef *huart) 
 {
+    (void) huart;
     uartError = SET;
     statusRx = RESET;
 }

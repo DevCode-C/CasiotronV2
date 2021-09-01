@@ -27,9 +27,9 @@ void MOD_LCD_Init( LCD_HandleTypeDef *hlcd )
 
 }
 
-__weak void MOD_LCD_MspInit( LCD_HandleTypeDef *hlcd ) /* cppcheck-suppress misra-c2012-2.7 */
+__weak void MOD_LCD_MspInit( LCD_HandleTypeDef *hlcd ) 
 {
-    
+    (void) hlcd;
 }
 
 void MOD_LCD_Command( LCD_HandleTypeDef *hlcd, uint8_t cmd )
