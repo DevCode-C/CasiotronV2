@@ -208,7 +208,6 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 
     TimerFlag = SET;
     counter++;
-    // TIMER_COUNTER_UP(counter,MCM);
 
     if (counter % (MCM+1UL) == 0UL)
     {
