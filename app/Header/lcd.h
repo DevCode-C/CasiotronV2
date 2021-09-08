@@ -41,10 +41,21 @@ que se va a usar así com los pines que se usarán como RST, CS y RS .
 NOTA: esta función no debe inicializar el SPI ni los
  puertos GPIO que usará el driver.
 */
+/** 
+ * @brief Inicializa la lcd 
+ * 
+ * @param LCD_HandleTypeDef* hlcd
+ * 
+ * @return NONE (void)
+*/
 void MOD_LCD_Init( LCD_HandleTypeDef *hlcd );
-
-/*
-Función de extra inicialización para agregar código exclusivo dentro de la aplicación.
+ 
+/**
+ * @brief Función de extra inicialización para agregar código exclusivo dentro de la aplicación.
+ * 
+ * @param LCD_HandleTypeDef* hlcd
+ * 
+ * @return NONE (void)
 */
 void MOD_LCD_MspInit( LCD_HandleTypeDef *hlcd );
 
@@ -52,25 +63,59 @@ void MOD_LCD_MspInit( LCD_HandleTypeDef *hlcd );
 Manda un comando al LCD usando el SPI, la función deberá esperar lo necesario para que el comando sea 
 aceptado por el LCD.
 */
+/**
+ * @brief
+ * 
+ * @param LCD_HandleTypeDef* hlcd
+ * 
+ * @param uint8_t cmd
+ * 
+ * @return NONE (void)
+*/
 void MOD_LCD_Command( LCD_HandleTypeDef *hlcd, uint8_t cmd );
 
 /*
 Manda un caracter a desplegar al LCD usando el SPI, la función deberá esperar lo necesario para que el comando 
 sea aceptado por el LCD.
 */
+/**
+ * @brief
+ * 
+ * @param LCD_HandleTypeDef* hlcd
+ * 
+ * @param uint8_t data
+ * 
+ * @return NONE (void)
+*/
 void MOD_LCD_Data( LCD_HandleTypeDef *hlcd, uint8_t data );
 
 /*
 Manda una cadena de caracteres referenciada por str y de tamaño size al LCD a través del SPI.
 */
+/**
+ * @brief
+ * 
+ * @param LCD_HandleTypeDef* hlcd
+ * 
+ * @param char* str
+ * 
+ * @return NONE (void)
+*/
 void MOD_LCD_String( LCD_HandleTypeDef *hlcd, char *str );
 
-/*
-Especifica las coordenadas del LCD en el que se empezara a escribir donde los valores de row: 0-1 y col: 0-15. 
-*/
+
+/**
+ * @brief Especifica las coordenadas del LCD en el que se empezara a escribir donde los valores de row: 0-1 y col: 0-15.
+ * 
+ * @param LCD_HandleTypeDef* hlcd
+ * 
+ * @param uint8_t row
+ * 
+ * @param uint8_t col
+ * 
+ * @return NONE (void)
+ * **/
 void MOD_LCD_SetCursor( LCD_HandleTypeDef *hlcd, uint8_t row, uint8_t col );
 
 #endif
 
-//luis.alberto.hernandez@capgemini.com
-//carolina.rincon@capgemini.com
