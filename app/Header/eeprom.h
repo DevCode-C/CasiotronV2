@@ -2,7 +2,7 @@
 #define EEPROM__H
     #include "app_bsp.h"
 
-    void eeprom_Init(void);
+    void memory_Init(void);
     void memory_Task(void);
 
 

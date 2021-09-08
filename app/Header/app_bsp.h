@@ -94,6 +94,7 @@ typedef struct _memory_MsgTypedef
 
 extern QUEUE_HandleTypeDef  QueueSerialTx;
 extern QUEUE_HandleTypeDef QueueSerialBlink;
+extern QUEUE_HandleTypeDef QueueMemoryData;
 
 void USART2_IRQHandler(void);
 void RTC_IRQHandler(void);

@@ -1,6 +1,7 @@
 #include "app_bsp.h"
 #include "app_serial.h"
 #include "app_clock.h"
+#include "eeprom.h"
 
 /**------------------------------------------------------------------------------------------------
 Brief.- Punto de entrada del programa
@@ -91,6 +92,7 @@ int main( void )
     serial_init();
     heart_init();
     clock_init();
+    memory_Init();
     timer_Init();
     dog_init();
     for (; ;)
