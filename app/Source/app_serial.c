@@ -186,7 +186,7 @@ typedef void (*serialSelection)(void);
 
 const char* msgOK           = {"OK\r\n"};
 const char* msgError        = {"ERROR\r\n"};
-const char* comando_AT[]    = {"AT+TIME" , "AT+DATE" , "AT+ALARM" , "AT+HEARTBEAT", "AT+TEMP"};
+const char* comando_AT[]    = {"AT+TIME" , "AT+DATE" , "AT+ALARM" , "AT+HEARTBEAT", "AT+TEMP", "AT+DUMP"};
 
 UART_HandleTypeDef UartHandle           = {0};
 
@@ -436,7 +436,8 @@ void serialHeart(void)
 void serialOK(void)
 {
     (void) memset(BufferTemp,0,sizeof(BufferTemp));
-    uint8_t * msgOkTemp = msgOK;
+    /* cppcheck-suppress misra-c2012-11.8 */
+    uint8_t * msgOkTemp = (uint8_t*)msgOK;
     if (uartState == SET)
     {
         HAL_UART_Transmit_IT(&UartHandle,msgOkTemp,strlen(msgOK));   
@@ -447,7 +448,8 @@ void serialOK(void)
 void serialERROR(void)
 {
     (void) memset(BufferTemp,0,sizeof(BufferTemp));
-    uint8_t * msgErrorTemp = msgError;
+    /* cppcheck-suppress misra-c2012-11.8 */
+    uint8_t * msgErrorTemp = (uint8_t*)msgError;
     if (uartState == SET)
     {
         HAL_UART_Transmit_IT(&UartHandle,msgErrorTemp,strlen(msgError));

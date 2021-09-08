@@ -85,6 +85,13 @@ typedef struct _serial_MsgTypedef
 
 } Serial_MsgTypeDef;
 
+typedef struct _memory_MsgTypedef
+{
+    uint8_t msg_Type;
+    Serial_MsgTypeDef data[2];
+} Memory_MsgTypeDef;
+
+
 extern QUEUE_HandleTypeDef  QueueSerialTx;
 extern QUEUE_HandleTypeDef QueueSerialBlink;
 
