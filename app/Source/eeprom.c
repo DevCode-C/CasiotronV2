@@ -42,6 +42,11 @@ __IO static uint8_t memoryState_Sel = MEMORY_IDLE;
 
 static Memory_MsgTypeDef memory_transferDataQ[MEMORY_LOG_DATA_SIZE];
 QUEUE_HandleTypeDef QueueMemoryData;
+
+uint8_t memory_dump_Flag = 0;
+uint8_t memory_write_Flag = 0;
+uint8_t memory_alarm_FLag = 0;
+uint8_t writeOk = 0;
 /*--------------------------------------------------------------*/
 
 void memory_Init(void)
