@@ -297,6 +297,10 @@ void serialAT_Sel(void)
     {
         serialState = SERIAL_TEMP;
     }
+    else if (strcmp(InpuyComand,comando_AT[5]) == (int)CORRECT_COMMAND_COMP)
+    {
+        // serialState = SERIAL_MEMORY;
+    }
     else
     {
         serialState = SERIAL_ERROR;
