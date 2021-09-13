@@ -107,26 +107,26 @@ void setAlarm(uint8_t hour, uint8_t minutes);
 void setTemp(uint8_t lower, uint8_t upper);
 
 
-/**
- * @brief  Conversion of decimal values to character ASCCI and store up in buffer
- * 
- * @param uint8_t *buffer,  Data storage 
- * 
- * @param int32_t val, Decimal value 
- * 
- * @return NONE (VOID)
-*/
-void DecToStr(uint8_t *buffer, int32_t val);
+// /**
+//  * @brief  Conversion of decimal values to character ASCCI and store up in buffer
+//  * 
+//  * @param uint8_t *buffer,  Data storage 
+//  * 
+//  * @param int32_t val, Decimal value 
+//  * 
+//  * @return NONE (VOID)
+// */
+// void DecToStr(uint8_t *buffer, int32_t val);
 
 
-/**
- * @brief  Verify the numbers of digit characters of a decimal value
- *  
- * @param int32_t num, Decimal value
- * 
- * @return uint8_t, Number of digit characters 
-*/
-uint8_t number_digits(int32_t num);
+// /**
+//  * @brief  Verify the numbers of digit characters of a decimal value
+//  *  
+//  * @param int32_t num, Decimal value
+//  * 
+//  * @return uint8_t, Number of digit characters 
+// */
+// uint8_t number_digits(int32_t num);
 
 /**
  * @brief Make the configuration of the DATE information to display by LCD
@@ -201,6 +201,8 @@ void spi_init(void);
 */
 void i2c_init(void);
 
+void eeprom_memoryinit(void);
+
 /**
  * @brief  Zeller's congruence algorithm
  * 
@@ -235,11 +237,14 @@ SPI_HandleTypeDef              spi_Handle              = {0};
 I2C_HandleTypeDef              i2c_Handle              = {0};
 TEMP_HandleTypeDef             temp_Handle             = {0};
 
+MEMORY_HandleTypeDef           memoryTaskHandle        = {0};
+
 static clockSelection clockSelectionFun[] = {clockIdle,showClock,clockShowAlarm,clockSetData,showAlarmUp};
 
 static uint16_t yearConversion  = 2000;
 static uint32_t tickTime        = 0;
 static Serial_MsgTypeDef    SerialSet_Data;
+uint16_t temperature = 0;
 
 __IO ITStatus AlarmRTC               = RESET; // Flag interrupt RTC
 __IO ITStatus Alarm_Active           = RESET;
@@ -250,17 +255,18 @@ __IO static uint8_t clockState       = CLOCK_IDLE;
 /*
     extern variables
 */
-// extern void initialise_monitor_handles(void);
+extern void initialise_monitor_handles(void);
 
 void clock_init(void)
 {
     GPIO_InitTypeDef GPIO_InitStructure;
     
-    // initialise_monitor_handles();
-    // printf("\n");
+    initialise_monitor_handles();
+    printf("\n");
     spi_init();
     i2c_init();
     lcd_init();
+    eeprom_memoryinit();
     temp_Handle.I2cHandler = &i2c_Handle;
     MOD_TEMP_Init(&temp_Handle);
 
@@ -510,9 +516,9 @@ void spi_init(void)
     spi_Handle.Instance                  = SPI1;
     spi_Handle.Init.Mode                 = SPI_MODE_MASTER;
     spi_Handle.Init.BaudRatePrescaler    = SPI_BAUDRATEPRESCALER_256;   
-    spi_Handle.Init.Direction            = SPI_DIRECTION_1LINE;
+    spi_Handle.Init.Direction            = SPI_DIRECTION_2LINES;
     spi_Handle.Init.CLKPhase             = SPI_PHASE_2EDGE;
-    spi_Handle.Init.CLKPolarity          = SPI_POLARITY_LOW;
+    spi_Handle.Init.CLKPolarity          = SPI_POLARITY_HIGH;
     spi_Handle.Init.CRCCalculation       = SPI_CRCCALCULATION_DISABLE;
     spi_Handle.Init.CRCPolynomial        = 7U;
     spi_Handle.Init.DataSize             = SPI_DATASIZE_8BIT;
@@ -533,6 +539,17 @@ void lcd_init(void)
     lcd_display.RstPin     = LCD_RST;
 
     MOD_LCD_Init(&lcd_display);
+}
+
+void eeprom_memoryinit(void)
+{
+    memoryTaskHandle.SpiHandler = &spi_Handle;
+    memoryTaskHandle.Cs_MemoryPort = EEPROM_PORT;
+    memoryTaskHandle.Cs_MemoryPin = CS_EEPROM;
+    memoryTaskHandle.Rtc_handleM = &RTC_InitStructure;
+    // memoryTaskHandle.Temp_HandleM = &temp_Handle;
+    memory_Init();
+
 }
 
 void i2c_init(void)
@@ -665,7 +682,6 @@ void sprint_TimeAlarm(char* buffer,RTC_TimeTypeDef TimeData, uint8_t stars)
 {
     char bufferTemp[17] = {0};
     char buffernum[3] = {0};
-    uint16_t temperature = 0;
 
     temperature = MOD_TEMP_Read(&temp_Handle);
 

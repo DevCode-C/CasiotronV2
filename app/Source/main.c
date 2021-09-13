@@ -92,9 +92,8 @@ int main( void )
     serial_init();
     heart_init();
     clock_init();
-    memory_Init();
     timer_Init();
-    dog_init();
+    // dog_init();
     for (; ;)
     {
         if (TimerFlag == SET)
@@ -111,25 +110,29 @@ int main( void )
             case 13:
             case 14:
                 serial_Task();
+                memory_Task();
                 break;
             case 3:
             case 6:
             case 9:
             case 12:
-                peth_the_dog();
+                // peth_the_dog();
                 serial_Task();
+                memory_Task();
                 break;
             case 5:
             case 10:
                 serial_Task();
                 clock_task();
                 heart_beat();
+                memory_Task();
                 break;
             case 15:
-                peth_the_dog();
+                // peth_the_dog();
                 serial_Task();
                 clock_task();
                 heart_beat();
+                memory_Task();
                 break;
             default:
                 break;
@@ -201,23 +204,33 @@ void timer_Init(void)
     HAL_TIM_Base_Init(&TimHandle);
 
     HAL_TIM_Base_Start_IT(&TimHandle);
+
     
 }
 
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) 
 {
-    (void) htim;
-
-    TimerFlag = SET;
-    counter++;
-
-    if (counter % (MCM+1UL) == 0UL)
+    // (void) htim;
+    
+    if (htim->Instance == TIM3)
     {
-        counter = 1UL;
+        TimerFlag = SET;
+        counter++;
+
+        if (counter % (MCM+1UL) == 0UL)
+        {
+            counter = 1UL;
+        }
+        else
+        {
+            /* code */
+        }
     }
     else
     {
-        /* code */
+        memory_alarm_FLag = USER_SET;
+        memory_Counter++;
     }
+    
 
 }

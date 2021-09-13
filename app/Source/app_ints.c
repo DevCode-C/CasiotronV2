@@ -70,3 +70,8 @@ void TIM3_IRQHandler(void)
 {
     HAL_TIM_IRQHandler(&TimHandle);
 }
+extern TIM_HandleTypeDef TimHandle_Memory;
+void TIM16_IRQHandler(void)
+{
+    HAL_TIM_IRQHandler(&TimHandle_Memory);
+}
