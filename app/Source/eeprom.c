@@ -66,9 +66,10 @@ QUEUE_HandleTypeDef QueueMemoryData;
 
 uint8_t memory_dump_Flag = 0;
 uint8_t memory_write_Flag = 0;
+
+uint8_t waiting_Data = USER_RESET;
 uint8_t memory_alarm_FLag = USER_RESET;
-uint8_t writeOk = 0;
-uint32_t memory_Counter = 1UL;
+uint32_t memory_Counter = 0UL;
 TIM_HandleTypeDef TimHandle_Memory;
 static Serial_MsgTypeDef memoryRx_command;
 static uint16_t Timing_Log = 10UL;
@@ -107,7 +108,7 @@ void memory_Idle(void)
 {
     if (((memory_Counter % Timing_Log) == 0UL) && (memory_alarm_FLag == USER_SET))
     {
-        memoryState_Sel = MEMORY_WRITE;
+        memoryState_Sel = MEMORY_CHECK;
     }
     
 
@@ -142,6 +143,7 @@ void memory_check(void)
 
     if ((status & 1U) == 0U)
     {
+        waiting_Data = USER_SET;
         memoryState_Sel = MEMORY_WRITE;
     }
     else
@@ -253,6 +255,8 @@ void memory_writeOK(void)
     if (uartState == SET)
     {
         uartState = RESET;
+        //The variable WriteOKData is const but it value no is nedded tho modify 
+        /* cppcheck-suppress misra-c2012-11.8 */
         HAL_UART_Transmit_IT(memoryTaskHandle.UartHandleM,(uint8_t*)WriteOKData,strlen(WriteOKData));
     }
     else
@@ -267,6 +271,8 @@ void memory_writeERROR(void)
     if (uartState == SET)
     {
         uartState = RESET;
+        //The variable WriteERRORData is const but it value no is nedded tho modify
+        /* cppcheck-suppress misra-c2012-11.8 */ 
         HAL_UART_Transmit_IT(memoryTaskHandle.UartHandleM,(uint8_t*)WriteERRORData,strlen(WriteERRORData));
     }
     else
@@ -323,6 +329,8 @@ void memory_crateLog(uint8_t *bufferMemory)
 
     HAL_RTC_GetTime(memoryTaskHandle.Rtc_handleM,&gTime,RTC_FORMAT_BIN);
     HAL_RTC_GetDate(memoryTaskHandle.Rtc_handleM,&gDate,RTC_FORMAT_BIN);
+
+    
     
     /*Date --------------------------------------------------------------------*/
     (void) strcat((char*)memoryBufferLog,DateRTC_memory);
@@ -330,37 +338,37 @@ void memory_crateLog(uint8_t *bufferMemory)
     (void) strcat((char*)memoryBufferLog,(const char*)memoryTempDecToStr);
     (void) strcat((char*)memoryBufferLog,",");
 
-    CLEAR_BUFFER(memoryTempDecToStr);
+    (void) CLEAR_BUFFER(memoryTempDecToStr);
     DecToStr(memoryTempDecToStr,gDate.Date);
     (void) strcat((char*)memoryBufferLog,(const char*)memoryTempDecToStr);
     (void) strcat((char*)memoryBufferLog,",");
 
-    CLEAR_BUFFER(memoryTempDecToStr);
+    (void) CLEAR_BUFFER(memoryTempDecToStr);
     DecToStr(memoryTempDecToStr,gDate.Year);
     (void) strcat((char*)memoryBufferLog,(const char*)memoryTempDecToStr);
     (void) strcat((char*)memoryBufferLog,";");
     /*----------------------------------------------------------------------------*/
 
     /*Time ----------------------------------------------------------------------*/
-    CLEAR_BUFFER(memoryTempDecToStr);
+    (void) CLEAR_BUFFER(memoryTempDecToStr);
     (void) strcat((char*)memoryBufferLog,TimeRTC_memory);
     DecToStr(memoryTempDecToStr,gTime.Hours);
     (void) strcat((char*)memoryBufferLog,(const char*)memoryTempDecToStr);
     (void) strcat((char*)memoryBufferLog,",");
 
-    CLEAR_BUFFER(memoryTempDecToStr);
+    (void) CLEAR_BUFFER(memoryTempDecToStr);
     DecToStr(memoryTempDecToStr,gTime.Minutes);
     (void) strcat((char*)memoryBufferLog,(const char*)memoryTempDecToStr);
     (void) strcat((char*)memoryBufferLog,",");
 
-    CLEAR_BUFFER(memoryTempDecToStr);
+    (void) CLEAR_BUFFER(memoryTempDecToStr);
     DecToStr(memoryTempDecToStr,gTime.Seconds);
     (void) strcat((char*)memoryBufferLog,(const char*)memoryTempDecToStr);
     (void) strcat((char*)memoryBufferLog,";");
     /*----------------------------------------------------------------------------*/
 
     /*Temperature ----------------------------------------------------------------*/
-    CLEAR_BUFFER(memoryTempDecToStr);
+    (void) CLEAR_BUFFER(memoryTempDecToStr);
     (void) strcat((char*)memoryBufferLog,Temperature_memory);
     DecToStr(memoryTempDecToStr,0UL);
     (void) strcat((char*)memoryBufferLog,(const char*)memoryTempDecToStr);

@@ -94,11 +94,11 @@ typedef struct _serial_MsgTypedef
 
 typedef struct _memory_MsgTypedef
 {
-    uint8_t msg_Type;
     Serial_MsgTypeDef data[2];
+    uint16_t temperature_data;
 } Memory_MsgTypeDef;
 
-
+/*Privates extern variables---------------------------------------------*/
 extern QUEUE_HandleTypeDef  QueueSerialTx;
 extern QUEUE_HandleTypeDef QueueSerialBlink;
 
@@ -109,7 +109,9 @@ extern MEMORY_HandleTypeDef memoryTaskHandle;
 
 extern uint32_t memory_Counter;
 extern uint8_t memory_alarm_FLag;
+extern uint8_t waiting_Data;
 
+/*----------------------------------------------------------------------*/
 void USART2_IRQHandler(void);
 void RTC_IRQHandler(void);
 

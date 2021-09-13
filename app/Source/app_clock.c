@@ -8,6 +8,7 @@
 #define CLOCK_SHOW_ALARM    2U
 #define CLOCK_SET_DATA      3U 
 #define CLOCK_ALARM_UP      4U
+#define RECOLECT_DATA       5U
 
 #define TIME_TICK_TRANSITION     20U
 #define I2C_TEMP_SENSOR_TIMMING  0x10815E89
@@ -50,13 +51,21 @@ void clockSetData(void);
 
 /**
  * @brief Show the time when alarm goint to active, if not configuret, show "NO ALARM CONFIG"
- *
  * 
  * @param NONE (VOID)
  * 
  * @return NONE (VOID)
 */
 void clockShowAlarm(void);
+
+/**
+ * @brief Recolect data and store up in queue memory
+ * 
+ * @param NONE (VOID)
+ * 
+ * @return NONE (VOID)
+*/
+void recolect_Data_to_Memory(void);
 
 /**
  * @brief  RTC Time Update data
@@ -105,28 +114,6 @@ void setAlarm(uint8_t hour, uint8_t minutes);
  * @return NONE (VOID)
 */
 void setTemp(uint8_t lower, uint8_t upper);
-
-
-// /**
-//  * @brief  Conversion of decimal values to character ASCCI and store up in buffer
-//  * 
-//  * @param uint8_t *buffer,  Data storage 
-//  * 
-//  * @param int32_t val, Decimal value 
-//  * 
-//  * @return NONE (VOID)
-// */
-// void DecToStr(uint8_t *buffer, int32_t val);
-
-
-// /**
-//  * @brief  Verify the numbers of digit characters of a decimal value
-//  *  
-//  * @param int32_t num, Decimal value
-//  * 
-//  * @return uint8_t, Number of digit characters 
-// */
-// uint8_t number_digits(int32_t num);
 
 /**
  * @brief Make the configuration of the DATE information to display by LCD
@@ -239,7 +226,7 @@ TEMP_HandleTypeDef             temp_Handle             = {0};
 
 MEMORY_HandleTypeDef           memoryTaskHandle        = {0};
 
-static clockSelection clockSelectionFun[] = {clockIdle,showClock,clockShowAlarm,clockSetData,showAlarmUp};
+static clockSelection clockSelectionFun[] = {clockIdle,showClock,clockShowAlarm,clockSetData,showAlarmUp,recolect_Data_to_Memory};
 
 static uint16_t yearConversion  = 2000;
 static uint32_t tickTime        = 0;
@@ -262,7 +249,7 @@ void clock_init(void)
     GPIO_InitTypeDef GPIO_InitStructure;
     
     initialise_monitor_handles();
-    printf("\n");
+    (void) printf("\n");
     spi_init();
     i2c_init();
     lcd_init();
@@ -361,6 +348,11 @@ void clockIdle(void)
     {
         clockState = CLOCK_SHOW_ALARM;
     }
+    if (waiting_Data == USER_SET)
+    {
+        clockState = RECOLECT_DATA;
+    }
+    
     if((AlarmRTC == SET) || (Alarm_TEMP_Active == SET))
     {
         clockState = CLOCK_ALARM_UP;
@@ -509,6 +501,47 @@ void clockSetData(void)
     
     
     clockState = CLOCK_IDLE;
+}
+
+void recolect_Data_to_Memory(void)
+{
+    RTC_TimeTypeDef gTime = {0};
+    RTC_DateTypeDef gDate = {0};
+    uint16_t getTemperature = 0;
+    Memory_MsgTypeDef dataToStoreUp = {0};
+    static uint8_t TryCounter_To_RecolectData = 0;
+
+    getTemperature = MOD_TEMP_Read(&temp_Handle);
+    HAL_RTC_GetTime(&RTC_InitStructure,&gTime,RTC_FORMAT_BIN);
+    HAL_RTC_GetDate(&RTC_InitStructure,&gDate,RTC_FORMAT_BIN);
+
+    dataToStoreUp.data[0].msg = TIME;
+    dataToStoreUp.data[0].param1 = gTime.Hours;
+    dataToStoreUp.data[0].param2 = gTime.Minutes;
+    dataToStoreUp.data[0].param3 = gTime.Seconds;
+
+    dataToStoreUp.data[1].msg = DATE;
+    dataToStoreUp.data[1].param1 = gDate.Month;
+    dataToStoreUp.data[1].param1 = gDate.Date;
+    dataToStoreUp.data[1].param1 = gDate.Year;
+
+    dataToStoreUp.temperature_data = getTemperature;
+
+    if (HIL_QUEUE_Write(&QueueMemoryData,(void*)&dataToStoreUp) == WRITE_OK)
+    {
+        clockState = CLOCK_IDLE;
+    }
+    else
+    {
+        TryCounter_To_RecolectData++;
+        if (TryCounter_To_RecolectData == 2UL)
+        {
+            TryCounter_To_RecolectData = 0UL;
+            clockState = CLOCK_IDLE;
+        }
+    }
+    
+       
 }
 
 void spi_init(void)
