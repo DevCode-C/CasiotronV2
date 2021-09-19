@@ -348,11 +348,10 @@ void clockIdle(void)
     {
         clockState = CLOCK_SHOW_ALARM;
     }
-    if (waiting_Data == USER_SET)
+    if (((memory_Counter % 10U) == 0UL) && (memory_alarm_FLag == USER_SET))
     {
         clockState = RECOLECT_DATA;
     }
-    
     if((AlarmRTC == SET) || (Alarm_TEMP_Active == SET))
     {
         clockState = CLOCK_ALARM_UP;
@@ -522,13 +521,14 @@ void recolect_Data_to_Memory(void)
 
     dataToStoreUp.data[1].msg = DATE;
     dataToStoreUp.data[1].param1 = gDate.Month;
-    dataToStoreUp.data[1].param1 = gDate.Date;
-    dataToStoreUp.data[1].param1 = gDate.Year;
+    dataToStoreUp.data[1].param2 = gDate.Date;
+    dataToStoreUp.data[1].param3 = gDate.Year;
 
-    dataToStoreUp.temperature_data = getTemperature;
+    dataToStoreUp.temperature_data = TEMP_CONVERTION_DEC(getTemperature);
 
     if (HIL_QUEUE_Write(&QueueMemoryData,(void*)&dataToStoreUp) == WRITE_OK)
     {
+        waiting_Data = USER_SET;
         clockState = CLOCK_IDLE;
     }
     else
@@ -537,6 +537,7 @@ void recolect_Data_to_Memory(void)
         if (TryCounter_To_RecolectData == 2UL)
         {
             TryCounter_To_RecolectData = 0UL;
+            waiting_Data = USER_SET;
             clockState = CLOCK_IDLE;
         }
     }
@@ -579,8 +580,6 @@ void eeprom_memoryinit(void)
     memoryTaskHandle.SpiHandler = &spi_Handle;
     memoryTaskHandle.Cs_MemoryPort = EEPROM_PORT;
     memoryTaskHandle.Cs_MemoryPin = CS_EEPROM;
-    memoryTaskHandle.Rtc_handleM = &RTC_InitStructure;
-    // memoryTaskHandle.Temp_HandleM = &temp_Handle;
     memory_Init();
 
 }

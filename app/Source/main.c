@@ -93,7 +93,7 @@ int main( void )
     heart_init();
     clock_init();
     timer_Init();
-    dog_init();
+    // dog_init();
     for (; ;)
     {
         if (TimerFlag == SET)
@@ -116,7 +116,7 @@ int main( void )
             case 6:
             case 9:
             case 12:
-                peth_the_dog();
+                // peth_the_dog();
                 serial_Task();
                 memory_Task();
                 break;
@@ -128,7 +128,7 @@ int main( void )
                 memory_Task();
                 break;
             case 15:
-                peth_the_dog();
+                // peth_the_dog();
                 serial_Task();
                 clock_task();
                 heart_beat();
