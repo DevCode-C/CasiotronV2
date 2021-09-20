@@ -1,4 +1,4 @@
-# BARE-METAL DRIVERS
+# CASIOTRON
 ### REQUIREMENTS
 - **Board: Nucleo board F070RB** 
 - **openocd, version 0.11.0**
