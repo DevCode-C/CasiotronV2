@@ -541,26 +541,6 @@ void clockSetData(void)
     default:
         break;
     }
-    // if (SerialSet_Data.msg == TIME)
-    // {
-    //     setTime(SerialSet_Data.param1,SerialSet_Data.param2,SerialSet_Data.param3);
-    // }
-    // else if (SerialSet_Data.msg == DATE)
-    // {
-    //     setDate(SerialSet_Data.param1,SerialSet_Data.param2,SerialSet_Data.param3);
-    // }
-    // else if (SerialSet_Data.msg == ALARM)
-    // {
-    //     setAlarm(SerialSet_Data.param1,SerialSet_Data.param2);
-    // }
-    // else if (SerialSet_Data.msg == TEMP)
-    // {
-    //     setTemp(SerialSet_Data.param1,SerialSet_Data.param2);
-    // }
-    // else
-    // {
-    //     /* code */
-    // }
     clockState = CLOCK_IDLE;
 }
 
