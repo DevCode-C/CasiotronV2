@@ -2,15 +2,18 @@
 #include "buffer.h"
 #include "queue.h"
 
-#define SERIAL_IDLE     0U
-#define SERIAL_AT       1U
-#define SERIAL_TIME     2U
-#define SERIAL_DATE     3U
-#define SERIAL_ALARM    4U
-#define SERIAL_ERROR    5U
-#define SERIAL_OK       6U
-#define SERIAL_HEART    7U
-#define SERIAL_TEMP     8U
+#define SERIAL_IDLE                 0U
+#define SERIAL_AT                   1U
+#define SERIAL_TIME                 2U
+#define SERIAL_DATE                 3U
+#define SERIAL_ALARM                4U
+#define SERIAL_ERROR                5U
+#define SERIAL_OK                   6U
+#define SERIAL_HEART                7U
+#define SERIAL_TEMP                 8U
+#define SERIAL_MEMORY_DUMP          9U
+#define SERIAL_MEMORY_TIME_LOG      10U
+#define SERIAL_MEMORY_DUMP_PRINT    11U
 
 #define BAUDRATE_SPEED              115200U
 #define CORRECT_COMMAND_COMP        0UL
@@ -77,6 +80,33 @@ void serialTemp(void);
  * @return NONE (VOID)
 */
 void serialHeart(void);
+
+/**
+ * @brief Segmenting and check all the MEMORY_DUMP related parameters
+ * 
+ * @param NONE (VOID)
+ * 
+ * @return NONE (VOID)
+*/
+void serialMemoryDump(void);
+
+/**
+ * @brief Segmenting and check all the MEMORY_TIMELOG related parameters
+ * 
+ * @param NONE (VOID)
+ * 
+ * @return NONE (VOID)
+*/
+void serialMemoryTimeLog(void);
+
+/**
+ * @brief Print the information of eeprom
+ * 
+ * @param NONE (VOID)
+ * 
+ * @return NONE (VOID)
+*/
+void serialMemoryDumpPrint(void);
 
 /**
  * @brief Send by UART the msg "OK"
@@ -162,6 +192,13 @@ HAL_StatusTypeDef checkDataTemp(int8_t lower, int8_t upper);
 */
 HAL_StatusTypeDef checkDataBlinkTime(uint16_t time);
 
+
+HAL_StatusTypeDef checkDataMemoryTime(uint16_t time);
+
+HAL_StatusTypeDef checkDataMemoryDump(uint8_t dump);
+
+
+
 /**
  * @brief Set disable all the interrupt used 
  * 
@@ -186,7 +223,7 @@ typedef void (*serialSelection)(void);
 
 const char* msgOK           = {"OK\r\n"};
 const char* msgError        = {"ERROR\r\n"};
-const char* comando_AT[]    = {"AT+TIME" , "AT+DATE" , "AT+ALARM" , "AT+HEARTBEAT", "AT+TEMP", "AT+DUMP"};
+const char* comando_AT[]    = {"AT+TIME" , "AT+DATE" , "AT+ALARM" , "AT+HEARTBEAT", "AT+TEMP", "AT+DUMP", "AT+TIMELOG"};
 
 UART_HandleTypeDef UartHandle           = {0};
 
@@ -202,12 +239,14 @@ QUEUE_HandleTypeDef QueueSerialTx;
 uint16_t blinkTime[BUFFER_BLINK_SIZE];
 QUEUE_HandleTypeDef QueueSerialBlink;
 
-static serialSelection SerialStateFun[] = {serialdle,serialAT_Sel,serialTime,serialDate,serialAlarm,serialERROR,serialOK,serialHeart,serialTemp};
+static serialSelection SerialStateFun[] = {serialdle,serialAT_Sel,serialTime,serialDate,serialAlarm,serialERROR,\
+serialOK,serialHeart,serialTemp,serialMemoryDump,serialMemoryTimeLog,serialMemoryDumpPrint};
 
 __IO static ITStatus uartState             = SET;
 __IO static ITStatus uartError             = RESET;
 __IO static ITStatus statusRx              = RESET;
 __IO static uint8_t serialState            = SERIAL_IDLE; 
+
 void serial_init()
 {
     UartHandle.Instance             = USART2;
@@ -296,6 +335,14 @@ void serialAT_Sel(void)
     else if (strcmp(InpuyComand,comando_AT[4]) == (int)CORRECT_COMMAND_COMP)
     {
         serialState = SERIAL_TEMP;
+    }
+    else if (strcmp(InpuyComand,comando_AT[5]) == (int)CORRECT_COMMAND_COMP)
+    {
+        serialState = SERIAL_MEMORY_DUMP;
+    }
+    else if (strcmp(InpuyComand,comando_AT[6]) == (int)CORRECT_COMMAND_COMP)
+    {
+        serialState = SERIAL_MEMORY_TIME_LOG;
     }
     else
     {
@@ -431,6 +478,77 @@ void serialHeart(void)
         }
     }
     
+}
+
+void serialMemoryDump(void)
+{
+    uint8_t dump = 0U;
+    char * parametro = NULL;
+
+    serialState = SERIAL_ERROR;
+    parametro = strtok(NULL, "\0" );
+    dump = validate_StrToInt(parametro);
+    if (checkDataMemoryDump(dump) == HAL_OK)
+    {
+        serialState = SERIAL_MEMORY_DUMP_PRINT;
+    }
+    
+}
+
+void serialMemoryTimeLog(void)
+{
+    uint16_t timeLog = 0;
+    char * parametro = NULL;
+    Serial_MsgTypeDef SerialTranferData = {NONE,0,0,0};
+
+    serialState = SERIAL_ERROR;
+    parametro = strtok(NULL, "\0" );
+    timeLog = validate_StrToInt(parametro);
+    if (checkDataMemoryTime(timeLog) == HAL_OK)
+    {
+        SerialTranferData.msg = MEMORY_TIME_LOG;
+        SerialTranferData.param3 = timeLog;
+        if (HIL_QUEUE_Write(&QueueSerialTx,&SerialTranferData) == WRITE_OK)
+        {
+            serialState = SERIAL_OK; 
+        }
+    }
+    
+}
+
+void serialMemoryDumpPrint(void)
+{
+    uint8_t buffer[PAGE_SIZE_EEPROM] = {0};
+    static uint8_t pageNumber = 0U;
+    static uint16_t dirMemory = 0UL;
+
+    eeprom_read_data(&eeprom_Handle,dirMemory,buffer,PAGE_SIZE_EEPROM);
+
+    (void) printf("%d: %s\n",pageNumber,buffer);
+    
+    if (uartState == SET)
+    {
+        uartState = RESET;
+        HAL_UART_Transmit_IT(&UartHandle,buffer,sizeof(buffer));
+    }
+    else
+    {
+        /* code */
+    }
+    
+    dirMemory += PAGE_SIZE_EEPROM;
+    pageNumber++;
+
+    if (TOTAL_PAGE_EEPROM == pageNumber)
+    {
+        pageNumber = 0;
+        dirMemory = 0;
+        serialState = SERIAL_OK; 
+    }
+    else
+    {
+        /* code */
+    }
 }
 
 void serialOK(void)
@@ -597,6 +715,28 @@ HAL_StatusTypeDef checkDataBlinkTime(uint16_t time)
     
     return flag;
 }
+
+HAL_StatusTypeDef checkDataMemoryTime(uint16_t time)
+{
+    HAL_StatusTypeDef temp = HAL_ERROR;
+    if (time <= ((uint16_t)720U) )
+    {
+        temp = HAL_OK;
+    }    
+    return temp;
+}
+
+HAL_StatusTypeDef checkDataMemoryDump(uint8_t dump)
+{
+    HAL_StatusTypeDef temp = HAL_ERROR;
+    if ((dump == 1U) || (dump == 0U))
+    {
+        temp = HAL_OK; 
+    }
+
+    return temp;
+}
+
 
 void disable_Interrupt(void)
 {

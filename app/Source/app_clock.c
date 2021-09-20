@@ -9,6 +9,8 @@
 #define CLOCK_SET_DATA      3U 
 #define CLOCK_ALARM_UP      4U
 
+#define CLOCK_STORE_DATA    5U
+
 #define TIME_TICK_TRANSITION     20U
 #define I2C_TEMP_SENSOR_TIMMING  0x10815E89
 
@@ -58,6 +60,8 @@ void clockSetData(void);
 */
 void clockShowAlarm(void);
 
+void clock_Store_data(void);
+
 /**
  * @brief  RTC Time Update data
  * 
@@ -106,6 +110,9 @@ void setAlarm(uint8_t hour, uint8_t minutes);
 */
 void setTemp(uint8_t lower, uint8_t upper);
 
+void SetTimeLog(uint16_t timeLog);
+
+void memory_crateLog(uint8_t *bufferMemory);
 
 /**
  * @brief  Conversion of decimal values to character ASCCI and store up in buffer
@@ -225,6 +232,9 @@ typedef void (*clockSelection)(void);
 const char * months[] = {" ","ENE","FEB","MAR","ABR","MAY","JUN","JUL","AGO","SEP","OCT","NOV","DIC"};
 const char * days[] = {"Do","Lu","Ma","Mi","Ju","Vi","Sa"};
 const char* nAlarm = "NO ALARMS CONFIG ";
+const char* DateRTC_memory      = {"D:"};
+const char* TimeRTC_memory      = {"T:"};
+const char* Temperature_memory  = {"TP:"};
 
 RTC_HandleTypeDef              RTC_InitStructure       = {0};
 static RTC_TimeTypeDef         RTC_TImeConfig          = {0};
@@ -234,17 +244,21 @@ LCD_HandleTypeDef              lcd_display             = {0};
 SPI_HandleTypeDef              spi_Handle              = {0};
 I2C_HandleTypeDef              i2c_Handle              = {0};
 TEMP_HandleTypeDef             temp_Handle             = {0};
+EEPROM_HandleTypeDef           eeprom_Handle           = {0};
 
-static clockSelection clockSelectionFun[] = {clockIdle,showClock,clockShowAlarm,clockSetData,showAlarmUp};
+static clockSelection clockSelectionFun[] = {clockIdle,showClock,clockShowAlarm,clockSetData,showAlarmUp,clock_Store_data};
 
-static uint16_t yearConversion  = 2000;
-static uint32_t tickTime        = 0;
+static uint16_t yearConversion  = 2000U;
+static uint32_t tickTime        = 0UL;
+static uint32_t tickTimeLog     = 0UL;
+static uint32_t tickTimeLogMod  = 10UL;
 static Serial_MsgTypeDef    SerialSet_Data;
 
 __IO ITStatus AlarmRTC               = RESET; // Flag interrupt RTC
 __IO ITStatus Alarm_Active           = RESET;
 __IO ITStatus Alarm_TEMP             = RESET;
 __IO ITStatus Alarm_TEMP_Active      = RESET; // Flag interrupt TEMP
+__IO ITStatus EEPROM_TimeLog_Act     = RESET; // Flag interrupt TEMP
 __IO static uint8_t clockState       = CLOCK_IDLE;
 
 /*
@@ -263,6 +277,8 @@ void clock_init(void)
     lcd_init();
     temp_Handle.I2cHandler = &i2c_Handle;
     MOD_TEMP_Init(&temp_Handle);
+    eeprom_Handle.SpiHandler = &spi_Handle;
+    eeprom_Init(&eeprom_Handle);
 
     __HAL_RCC_GPIOC_CLK_ENABLE();
     GPIO_InitStructure.Pin = GPIO_BUTTON_PIN;
@@ -344,6 +360,11 @@ void setTemp(uint8_t lower, uint8_t upper)
     Alarm_TEMP = SET;
 }
 
+void SetTimeLog(uint16_t timeLog)
+{
+    tickTimeLogMod = timeLog;
+}
+
 void clockIdle(void)
 {
     tickTime++;
@@ -354,6 +375,12 @@ void clockIdle(void)
     if (HAL_GPIO_ReadPin(GPIO_BUTTON_PORT,GPIO_BUTTON_PIN) == USER_RESET)
     {
         clockState = CLOCK_SHOW_ALARM;
+    }
+    if (EEPROM_TimeLog_Act == SET)
+    {
+        EEPROM_TimeLog_Act = RESET;
+        clockState = CLOCK_STORE_DATA;
+        // (void) printf("Memory Write\n");
     }
     if((AlarmRTC == SET) || (Alarm_TEMP_Active == SET))
     {
@@ -368,6 +395,7 @@ void clockIdle(void)
 void showClock(void)
 {
     tickTime++;
+    tickTimeLog++;
     uint8_t           buffer[17]    = {0};
     RTC_TimeTypeDef     gTime       = {0};
     RTC_DateTypeDef     gDate       = {0};
@@ -391,7 +419,11 @@ void showClock(void)
         MOD_LCD_SetCursor(&lcd_display,2U,16U);
         MOD_LCD_Data(&lcd_display,'T');
     }
-
+    if ((tickTimeLog % tickTimeLogMod) == 0UL)
+    {
+        EEPROM_TimeLog_Act = SET;
+    }
+    
     clockState = CLOCK_IDLE; 
 }
 
@@ -439,8 +471,12 @@ void showAlarmUp(void)
     {
         clockState = CLOCK_IDLE;
     }
+    tickTimeLog++;
     tickTime++;
-           
+    if ((tickTimeLog % tickTimeLogMod) == 0UL)
+    {
+        EEPROM_TimeLog_Act = SET;
+    }      
 }
 
 void clockShowAlarm(void)
@@ -480,29 +516,94 @@ void clockShowAlarm(void)
 void clockSetData(void)
 {
     tickTime++;
-    if (SerialSet_Data.msg == TIME)
+
+    switch (SerialSet_Data.msg)
     {
+    case TIME:
         setTime(SerialSet_Data.param1,SerialSet_Data.param2,SerialSet_Data.param3);
-    }
-    else if (SerialSet_Data.msg == DATE)
-    {
+        break;
+    
+    case DATE:
         setDate(SerialSet_Data.param1,SerialSet_Data.param2,SerialSet_Data.param3);
-    }
-    else if (SerialSet_Data.msg == ALARM)
-    {
+        break;
+
+    case ALARM:
         setAlarm(SerialSet_Data.param1,SerialSet_Data.param2);
-    }
-    else if (SerialSet_Data.msg == TEMP)
-    {
+        break;
+
+    case TEMP:
         setTemp(SerialSet_Data.param1,SerialSet_Data.param2);
+        break;
+
+    case MEMORY_TIME_LOG:
+        SetTimeLog(SerialSet_Data.param3);
+        break;
+    default:
+        break;
+    }
+    // if (SerialSet_Data.msg == TIME)
+    // {
+    //     setTime(SerialSet_Data.param1,SerialSet_Data.param2,SerialSet_Data.param3);
+    // }
+    // else if (SerialSet_Data.msg == DATE)
+    // {
+    //     setDate(SerialSet_Data.param1,SerialSet_Data.param2,SerialSet_Data.param3);
+    // }
+    // else if (SerialSet_Data.msg == ALARM)
+    // {
+    //     setAlarm(SerialSet_Data.param1,SerialSet_Data.param2);
+    // }
+    // else if (SerialSet_Data.msg == TEMP)
+    // {
+    //     setTemp(SerialSet_Data.param1,SerialSet_Data.param2);
+    // }
+    // else
+    // {
+    //     /* code */
+    // }
+    clockState = CLOCK_IDLE;
+}
+
+void clock_Store_data(void)
+{   
+    static uint16_t memory_addr = 0;
+    uint8_t memoryBufferLog[PAGE_SIZE_EEPROM] = {0};
+    memory_crateLog(memoryBufferLog);
+    uint8_t size_buffer = strlen((const char*)memoryBufferLog);
+    static uint8_t eeprom_Write_InProgrees = 0U;
+
+    if (size_buffer < CHECK_SIZE_DIR(memory_addr))
+    {
+        if (eeprom_Write_InProgrees == 0U)
+        {
+            eeprom_write_data(&eeprom_Handle,memory_addr,memoryBufferLog,size_buffer);
+            clockState = CLOCK_IDLE;
+        }
+        else
+        {
+            size_buffer = size_buffer - eeprom_Write_InProgrees;
+            eeprom_write_data(&eeprom_Handle,memory_addr,&memoryBufferLog[eeprom_Write_InProgrees],size_buffer);
+            eeprom_Write_InProgrees = 0U;
+            clockState = CLOCK_IDLE;
+        }
+        
     }
     else
     {
-        /* code */
+        if ((size_buffer + memory_addr) > (TOTAL_ADDR_EEPROM - 1UL))
+        {
+            memory_addr = 0UL;
+        }
+        size_buffer = CHECK_SIZE_DIR(memory_addr);
+        eeprom_write_data(&eeprom_Handle,memory_addr,memoryBufferLog,size_buffer);
+        eeprom_Write_InProgrees = size_buffer;
     }
-    
-    
-    clockState = CLOCK_IDLE;
+
+    memory_addr += size_buffer;
+    if (memory_addr >= TOTAL_ADDR_EEPROM)
+    {
+        memory_addr = 0UL;
+    }
 }
 
 void spi_init(void)
@@ -510,9 +611,9 @@ void spi_init(void)
     spi_Handle.Instance                  = SPI1;
     spi_Handle.Init.Mode                 = SPI_MODE_MASTER;
     spi_Handle.Init.BaudRatePrescaler    = SPI_BAUDRATEPRESCALER_256;   
-    spi_Handle.Init.Direction            = SPI_DIRECTION_1LINE;
+    spi_Handle.Init.Direction            = SPI_DIRECTION_2LINES;
     spi_Handle.Init.CLKPhase             = SPI_PHASE_2EDGE;
-    spi_Handle.Init.CLKPolarity          = SPI_POLARITY_LOW;
+    spi_Handle.Init.CLKPolarity          = SPI_POLARITY_HIGH;
     spi_Handle.Init.CRCCalculation       = SPI_CRCCALCULATION_DISABLE;
     spi_Handle.Init.CRCPolynomial        = 7U;
     spi_Handle.Init.DataSize             = SPI_DATASIZE_8BIT;
@@ -549,6 +650,67 @@ void i2c_init(void)
 
 }
 
+void memory_crateLog(uint8_t *bufferMemory)
+{
+    uint8_t memoryBufferLog[PAGE_SIZE_EEPROM] = {0};
+    uint8_t memoryTempDecToStr[3] = {0};
+
+    uint16_t temperature = 0;
+    RTC_TimeTypeDef     gTime       = {0};
+    RTC_DateTypeDef     gDate       = {0};
+    HAL_RTC_GetTime(&RTC_InitStructure,&gTime,RTC_FORMAT_BIN);
+    HAL_RTC_GetDate(&RTC_InitStructure,&gDate,RTC_FORMAT_BIN);
+    temperature = MOD_TEMP_Read(&temp_Handle);
+    temperature = TEMP_CONVERTION_DEC(temperature);
+
+    /*Date --------------------------------------------------------------------*/
+    (void) strcat((char*)memoryBufferLog,DateRTC_memory);
+    DecToStr(memoryTempDecToStr,gDate.Month);
+    (void) strcat((char*)memoryBufferLog,(const char*)memoryTempDecToStr);
+    (void) strcat((char*)memoryBufferLog,",");
+
+    (void) CLEAR_BUFFER(memoryTempDecToStr);
+    DecToStr(memoryTempDecToStr,gDate.Date);
+    (void) strcat((char*)memoryBufferLog,(const char*)memoryTempDecToStr);
+    (void) strcat((char*)memoryBufferLog,",");
+
+    (void) CLEAR_BUFFER(memoryTempDecToStr);
+    DecToStr(memoryTempDecToStr,gDate.Year);
+    (void) strcat((char*)memoryBufferLog,(const char*)memoryTempDecToStr);
+    (void) strcat((char*)memoryBufferLog,";");
+    /*----------------------------------------------------------------------------*/
+
+    /*Time ----------------------------------------------------------------------*/
+    (void) CLEAR_BUFFER(memoryTempDecToStr);
+    (void) strcat((char*)memoryBufferLog,TimeRTC_memory);
+    DecToStr(memoryTempDecToStr,gTime.Hours);
+    (void) strcat((char*)memoryBufferLog,(const char*)memoryTempDecToStr);
+    (void) strcat((char*)memoryBufferLog,",");
+
+    (void) CLEAR_BUFFER(memoryTempDecToStr);
+    DecToStr(memoryTempDecToStr,gTime.Minutes);
+    (void) strcat((char*)memoryBufferLog,(const char*)memoryTempDecToStr);
+    (void) strcat((char*)memoryBufferLog,",");
+
+    (void) CLEAR_BUFFER(memoryTempDecToStr);
+    DecToStr(memoryTempDecToStr,gTime.Seconds);
+    (void) strcat((char*)memoryBufferLog,(const char*)memoryTempDecToStr);
+    (void) strcat((char*)memoryBufferLog,";");
+    /*----------------------------------------------------------------------------*/
+
+    /*Temperature ----------------------------------------------------------------*/
+    (void) CLEAR_BUFFER(memoryTempDecToStr);
+    (void) strcat((char*)memoryBufferLog,Temperature_memory);
+    DecToStr(memoryTempDecToStr,temperature);
+    (void) strcat((char*)memoryBufferLog,(const char*)memoryTempDecToStr);
+    (void) strcat((char*)memoryBufferLog,";");
+    /*----------------------------------------------------------------------------*/
+    
+    /*Transfer the frame ----------------------------------------------------------*/
+    (void) strcat((char*)memoryBufferLog,"  ");
+    (void) strcpy((char*)bufferMemory,(const char*)memoryBufferLog);
+    /*-----------------------------------------------------------------------------*/
+}
 
 uint8_t dayOfWeek(uint8_t d, uint8_t m, uint16_t y)
 {

@@ -137,3 +137,18 @@ void HAL_TIM_Base_MspInit(TIM_HandleTypeDef *htim)
 
     HAL_NVIC_EnableIRQ(TIM3_IRQn);
 }
+
+void eeprom_MspInit(EEPROM_HandleTypeDef * heeprom)
+{
+    GPIO_InitTypeDef GPIO_InitStructure;
+    __HAL_RCC_GPIOB_CLK_ENABLE();
+    GPIO_InitStructure.Pin          = EEPROM_CS;
+    GPIO_InitStructure.Mode         = GPIO_MODE_OUTPUT_PP;
+    GPIO_InitStructure.Pull         = GPIO_NOPULL;
+    GPIO_InitStructure.Speed        = GPIO_SPEED_FREQ_HIGH;
+    HAL_GPIO_Init(EEPROM_PORT,&GPIO_InitStructure);
+    HAL_GPIO_WritePin(EEPROM_PORT,EEPROM_CS,SET);
+
+    heeprom->Cs_MemoryPort = EEPROM_PORT;
+    heeprom->Cs_MemoryPin = EEPROM_CS;
+}

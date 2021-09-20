@@ -14,6 +14,7 @@
 #include "temp.h"
 #include "stm32f0xx_hal_tim.h"
 #include "queue.h"
+#include "eeprom.h"
 
 
 #define NONE    0U
@@ -22,6 +23,9 @@
 #define ALARM   3U
 #define BLINK   4U
 #define TEMP    5U
+
+#define MEMORY_DUMP         6U
+#define MEMORY_TIME_LOG     7U
 
 #define LCD_PORT        GPIOC   //LCD PORT
 #define LCD_PINES       GPIO_PIN_0 | GPIO_PIN_1 | GPIO_PIN_2  //LCD Pines
@@ -38,11 +42,14 @@
 #define UART_PINES      GPIO_PIN_2 | GPIO_PIN_3 //UART Pines
 #define UART_PORT       GPIOA
 
-#define SPI_PINES       GPIO_PIN_3 | GPIO_PIN_5  //SPI Pines
+#define SPI_PINES       GPIO_PIN_3 | GPIO_PIN_4 | GPIO_PIN_5;  //SPI Pines
 #define SPI_PORT        GPIOB
 
 #define I2C_PINES       GPIO_PIN_6 | GPIO_PIN_7 //I2C Pines
 #define I2C_PORT        GPIOB
+
+#define EEPROM_CS       GPIO_PIN_10
+#define EEPROM_PORT     GPIOB
 
 //PIN ALERT
 #define GPIO_PIN_ALERT  GPIO_PIN_3
@@ -85,15 +92,9 @@ typedef struct _serial_MsgTypedef
 
 } Serial_MsgTypeDef;
 
-typedef struct _memory_MsgTypedef
-{
-    uint8_t msg_Type;
-    Serial_MsgTypeDef data[2];
-} Memory_MsgTypeDef;
-
-
 extern QUEUE_HandleTypeDef  QueueSerialTx;
 extern QUEUE_HandleTypeDef QueueSerialBlink;
+extern EEPROM_HandleTypeDef eeprom_Handle;
 
 void USART2_IRQHandler(void);
 void RTC_IRQHandler(void);
